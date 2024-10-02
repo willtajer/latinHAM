@@ -63,6 +63,7 @@ export function LatinHamGame() {
     hard: []
   })
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
+  const [leaderboardUpdated, setLeaderboardUpdated] = useState<boolean>(false)
 
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
@@ -82,6 +83,7 @@ export function LatinHamGame() {
       setStartTime(parsedState.startTime)
       setElapsedTime(parsedState.elapsedTime)
       setHintsActive(parsedState.hintsActive)
+      setLeaderboardUpdated(parsedState.leaderboardUpdated || false)
     } else {
       setGameState('start')
     }
@@ -93,7 +95,7 @@ export function LatinHamGame() {
   }, [])
 
   useEffect(() => {
-    if (gameState === 'playing') {
+    if (gameState === 'playing' || gameState === 'won') {
       const savedGameState = {
         grid,
         locked,
@@ -108,11 +110,12 @@ export function LatinHamGame() {
         hintCount,
         startTime,
         elapsedTime,
-        hintsActive
+        hintsActive,
+        leaderboardUpdated
       }
       localStorage.setItem('gameState', JSON.stringify(savedGameState))
     }
-  }, [grid, locked, edited, gameState, difficulty, hints, showNumbers, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime, hintsActive])
+  }, [grid, locked, edited, gameState, difficulty, hints, showNumbers, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime, hintsActive, leaderboardUpdated])
 
   useEffect(() => {
     localStorage.setItem('leaderboard', JSON.stringify(leaderboard))
@@ -133,25 +136,28 @@ export function LatinHamGame() {
   }, [gameState, startTime])
 
   const handleWin = useCallback(() => {
-    setGameState('won')
-    const newEntry: LeaderboardEntry = {
-      timestamp: new Date().toISOString(),
-      moves: moveCount,
-      time: elapsedTime,
-      hints: hintCount
-    }
-
-    setLeaderboard(prevLeaderboard => {
-      const updatedLeaderboard = {
-        ...prevLeaderboard,
-        [difficulty]: [...prevLeaderboard[difficulty], newEntry]
-          .sort((a, b) => a.moves - b.moves)
-          .slice(0, 10)
+    if (!leaderboardUpdated) {
+      setGameState('won')
+      const newEntry: LeaderboardEntry = {
+        timestamp: new Date().toISOString(),
+        moves: moveCount,
+        time: elapsedTime,
+        hints: hintCount
       }
-      localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
-      return updatedLeaderboard
-    })
-  }, [difficulty, moveCount, elapsedTime, hintCount])
+
+      setLeaderboard(prevLeaderboard => {
+        const updatedLeaderboard = {
+          ...prevLeaderboard,
+          [difficulty]: [...prevLeaderboard[difficulty], newEntry]
+            .sort((a, b) => a.moves - b.moves)
+            .slice(0, 10)
+        }
+        localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
+        return updatedLeaderboard
+      })
+      setLeaderboardUpdated(true)
+    }
+  }, [difficulty, moveCount, elapsedTime, hintCount, leaderboardUpdated])
 
   useEffect(() => {
     if (gameState === 'playing' && checkWin(grid)) {
@@ -180,6 +186,7 @@ export function LatinHamGame() {
     setGameState('playing')
     setHintsActive(false)
     setDifficulty(selectedDifficulty)
+    setLeaderboardUpdated(false)
   }, [])
 
   const handleCellClick = useCallback((row: number, col: number) => {
@@ -223,6 +230,7 @@ export function LatinHamGame() {
     setGameState('start')
     setDifficulty('easy')
     setShowNewGameConfirmation(false)
+    setLeaderboardUpdated(false)
   }, [])
 
   const handleHint = useCallback(() => {
@@ -264,6 +272,7 @@ export function LatinHamGame() {
     setElapsedTime(0)
     setGameState('playing')
     setHintsActive(false)
+    setLeaderboardUpdated(false)
   }, [initialGrid])
 
   const handleTrashToggle = useCallback(() => {
