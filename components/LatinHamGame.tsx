@@ -303,7 +303,7 @@ export function LatinHamGame() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
-      <div className="max-w-lg mb-4">
+      <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
         <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
         <p className="text-center mt-4 mb-4">
           Click on a cell to cycle through colors. Each color should appear once per row and column.
