@@ -353,8 +353,8 @@ export function LatinHamGame() {
           variant={isTrashMode ? "destructive" : "outline"}
           className={isTrashMode ? "bg-red-500 hover:bg-red-600" : ""}
         >
-          <Trash2 className="w-4 h-4 mr-2" />
-          {isTrashMode ? "Cancel" : "Clear"}
+          <Trash2 className="w-4 h-4" />
+          {isTrashMode ? "" : ""}
         </Button>
       </div>
       <div className="mt-24 w-full max-w-xxl">
