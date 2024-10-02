@@ -43,8 +43,8 @@ To run this project locally, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/36latinHAM.git
-   cd 36latinHAM
+   git clone https://github.com/willtajer/latinHAM.git
+   cd latinHAM
    ```
 
 2. Install dependencies:
@@ -64,7 +64,7 @@ To run this project locally, follow these steps:
 The project follows the Next.js 13 App Router structure:
 
 ```
-36latinHAM/
+latinHAM/
 ├── app/
 │   ├── layout.tsx
 │   └── page.tsx
