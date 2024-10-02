@@ -348,7 +348,7 @@ export function LatinHamGame() {
           {isTrashMode ? "Cancel" : "Clear"}
         </Button>
       </div>
-      <div className="mt-8 w-full max-w-xl">
+      <div className="mt-8 w-full max-w-xxl">
         <Leaderboard entries={leaderboard[difficulty]} difficulty={difficulty} />
       </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
