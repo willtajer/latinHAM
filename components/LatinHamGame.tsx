@@ -132,11 +132,32 @@ export function LatinHamGame() {
     return () => clearInterval(timer)
   }, [gameState, startTime])
 
+  const handleWin = useCallback(() => {
+    setGameState('won')
+    const newEntry: LeaderboardEntry = {
+      timestamp: new Date().toISOString(),
+      moves: moveCount,
+      time: elapsedTime,
+      hints: hintCount
+    }
+
+    setLeaderboard(prevLeaderboard => {
+      const updatedLeaderboard = {
+        ...prevLeaderboard,
+        [difficulty]: [...prevLeaderboard[difficulty], newEntry]
+          .sort((a, b) => a.moves - b.moves)
+          .slice(0, 10)
+      }
+      localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
+      return updatedLeaderboard
+    })
+  }, [difficulty, moveCount, elapsedTime, hintCount])
+
   useEffect(() => {
     if (gameState === 'playing' && checkWin(grid)) {
       handleWin()
     }
-  }, [grid, gameState])
+  }, [grid, gameState, handleWin])
 
   const initializeGame = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
     const newSolution = createLatinSquare()
@@ -229,7 +250,7 @@ export function LatinHamGame() {
       setHintCount(prevCount => prevCount + 1)
       setHintsActive(true)
     }
-  }, [grid, edited])
+  }, [grid, edited, handleWin])
 
   const handleReset = useCallback(() => {
     setGrid(initialGrid.map(row => [...row]))
@@ -249,27 +270,6 @@ export function LatinHamGame() {
     setIsTrashMode(prevMode => !prevMode)
     setMoveCount(prevCount => prevCount + 1)
   }, [])
-
-  const handleWin = useCallback(() => {
-    setGameState('won')
-    const newEntry: LeaderboardEntry = {
-      timestamp: new Date().toISOString(),
-      moves: moveCount,
-      time: elapsedTime,
-      hints: hintCount
-    }
-
-    setLeaderboard(prevLeaderboard => {
-      const updatedLeaderboard = {
-        ...prevLeaderboard,
-        [difficulty]: [...prevLeaderboard[difficulty], newEntry]
-          .sort((a, b) => a.moves - b.moves)
-          .slice(0, 10)
-      }
-      localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
-      return updatedLeaderboard
-    })
-  }, [difficulty, moveCount, elapsedTime, hintCount])
 
   const formatTime = useCallback((seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -348,7 +348,7 @@ export function LatinHamGame() {
           {isTrashMode ? "Cancel" : "Clear"}
         </Button>
       </div>
-      <div className="mt-8 w-full max-w-xxl">
+      <div className="mt-8 w-full max-w-lg">
         <Leaderboard entries={leaderboard[difficulty]} difficulty={difficulty} />
       </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>

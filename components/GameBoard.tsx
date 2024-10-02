@@ -1,5 +1,4 @@
 import React from 'react'
-import { BOARD_SIZE } from '../utils/gameLogic'
 
 interface GameBoardProps {
   grid: number[][]
