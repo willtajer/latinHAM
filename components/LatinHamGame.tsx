@@ -325,9 +325,6 @@ export function LatinHamGame() {
         onCellClick={handleCellClick}
         isTrashMode={isTrashMode}
       />
-      {gameState === 'won' && (
-        <div className="mt-4 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">Congratulations! You solved the puzzle!</div>
-      )}
       <div className="flex space-x-4 mt-4">
         <Button 
           onClick={handleNewGame}
@@ -358,7 +355,10 @@ export function LatinHamGame() {
           {isTrashMode ? "" : ""}
         </Button>
       </div>
-      <div className="mt-24 w-full max-w-xxl">
+      {gameState === 'won' && (
+        <div className="mt-4 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">Congratulations! You solved the puzzle!</div>
+      )}
+      <div className="mt-16 w-full max-w-xxl">
         <Leaderboard entries={leaderboard[difficulty]} difficulty={difficulty} />
       </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
