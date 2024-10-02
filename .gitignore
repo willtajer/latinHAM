@@ -34,3 +34,51 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+logs
+*.log
+
+# Build output
+dist/
+
+# Cache directories
+.cache/
+.npm/
+
+# Optional: Ignore package-lock.json if you're using yarn
+# package-lock.json
+
+# Ignore any local configuration files
+*.config.local.js
+
+# Ignore any files related to database
+*.sqlite
+
+# Ignore any backup files
+*.bak
+
+# Ignore public_html directory (used for Siteground deployment)
+/public_html/
+
+# Ignore any local SSL certificates
+*.pem
+*.key
+*.crt
+
+# Ignore any local backup or archive files
+*.zip
+*.tar.gz
