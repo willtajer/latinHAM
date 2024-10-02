@@ -357,6 +357,7 @@ export function LatinHamGame() {
         </Button>
         <Button 
           onClick={handleTrashToggle} 
+          disabled={gameState === 'won'}
           variant={isTrashMode ? "destructive" : "outline"}
           className={isTrashMode ? "bg-red-500 hover:bg-red-600" : ""}
         >
