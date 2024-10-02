@@ -16,11 +16,20 @@ export const metadata: Metadata = {
     description: 'Challenge yourself with this unique puzzle game!',
     type: 'website',
     url: 'https://latinham.willtajer.com',
+    images: [
+      {
+        url: 'http://willtajer.com/wp-content/uploads/2024/10/latinHAM.png', // Replace with your actual Open Graph image URL
+        width: 1200,
+        height: 630,
+        alt: '36latinHAM Game Preview',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'latinHAM',
+    title: '36latinHAM',
     description: 'A challenging puzzle game based on Latin squares and the HAM problem',
+    images: ['http://willtajer.com/wp-content/uploads/2024/10/latinHAMtwitter-e1727909000790.png'], // Replace with your actual Twitter card image URL
   },
 }
 
