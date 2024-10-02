@@ -8,11 +8,11 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: '36latinHAM',
+  title: 'latinHAM',
   description: 'A challenging puzzle game based on Latin squares inspired by HAMMING codes.',
   keywords: ['puzzle game', 'Latin square', 'HAM problem', 'logic game'],
   openGraph: {
-    title: '36latinHAM',
+    title: 'latinHAM',
     description: 'Challenge yourself with this unique puzzle game!',
     type: 'website',
     url: 'https://latinham.willtajer.com',
