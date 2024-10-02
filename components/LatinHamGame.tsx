@@ -305,11 +305,11 @@ export function LatinHamGame() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
       <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
         <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
-        <p className="text-center mt-4 mb-4">
+        <p className="text-center mt-4">
           Click on a cell to cycle through colors. Each color should appear once per row and column.
         </p>
       </div>
-      <div className="w-[calc(6*3rem+5*0.75rem)] mb-2">
+      <div className="w-[calc(6*3rem+5*0.75rem)] mt-4 mb-2">
         <div className="flex justify-between font-bold text-md">
           <span>Moves: {moveCount}</span>
           <span>Time: {formatTime(elapsedTime)}</span>
@@ -357,7 +357,7 @@ export function LatinHamGame() {
           {isTrashMode ? "Cancel" : "Clear"}
         </Button>
       </div>
-      <div className="mt-8 w-full max-w-xxl">
+      <div className="mt-24 w-full max-w-xxl">
         <Leaderboard entries={leaderboard[difficulty]} difficulty={difficulty} />
       </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
