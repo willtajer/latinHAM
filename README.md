@@ -1,4 +1,4 @@
-# 36latinHAM
+# latinHAM
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -14,7 +14,7 @@
 
 ## Introduction
 
-36latinHAM is a web-based puzzle game inspired by the classic Latin Square puzzle. The game challenges players to fill a 6x6 grid with colors, ensuring that each color appears exactly once in each row and column. This project was developed using Next.js and React, incorporating modern web development practices and a sleek user interface.
+latinHAM is a web-based puzzle game inspired by the classic Latin Square puzzle. The game challenges players to fill a 6x6 grid with colors, ensuring that each color appears exactly once in each row and column. This project was developed using Next.js and React, incorporating modern web development practices and a sleek user interface.
 
 ## Features
 
@@ -200,7 +200,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## Introduction
 
-36latinHAM is a web-based puzzle game inspired by the classic Latin Square puzzle. The game challenges players to fill a 6x6 grid with colors, ensuring that each color appears exactly once in each row and column. This project was developed using Next.js and React, incorporating modern web development practices and a sleek user interface.
+latinHAM is a web-based puzzle game inspired by the classic Latin Square puzzle. The game challenges players to fill a 6x6 grid with colors, ensuring that each color appears exactly once in each row and column. This project was developed using Next.js and React, incorporating modern web development practices and a sleek user interface.
 
 ## Features
 
@@ -315,7 +315,7 @@ Displays the player's top 10 scores for the current difficulty level. It include
 
 ## Deployment
 
-The game is deployed on Siteground and can be accessed at [36.willtajer.com](https://36.willtajer.com).
+The game is deployed on my website and can be accessed at [latinham.willtajer.com](https://latinham.willtajer.com).
 
 To deploy the game:
 
@@ -335,14 +335,14 @@ To deploy the game:
    }
    ```
 
-4. Upload the following to your Siteground hosting:
+4. Upload the following to your hosting:
    - The `.next` folder
    - The `public` folder
    - `package.json`
    - `server.js`
    - Any other necessary configuration files (e.g., `next.config.js`)
 
-5. Set up Node.js in your Siteground control panel.
+5. Set up Node.js in your hosting control panel.
 
 6. Install dependencies on the server:
    ```
@@ -355,8 +355,6 @@ To deploy the game:
    ```
 
 8. Set up a reverse proxy in Nginx to direct traffic to your Node.js application.
-
-For detailed Siteground-specific deployment instructions, refer to Siteground's documentation or support resources.
 
 ## Contributing
 
