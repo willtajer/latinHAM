@@ -337,6 +337,7 @@ export function LatinHamGame() {
         </Button>
         <Button 
           onClick={handleReset}
+          disabled={gameState === 'won'}
           className="bg-gray-500 hover:bg-gray-600 text-white"
         >
           Reset
