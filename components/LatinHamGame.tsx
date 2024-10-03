@@ -7,7 +7,7 @@ import { DifficultySelector } from './DifficultySelector'
 import { Leaderboard, LeaderboardEntry } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Trash2, ArrowLeft, Download } from 'lucide-react'
+import { Trash2, Download } from 'lucide-react'
 import Confetti from 'react-confetti'
 
 const colorClasses = [
@@ -337,28 +337,6 @@ const LatinHamGame: React.FC = () => {
     setElapsedTime(entry.time)
   }, [gameState, grid])
 
-  const handleBackToGame = useCallback(() => {
-    setViewingEntry(null)
-    if (previousGameState === 'playing' || previousGameState === 'won') {
-      setGameState(previousGameState)
-      if (previousGameState === 'playing') {
-        setGrid(previousGrid)
-        // Restore previous game state
-        setMoveCount(prevMoveCount => prevMoveCount)
-        setElapsedTime(prevElapsedTime => prevElapsedTime)
-        setHintCount(prevHintCount => prevHintCount)
-      } else if (previousGameState === 'won') {
-        // Keep the completed game state
-        setGrid(viewingEntry?.grid || [])
-      }
-    } else {
-      setGameState('start')
-      setMoveCount(0)
-      setElapsedTime(0)
-      setHintCount(0)
-    }
-  }, [previousGameState, previousGrid, viewingEntry])
-
   const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry, rank: number) => {
     const canvas = canvasRef.current
     if (!canvas) {
@@ -580,7 +558,7 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>New latinHAM!</DialogTitle>
           </DialogHeader>
-          <p>Congratulations! You've completed the puzzle!</p>
+          <p>Congratulations! You&apos;ve completed the puzzle!</p>
           <DialogFooter>
             <Button onClick={handleCloseWinPopup}>View Completed Game</Button>
           </DialogFooter>
