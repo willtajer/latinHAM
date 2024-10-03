@@ -81,7 +81,7 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4">
+    <div className="w-full max-w-6xl mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Your Top 10 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
       <div className="overflow-x-auto">
         <Table className="w-full">
