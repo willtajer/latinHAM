@@ -76,7 +76,7 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4">
+    <div className="w-full max-w-5xl mx-auto px-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Your Top 10 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
       <div className="overflow-x-auto">
         <Table className="w-full">
@@ -89,6 +89,16 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                 </Button>
               </TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
+              <TableHead className="w-24 text-center">
+                <Button variant="ghost" onClick={() => handleSort('moves')} className="w-full justify-center">
+                  Moves <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead className="w-24 text-center">
+                <Button variant="ghost" onClick={() => handleSort('hints')} className="w-full justify-center">
+                  Hints <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
               <TableHead className="w-32 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -102,6 +112,8 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
+                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
+                <TableCell className="text-center align-middle">{entry.hints}</TableCell>
                 <TableCell className="text-center align-middle">
                   <div className="flex justify-center space-x-2">
                     <Button variant="outline" size="sm" onClick={() => onViewCompletedBoard(entry)}>
