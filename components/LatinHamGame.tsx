@@ -95,6 +95,7 @@ const LatinHamGame: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showWinPopup, setShowWinPopup] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const viewedBoardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
@@ -190,7 +191,6 @@ const LatinHamGame: React.FC = () => {
       setLeaderboardUpdated(true)
       setShowConfetti(true)
       
-      // Delay showing the win popup by 1 second
       setTimeout(() => {
         setShowWinPopup(true)
       }, 1000)
@@ -339,6 +339,16 @@ const LatinHamGame: React.FC = () => {
     setGameState('viewing')
     setMoveCount(entry.moves)
     setElapsedTime(entry.time)
+
+    // Smooth scroll to the viewed board
+    setTimeout(() => {
+      if (viewedBoardRef.current) {
+        viewedBoardRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }
+    }, 100)
   }, [gameState, grid])
 
   const handleReturnFromViewingBoard = useCallback(() => {
@@ -349,7 +359,6 @@ const LatinHamGame: React.FC = () => {
       setPreviousGrid([])
       setViewingEntry(null)
     } else {
-      // If there's no previous state, start a new game
       handleNewGame()
     }
   }, [previousGameState, previousGrid, handleNewGame])
@@ -556,29 +565,34 @@ const LatinHamGame: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
       {showConfetti && (
         <div className="fixed inset-0 z-40 pointer-events-none">
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
         </div>
       )}
       <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
-        <h1 className="text-6xl font-bold mt-8 mb-2 text-center">latinHAM</h1>
+        <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
         <p className="text-center mt-4">
           {gameState === 'viewing' 
             ? "Viewing a completed puzzle from the leaderboard." 
             : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
       </div>
-      <GameBoard 
-        grid={grid}
-        locked={locked}
-        edited={edited}
-        hints={hints}
-        showNumbers={showNumbers}
-        onCellClick={handleCellClick}
-        isTrashMode={isTrashMode}
-      />
+      <div 
+        ref={viewedBoardRef}
+        className={`transition-all duration-300 ${gameState === 'viewing' ? 'outline outline-4 outline-blue-500 rounded-lg p-2' : ''}`}
+      >
+        <GameBoard 
+          grid={grid}
+          locked={locked}
+          edited={edited}
+          hints={hints}
+          showNumbers={showNumbers}
+          onCellClick={handleCellClick}
+          isTrashMode={isTrashMode}
+        />
+      </div>
       <div className="w-[calc(6*3rem+5*0.75rem)] mt-4 mb-2">
         <div className="flex justify-between font-bold text-md">
           <span>Moves: {moveCount}</span>
@@ -686,9 +700,7 @@ const LatinHamGame: React.FC = () => {
       <a
         href="https://willtajer.com/"
         target="_blank"
-        rel="noopener nor
-
-eferrer"
+        rel="noopener noreferrer"
         className="fixed bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
         aria-label="Visit Will Tajer's website"
       >
