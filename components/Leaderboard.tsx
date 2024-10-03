@@ -45,6 +45,17 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
 }
 
 export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
+  const formatDateTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    const formattedDate = date.toLocaleDateString('en-US', { 
+      month: '2-digit', 
+      day: '2-digit', 
+      year: '2-digit'
+    })
+    return `${time} ${formattedDate}`
+  }
+
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -60,11 +71,11 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">#</TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
-              <TableHead className="w-16 text-center">Duration</TableHead>
-              <TableHead className="w-8 text-center">Moves</TableHead>
+              <TableHead className="w-4 text-center">#</TableHead>
+              <TableHead className="w-[calc(6*3rem+2*0.75rem)] text-center">Completed Board</TableHead>
+              <TableHead className="w-12 text-center">Actions</TableHead>
+              <TableHead className="w-6 text-center">Duration</TableHead>
+              <TableHead className="w-4 text-center">Moves</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -88,8 +99,8 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                     </Button>
                   </div>
                 </TableCell>
-                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center align-middle">{entry.moves}</TableCell>
+                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
