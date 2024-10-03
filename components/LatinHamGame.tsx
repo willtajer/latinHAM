@@ -332,19 +332,48 @@ const LatinHamGame: React.FC = () => {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const cellSize = 50
-    const boardSize = BOARD_SIZE * cellSize
-    canvas.width = boardSize
-    canvas.height = boardSize
+    const cellSize = 60
+    const cellSpacing = 8
+    const borderRadius = 8
+    const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
+    const padding = 20
+    canvas.width = boardSize + 2 * padding
+    canvas.height = boardSize + 2 * padding
 
-    // Draw the grid
+    // Draw background
+    ctx.fillStyle = '#f3f4f6' // light grey background
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Draw cells
     entry.grid.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
+        const x = padding + colIndex * (cellSize + cellSpacing)
+        const y = padding + rowIndex * (cellSize + cellSpacing)
+
+        // Draw cell background
         const colorClass = colorClasses[cell - 1] || 'bg-white'
         ctx.fillStyle = colorMap[colorClass] || 'white'
-        ctx.fillRect(colIndex * cellSize, rowIndex * cellSize, cellSize, cellSize)
-        ctx.strokeStyle = 'black'
-        ctx.strokeRect(colIndex * cellSize, rowIndex * cellSize, cellSize, cellSize)
+        ctx.beginPath()
+        ctx.moveTo(x + borderRadius, y)
+        ctx.arcTo(x + cellSize, y, x + cellSize, y + cellSize, borderRadius)
+        ctx.arcTo(x + cellSize, y + cellSize, x, y + cellSize, borderRadius)
+        ctx.arcTo(x, y + cellSize, x, y, borderRadius)
+        ctx.arcTo(x, y, x + cellSize, y, borderRadius)
+        ctx.closePath()
+        ctx.fill()
+
+        // Add subtle shadow
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'
+        ctx.shadowBlur = 4
+        ctx.shadowOffsetX = 2
+        ctx.shadowOffsetY = 2
+        ctx.fill()
+
+        // Reset shadow
+        ctx.shadowColor = 'transparent'
+        ctx.shadowBlur = 0
+        ctx.shadowOffsetX = 0
+        ctx.shadowOffsetY = 0
       })
     })
 
@@ -355,7 +384,7 @@ const LatinHamGame: React.FC = () => {
     link.download = fileName
     link.href = dataUrl
     link.click()
-  }, [difficulty, formatTime, formatDateTime])
+  }, [difficulty, formatTime, formatDateTime, BOARD_SIZE, colorClasses, colorMap])
 
   if (gameState === 'start') {
     return (
