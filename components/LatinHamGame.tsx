@@ -558,7 +558,7 @@ const LatinHamGame: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <div className="w-[calc(6*3rem+6*0.75rem)]">
-          <h1 className="text-6xl font-bold mb-6 mt-8 text-center">latinHAM</h1>
+          <h1 className="text-6xl font-bold mb-6 text-center">latinHAM</h1>
           <GamePreview />
           <p className="text-center mt-4 mb-8">
             Fill the grid with colors so that each color appears exactly once in each row and column.
@@ -585,7 +585,7 @@ const LatinHamGame: React.FC = () => {
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
         </div>
       )}
-      <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
+      <div className="w-[calc(6*3rem+6*0.75rem)] mt-8 mb-4">
         <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
         <p className="text-center mt-4">
           {gameState === 'viewing' 
