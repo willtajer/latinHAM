@@ -71,9 +71,10 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
         <Table className="w-full">
           <TableHeader>
             <TableRow>
+              <TableHead className="w-16 text-center">Rank</TableHead>
+              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
               <TableHead className="w-8 text-center">Moves</TableHead>
               <TableHead className="w-16 text-center">Duration</TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
               <TableHead className="w-24 text-center">Actions</TableHead>
               <TableHead className="w-36 text-center">Date & Time</TableHead>
             </TableRow>
@@ -81,13 +82,14 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
           <TableBody>
             {rankedEntries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
-                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
-                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
+                <TableCell className="font-medium text-center align-middle">{index + 1}</TableCell>
                 <TableCell className="text-center py-2">
                   <div className="flex justify-center">
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
+                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
+                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center align-middle">
                   <div className="flex justify-center space-x-2">
                     <Button variant="outline" size="sm" onClick={() => onViewCompletedBoard(entry)}>
