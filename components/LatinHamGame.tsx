@@ -383,13 +383,17 @@ const LatinHamGame: React.FC = () => {
       console.error('Canvas element not found')
       return
     }
-
+  
     const ctx = canvas.getContext('2d')
     if (!ctx) {
       console.error('Unable to get 2D context from canvas')
       return
     }
-
+  
+    // Prompt user for text
+    const userText = prompt("Enter text to add to the image (max 31 characters):", "")
+    const displayText = userText ? `"${userText.slice(0, 31)}"` : ""
+  
     const cellSize = 60
     const cellSpacing = 8
     const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
@@ -397,23 +401,25 @@ const LatinHamGame: React.FC = () => {
     const dateTimeHeight = 30
     const infoRowHeight = 40
     const progressBarHeight = 20
-    const bottomPadding = 40
+    const bottomPadding = 20
     const cornerRadius = 20
     const cardPadding = 10
-    const spaceBetweenBoardAndInfo = 50
-    const spaceBetweenInfoAndDateTime = 20
     const cellCornerRadius = 10
-
+    const userTextHeight = displayText ? 40 : 0
+    const spaceBetweenBoardAndUserText = 20
+    const spaceBetweenUserTextAndInfo = 20
+    const spaceBetweenElements = 10
+  
     const contentWidth = boardSize + 2 * padding
-    const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndDateTime + dateTimeHeight + progressBarHeight + bottomPadding
-
+    const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndUserText + userTextHeight + spaceBetweenUserTextAndInfo + infoRowHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
+  
     canvas.width = contentWidth + 2 * cardPadding
     canvas.height = contentHeight + 2 * cardPadding
-
+  
     // Draw black background for the card
     ctx.fillStyle = '#000000'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
-
+  
     // Draw rounded rectangle for the main content
     ctx.fillStyle = '#f3f4f6'
     ctx.beginPath()
@@ -428,11 +434,11 @@ const LatinHamGame: React.FC = () => {
     ctx.arcTo(cardPadding, cardPadding, cardPadding + cornerRadius, cardPadding, cornerRadius)
     ctx.closePath()
     ctx.fill()
-
+  
     // Adjust the drawing coordinates to account for the card padding
     const adjustX = (x: number) => x + cardPadding
     const adjustY = (y: number) => y + cardPadding
-
+  
     // Helper function to draw rounded rectangle
     const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
       ctx.beginPath()
@@ -443,33 +449,33 @@ const LatinHamGame: React.FC = () => {
       ctx.arcTo(x, y, x + width, y, radius)
       ctx.closePath()
     }
-
+  
     // Draw cells
     entry.grid.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
         const x = adjustX(padding + colIndex * (cellSize + cellSpacing))
         const y = adjustY(padding + rowIndex * (cellSize + cellSpacing))
-
+  
         // Draw cell background
         const colorClass = colorClasses[cell - 1] || 'bg-white'
         ctx.fillStyle = colorMap[colorClass] || 'white'
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.fill()
-
+  
         // Draw contrasting border for preset tiles
         if (entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000' // Black color for the border
-          ctx.lineWidth = 2
+          ctx.lineWidth = 4
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
           ctx.stroke()
-
+  
           // Draw a white inner border to create a double-border effect
           ctx.strokeStyle = '#FFFFFF'
           ctx.lineWidth = 1
           drawRoundedRect(x + 1, y + 1, cellSize - 2, cellSize - 2, cellCornerRadius - 1)
           ctx.stroke()
         }
-
+  
         // Add subtle shadow
         ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'
         ctx.shadowBlur = 4
@@ -477,13 +483,13 @@ const LatinHamGame: React.FC = () => {
         ctx.shadowOffsetY = 2
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.fill()
-
+  
         // Reset shadow
         ctx.shadowColor = 'transparent'
         ctx.shadowBlur = 0
         ctx.shadowOffsetX = 0
         ctx.shadowOffsetY = 0
-
+  
         // Draw cell border
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
         ctx.lineWidth = 1
@@ -491,31 +497,44 @@ const LatinHamGame: React.FC = () => {
         ctx.stroke()
       })
     })
-
+  
+    let currentY = adjustY(boardSize + padding)
+  
+    // Draw user text if provided
+    if (displayText) {
+      currentY += spaceBetweenBoardAndUserText
+      ctx.fillStyle = '#000000'
+      ctx.font = 'bold 18px Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText(displayText, canvas.width / 2, currentY + 25)
+      currentY += userTextHeight
+    }
+  
     // Draw info row (moves, time, hints)
-    const infoRowY = adjustY(boardSize + padding + spaceBetweenBoardAndInfo)
+    currentY += spaceBetweenUserTextAndInfo
     ctx.fillStyle = '#000000'
     ctx.font = 'bold 16px Arial'
     ctx.textAlign = 'center'
-    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${hintCount}`, canvas.width / 2, infoRowY + 25)
-
-    // Draw date and time of completion
-    const dateTimeY = infoRowY + infoRowHeight + spaceBetweenInfoAndDateTime
+    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${hintCount}`, canvas.width / 2, currentY + 25)
+    currentY += infoRowHeight + spaceBetweenElements
+  
+    // Format and draw date and time of completion
+    const completionDate = new Date(entry.timestamp)
+    const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
+    
     ctx.fillStyle = '#000000'
     ctx.font = '14px Arial'
     ctx.textAlign = 'center'
-    const completionDate = new Date(entry.timestamp)
-    const dateTimeString = completionDate.toLocaleString()
-    ctx.fillText(`Completed on: ${dateTimeString}`, canvas.width / 2, dateTimeY)
-
+    ctx.fillText(`latinHAM #${formattedDateTime}`, canvas.width / 2, currentY + 25)
+    currentY += dateTimeHeight + spaceBetweenElements
+  
     // Draw progress bar
-    const progressBarY = dateTimeY + dateTimeHeight + 10
     const progressCellWidth = (contentWidth - 2 * padding) / (BOARD_SIZE * BOARD_SIZE)
     const progressCellHeight = progressBarHeight
-
+  
     entry.grid.flat().forEach((cell, index) => {
       const x = adjustX(padding + index * progressCellWidth)
-      const y = progressBarY
+      const y = currentY
       const colorClass = colorClasses[cell - 1] || 'bg-white'
       ctx.fillStyle = colorMap[colorClass] || 'white'
       ctx.fillRect(x, y, progressCellWidth, progressCellHeight)
@@ -525,7 +544,7 @@ const LatinHamGame: React.FC = () => {
       ctx.lineWidth = 1
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
-
+  
     // Convert canvas to image and download
     canvas.toBlob((blob) => {
       if (!blob) {
@@ -534,7 +553,7 @@ const LatinHamGame: React.FC = () => {
       }
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      const fileName = `latinHAM_${difficulty}_rank${rank}_${formatDateTime(entry.timestamp)}_moves${entry.moves}_time${formatTime(entry.time)}.png`
+      const fileName = `latinHAM_${difficulty}_rank${rank}_${formattedDateTime}_moves${entry.moves}_time${formatTime(entry.time)}.png`
       link.download = fileName
       link.href = url
       link.click()
