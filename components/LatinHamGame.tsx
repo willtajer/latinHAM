@@ -406,8 +406,8 @@ const LatinHamGame: React.FC = () => {
     const cardPadding = 10
     const cellCornerRadius = 10
     const userTextHeight = displayText ? 40 : 0
-    const spaceBetweenBoardAndUserText = 20
-    const spaceBetweenUserTextAndInfo = 20
+    const spaceBetweenBoardAndUserText = 30
+    const spaceBetweenUserTextAndInfo = displayText ? spaceBetweenBoardAndUserText : 0
     const spaceBetweenElements = 10
   
     const contentWidth = boardSize + 2 * padding
@@ -465,7 +465,7 @@ const LatinHamGame: React.FC = () => {
         // Draw contrasting border for preset tiles
         if (entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000' // Black color for the border
-          ctx.lineWidth = 4
+          ctx.lineWidth = 5
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
           ctx.stroke()
   
@@ -491,7 +491,7 @@ const LatinHamGame: React.FC = () => {
         ctx.shadowOffsetY = 0
   
         // Draw cell border
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
         ctx.lineWidth = 1
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
@@ -523,9 +523,17 @@ const LatinHamGame: React.FC = () => {
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
     
     ctx.fillStyle = '#000000'
-    ctx.font = '14px Arial'
     ctx.textAlign = 'center'
-    ctx.fillText(`latinHAM #${formattedDateTime}`, canvas.width / 2, currentY + 25)
+    
+    // Draw "latinHAM" in bold
+    ctx.font = 'bold 14px Arial'
+    const latinHAMWidth = ctx.measureText('latinHAM').width
+    ctx.fillText('latinHAM', canvas.width / 2 - latinHAMWidth / 2 - 5, currentY + 25)
+    
+    // Draw "#" and the timestamp in regular font
+    ctx.font = '14px Arial'
+    ctx.fillText(`#${formattedDateTime}`, canvas.width / 2 + latinHAMWidth / 2 + 5, currentY + 25)
+    
     currentY += dateTimeHeight + spaceBetweenElements
   
     // Draw progress bar
