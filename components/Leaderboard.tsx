@@ -62,6 +62,8 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
     return `${minutes}m ${remainingSeconds}s`
   }
 
+  const rankedEntries = [...entries].sort((a, b) => a.moves - b.moves)
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Your Top 10 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
@@ -77,7 +79,7 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
             </TableRow>
           </TableHeader>
           <TableBody>
-            {entries.map((entry, index) => (
+            {rankedEntries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
                 <TableCell className="text-center align-middle">{entry.moves}</TableCell>
                 <TableCell className="text-center py-2">
