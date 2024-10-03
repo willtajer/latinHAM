@@ -51,7 +51,7 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const rankedEntries = [...entries].sort((a, b) => a.moves - b.moves).slice(0, 12)
+  const sortedEntries = [...entries].sort((a, b) => a.moves - b.moves).slice(0, 12)
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 mb-20">
@@ -60,26 +60,25 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-24 text-center">#/Moves</TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
+              <TableHead className="w-24 text-center">Moves</TableHead>
               <TableHead className="w-32 text-center">Duration</TableHead>
+              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
               <TableHead className="w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rankedEntries.map((entry, index) => (
+            {sortedEntries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
-                <TableCell className="font-medium text-center align-middle">{`${index + 1}/${entry.moves}`}</TableCell>
+                <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
+                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center py-2">
                   <div className="flex justify-center cursor-pointer" onClick={() => onViewCompletedBoard(entry)}>
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
-                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center align-middle">
                   <div className="flex justify-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index +
-1)}>
+                    <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index + 1)}>
                       <Download className="w-4 h-4" />
                       <span className="sr-only">Download</span>
                     </Button>
