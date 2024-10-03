@@ -521,11 +521,11 @@ const LatinHamGame: React.FC = () => {
         )}
       </div>
       {gameState === 'won' && !viewingEntry && (
-        <div className="mt-4 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">
+        <div className="mt-16 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">
           Congratulations! You solved the puzzle!
         </div>
       )}
-      <div className="mt-16 w-full max-w-xxl">
+      <div className="mt-24 w-full max-w-xxl">
         <Leaderboard 
           entries={leaderboard[difficulty]} 
           difficulty={difficulty}
