@@ -1,7 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Download } from 'lucide-react'
+import { Download, ChevronUp, ChevronDown } from 'lucide-react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 export interface LeaderboardEntry {
   timestamp: string
@@ -45,50 +54,122 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
 }
 
 export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
+  const [sortColumn, setSortColumn] = useState<'moves' | 'time'>('moves')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [currentPage, setCurrentPage] = useState(1)
+  const entriesPerPage = 10
+
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const sortedEntries = [...entries].sort((a, b) => a.moves - b.moves).slice(0, 12)
+  const handleSort = (column: 'moves' | 'time') => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+  }
+
+  const sortedEntries = [...entries].sort((a, b) => {
+    const compareValue = sortColumn === 'moves' ? a.moves - b.moves : a.time - b.time
+    return sortDirection === 'asc' ? compareValue : -compareValue
+  })
+
+  const totalPages = Math.ceil(sortedEntries.length / entriesPerPage)
+  const paginatedEntries = sortedEntries.slice(
+    (currentPage - 1) * entriesPerPage,
+    currentPage * entriesPerPage
+  )
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 mb-20">
-      <h2 className="text-2xl font-bold mb-4 text-center">Your Top 12 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Past {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAM</h2>
       <div className="overflow-x-auto">
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-4 text-center">Moves</TableHead>
-              <TableHead className="w-8 text-center">Duration</TableHead>
-              <TableHead className="w-[calc(6*3rem+1*0.75rem)] text-center">Completed Board</TableHead>
-              <TableHead className="w-4 text-center">Actions</TableHead>
+              <TableHead className="w-16 text-center">#</TableHead>
+              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
+              <TableHead 
+                className="w-24 text-center cursor-pointer"
+                onClick={() => handleSort('moves')}
+              >
+                Moves
+                {sortColumn === 'moves' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-32 text-center cursor-pointer"
+                onClick={() => handleSort('time')}
+              >
+                Duration
+                {sortColumn === 'time' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead className="w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedEntries.map((entry, index) => (
-              <TableRow key={entry.timestamp}>
-                <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
-                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
-                <TableCell className="text-center py-2">
-                  <div className="flex justify-center cursor-pointer" onClick={() => onViewCompletedBoard(entry)}>
-                    <MiniProgressBar grid={entry.grid} />
-                  </div>
-                </TableCell>
-                <TableCell className="text-center align-middle">
-                  <div className="flex justify-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index + 1)}>
-                      <Download className="w-4 h-4" />
-                      <span className="sr-only">Download</span>
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {paginatedEntries.map((entry, index) => {
+              const entryNumber = (currentPage - 1) * entriesPerPage + index + 1
+              return (
+                <TableRow key={entry.timestamp}>
+                  <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
+                  <TableCell className="text-center py-2">
+                    <div className="flex justify-center cursor-pointer" onClick={() => onViewCompletedBoard(entry)}>
+                      <MiniProgressBar grid={entry.grid} />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
+                  <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
+                  <TableCell className="text-center align-middle">
+                    <div className="flex justify-center space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, entryNumber)}>
+                        <Download className="w-4 h-4" />
+                        <span className="sr-only">Download</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>
+      {totalPages > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  onClick={() => setCurrentPage(i + 1)}
+                  isActive={currentPage === i + 1}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   )
 }
