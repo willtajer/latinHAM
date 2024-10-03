@@ -94,11 +94,6 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                   Moves <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="w-24 text-center">
-                <Button variant="ghost" onClick={() => handleSort('hints')} className="w-full justify-center">
-                  Hints <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
               <TableHead className="w-32 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
