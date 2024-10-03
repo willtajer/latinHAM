@@ -323,11 +323,6 @@ const LatinHamGame: React.FC = () => {
     return `${minutes}m${remainingSeconds.toString().padStart(2, '0')}s`
   }, [])
 
-  const formatDateTime = useCallback((timestamp: string) => {
-    const date = new Date(timestamp)
-    return date.toISOString().split('.')[0].replace(/[-:]/g, '').replace('T', '_')
-  }, [])
-
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     if (gameState === 'playing' || gameState === 'won') {
       setPreviousGameState(gameState)
@@ -564,7 +559,7 @@ const LatinHamGame: React.FC = () => {
       link.click()
       URL.revokeObjectURL(url)
     }, 'image/png')
-  }, [difficulty, formatTime, formatDateTime, hintCount])
+  }, [difficulty, formatTime, hintCount])
 
   const handleQuoteSubmit = useCallback((quote: string) => {
     setWinQuote(quote)
@@ -694,7 +689,7 @@ const LatinHamGame: React.FC = () => {
       )}
       {gameState === 'viewing' && viewingEntry && viewingEntry.quote && (
         <div className="text-center italic mb-8">
-          "{viewingEntry.quote}"
+          &ldquo;{viewingEntry.quote}&rdquo;
         </div>
       )}
       <Leaderboard 
@@ -736,10 +731,10 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You've completed the puzzle!</p>
+          <p>You&apos;ve completed the puzzle!</p>
           <p>Moves: {moveCount}</p>
           <p>Time: {formatTime(elapsedTime)}</p>
-          <p>Quote: "{winQuote}"</p>
+          <p>Quote: &ldquo;{winQuote}&rdquo;</p>
           <DialogFooter>
             <Button onClick={handleCloseWinPopup}>View Completed Board</Button>
           </DialogFooter>
