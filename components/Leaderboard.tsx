@@ -1,21 +1,23 @@
 import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown, Search } from 'lucide-react'
 
 export interface LeaderboardEntry {
   timestamp: string
   moves: number
   time: number
   hints: number
+  grid: number[][]
 }
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[]
   difficulty: 'easy' | 'medium' | 'hard'
+  onViewCompletedBoard: (entry: LeaderboardEntry) => void
 }
 
-export function Leaderboard({ entries, difficulty }: LeaderboardProps) {
+export function Leaderboard({ entries, difficulty, onViewCompletedBoard }: LeaderboardProps) {
   const [sortColumn, setSortColumn] = useState<keyof LeaderboardEntry>('moves')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
@@ -73,6 +75,7 @@ export function Leaderboard({ entries, difficulty }: LeaderboardProps) {
                   Hints <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
+              <TableHead className="w-24 text-center">View</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -83,6 +86,17 @@ export function Leaderboard({ entries, difficulty }: LeaderboardProps) {
                 <TableCell className="text-center">{entry.moves}</TableCell>
                 <TableCell className="text-center">{formatTime(entry.time)}</TableCell>
                 <TableCell className="text-center">{entry.hints}</TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    onClick={() => onViewCompletedBoard(entry)}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    aria-label="View completed board"
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

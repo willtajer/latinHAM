@@ -7,7 +7,7 @@ import { DifficultySelector } from './DifficultySelector'
 import { Leaderboard, LeaderboardEntry } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Trash2 } from 'lucide-react'
+import { Trash2, ArrowLeft } from 'lucide-react'
 
 const colorClasses = [
   'bg-red-500',
@@ -45,7 +45,7 @@ export function LatinHamGame() {
   const [grid, setGrid] = useState<number[][]>([])
   const [locked, setLocked] = useState<boolean[][]>([])
   const [edited, setEdited] = useState<boolean[][]>([])
-  const [gameState, setGameState] = useState<'start' | 'playing' | 'won'>('start')
+  const [gameState, setGameState] = useState<'start' | 'playing' | 'won' | 'viewing'>('start')
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
   const [hints, setHints] = useState<boolean[][]>([])
   const [showNumbers, setShowNumbers] = useState<boolean>(false)
@@ -64,6 +64,7 @@ export function LatinHamGame() {
   })
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [leaderboardUpdated, setLeaderboardUpdated] = useState<boolean>(false)
+  const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
 
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
@@ -142,7 +143,8 @@ export function LatinHamGame() {
         timestamp: new Date().toISOString(),
         moves: moveCount,
         time: elapsedTime,
-        hints: hintCount
+        hints: hintCount,
+        grid: grid.map(row => [...row])
       }
 
       setLeaderboard(prevLeaderboard => {
@@ -157,7 +159,7 @@ export function LatinHamGame() {
       })
       setLeaderboardUpdated(true)
     }
-  }, [difficulty, moveCount, elapsedTime, hintCount, leaderboardUpdated])
+  }, [difficulty, moveCount, elapsedTime, hintCount, leaderboardUpdated, grid])
 
   useEffect(() => {
     if (gameState === 'playing' && checkWin(grid)) {
@@ -286,6 +288,17 @@ export function LatinHamGame() {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }, [])
 
+  const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
+    setViewingEntry(entry)
+    setGrid(entry.grid)
+    setGameState('viewing')
+  }, [])
+
+  const handleBackToLeaderboard = useCallback(() => {
+    setViewingEntry(null)
+    setGameState('won')
+  }, [])
+
   if (gameState === 'start') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -335,41 +348,57 @@ export function LatinHamGame() {
         isTrashMode={isTrashMode}
       />
       <div className="flex space-x-4 mt-4">
-        <Button 
-          onClick={handleNewGame}
-          className="bg-gray-500 hover:bg-gray-600 text-white"
-        >
-          New Game
-        </Button>
-        <Button 
-          onClick={handleReset}
-          disabled={gameState === 'won'}
-          className="bg-gray-500 hover:bg-gray-600 text-white"
-        >
-          Reset
-        </Button>
-        <Button 
-          onClick={handleHint} 
-          disabled={gameState === 'won' || hintsActive}
-          className={hintsActive ? "bg-yellow-500 hover:bg-yellow-500 cursor-not-allowed" : "bg-gray-500 hover:bg-gray-600 text-white"}
-        >
-          Hint
-        </Button>
-        <Button 
-          onClick={handleTrashToggle} 
-          disabled={gameState === 'won'}
-          variant={isTrashMode ? "destructive" : "outline"}
-          className={isTrashMode ? "bg-red-500 hover:bg-red-600" : ""}
-        >
-          <Trash2 className="w-4 h-4" />
-          {isTrashMode ? "" : ""}
-        </Button>
+        {gameState === 'viewing' ? (
+          <Button 
+            onClick={handleBackToLeaderboard}
+            className="bg-gray-500 hover:bg-gray-600 text-white"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Game
+          </Button>
+        ) : (
+          <>
+            <Button 
+              onClick={handleNewGame}
+              className="bg-gray-500 hover:bg-gray-600 text-white"
+            >
+              New Game
+            </Button>
+            <Button 
+              onClick={handleReset}
+              disabled={gameState === 'won'}
+              className="bg-gray-500 hover:bg-gray-600 text-white"
+            >
+              Reset
+            </Button>
+            <Button 
+              onClick={handleHint} 
+              disabled={gameState === 'won' || hintsActive}
+              className={hintsActive ? "bg-yellow-500 hover:bg-yellow-500 cursor-not-allowed" : "bg-gray-500 hover:bg-gray-600 text-white"}
+            >
+              Hint
+            </Button>
+            <Button 
+              onClick={handleTrashToggle} 
+              disabled={gameState === 'won'}
+              variant={isTrashMode ? "destructive" : "outline"}
+              className={isTrashMode ? "bg-red-500 hover:bg-red-600" : ""}
+            >
+              <Trash2 className="w-4 h-4" />
+              {isTrashMode ? "" : ""}
+            </Button>
+          </>
+        )}
       </div>
-      {gameState === 'won' && (
+      {gameState === 'won' && !viewingEntry && (
         <div className="mt-4 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">Congratulations! You solved the puzzle!</div>
       )}
       <div className="mt-16 w-full max-w-xxl">
-        <Leaderboard entries={leaderboard[difficulty]} difficulty={difficulty} />
+        <Leaderboard 
+          entries={leaderboard[difficulty]} 
+          difficulty={difficulty} 
+          onViewCompletedBoard={handleViewCompletedBoard}
+        />
       </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
         <DialogContent>
