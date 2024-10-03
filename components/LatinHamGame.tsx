@@ -349,7 +349,6 @@ const LatinHamGame: React.FC = () => {
 
     const cellSize = 60
     const cellSpacing = 8
-    const borderRadius = 8
     const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
     const padding = 20
     canvas.width = boardSize + 2 * padding
