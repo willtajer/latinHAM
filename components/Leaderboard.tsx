@@ -17,6 +17,7 @@ export interface LeaderboardEntry {
   time: number
   grid: number[][]
   initialGrid: number[][]
+  quote: string
 }
 
 interface LeaderboardProps {

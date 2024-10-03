@@ -7,6 +7,7 @@ import { DifficultySelector } from './DifficultySelector'
 import { Leaderboard, LeaderboardEntry } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { Trash2, Download } from 'lucide-react'
 import Confetti from 'react-confetti'
 
@@ -108,6 +109,8 @@ const LatinHamGame: React.FC = () => {
   const [previousGrid, setPreviousGrid] = useState<number[][]>([])
   const [showConfetti, setShowConfetti] = useState(false)
   const [showWinPopup, setShowWinPopup] = useState(false)
+  const [winQuote, setWinQuote] = useState<string>("")
+  const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
@@ -130,6 +133,7 @@ const LatinHamGame: React.FC = () => {
       setElapsedTime(parsedState.elapsedTime)
       setHintsActive(parsedState.hintsActive)
       setLeaderboardUpdated(parsedState.leaderboardUpdated || false)
+      setWinQuote(parsedState.winQuote || "")
     } else {
       setGameState('start')
     }
@@ -157,11 +161,12 @@ const LatinHamGame: React.FC = () => {
         startTime,
         elapsedTime,
         hintsActive,
-        leaderboardUpdated
+        leaderboardUpdated,
+        winQuote
       }
       localStorage.setItem('gameState', JSON.stringify(savedGameState))
     }
-  }, [grid, locked, edited, gameState, difficulty, hints, showNumbers, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime, hintsActive, leaderboardUpdated])
+  }, [grid, locked, edited, gameState, difficulty, hints, showNumbers, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime, hintsActive, leaderboardUpdated, winQuote])
 
   useEffect(() => {
     localStorage.setItem('leaderboard', JSON.stringify(leaderboard))
@@ -184,32 +189,9 @@ const LatinHamGame: React.FC = () => {
   const handleWin = useCallback(() => {
     if (!leaderboardUpdated) {
       setGameState('won')
-      const newEntry: LeaderboardEntry = {
-        timestamp: new Date().toISOString(),
-        moves: moveCount,
-        time: elapsedTime,
-        grid: grid.map(row => [...row]),
-        initialGrid: initialGrid.map(row => [...row])
-      }
-
-      setLeaderboard(prevLeaderboard => {
-        const updatedLeaderboard = {
-          ...prevLeaderboard,
-          [difficulty]: [...prevLeaderboard[difficulty], newEntry]
-            .sort((a, b) => a.moves - b.moves)
-            .slice(0, 12)
-        }
-        localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
-        return updatedLeaderboard
-      })
-      setLeaderboardUpdated(true)
-      setShowConfetti(true)
-      
-      setTimeout(() => {
-        setShowWinPopup(true)
-      }, 1000)
+      setShowQuoteDialog(true)
     }
-  }, [difficulty, moveCount, elapsedTime, leaderboardUpdated, grid, initialGrid])
+  }, [leaderboardUpdated])
 
   useEffect(() => {
     if (gameState === 'playing' && checkWin(grid)) {
@@ -239,6 +221,7 @@ const LatinHamGame: React.FC = () => {
     setHintsActive(false)
     setDifficulty(selectedDifficulty)
     setLeaderboardUpdated(false)
+    setWinQuote("")
   }, [])
 
   const handleCellClick = useCallback((row: number, col: number) => {
@@ -283,6 +266,7 @@ const LatinHamGame: React.FC = () => {
     setDifficulty('easy')
     setShowNewGameConfirmation(false)
     setLeaderboardUpdated(false)
+    setWinQuote("")
   }, [])
 
   const handleHint = useCallback(() => {
@@ -325,6 +309,7 @@ const LatinHamGame: React.FC = () => {
     setGameState('playing')
     setHintsActive(false)
     setLeaderboardUpdated(false)
+    setWinQuote("")
   }, [initialGrid])
 
   const handleTrashToggle = useCallback(() => {
@@ -353,6 +338,7 @@ const LatinHamGame: React.FC = () => {
     setGameState('viewing')
     setMoveCount(entry.moves)
     setElapsedTime(entry.time)
+    setWinQuote(entry.quote)
 
     // Smooth scroll to the viewed board
     setTimeout(() => {
@@ -390,28 +376,24 @@ const LatinHamGame: React.FC = () => {
       return
     }
   
-    // Prompt user for text
-    const userText = prompt("Enter text to add to the image (max 31 characters):", "")
-    const displayText = userText ? `"${userText.slice(0, 31)}"` : ""
-  
     const cellSize = 60
     const cellSpacing = 8
     const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
     const padding = 20
     const dateTimeHeight = 30
     const infoRowHeight = 40
+    const quoteHeight = entry.quote ? 40 : 0
     const progressBarHeight = 20
     const bottomPadding = 20
     const cornerRadius = 20
     const cardPadding = 10
     const cellCornerRadius = 10
-    const userTextHeight = displayText ? 40 : 0
-    const spaceBetweenBoardAndInfo = 10
-    const spaceBetweenInfoAndUserText = displayText ? 20 : 0
+    const spaceBetweenBoardAndInfo = 30
+    const spaceBetweenInfoAndQuote = entry.quote ? 20 : 0
     const spaceBetweenElements = 10
   
     const contentWidth = boardSize + 2 * padding
-    const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndUserText + userTextHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
+    const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndQuote + quoteHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
   
     canvas.width = contentWidth + 2 * cardPadding
     canvas.height = contentHeight + 2 * cardPadding
@@ -506,15 +488,15 @@ const LatinHamGame: React.FC = () => {
     ctx.font = 'bold 16px Arial'
     ctx.textAlign = 'center'
     ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${hintCount}`, canvas.width / 2, currentY + 25)
-    currentY += infoRowHeight + spaceBetweenInfoAndUserText
+    currentY += infoRowHeight + spaceBetweenInfoAndQuote
   
-    // Draw user text if provided
-    if (displayText) {
+    // Draw user quote if provided
+    if (entry.quote) {
       ctx.fillStyle = '#000000'
       ctx.font = 'bold 18px Arial'
       ctx.textAlign = 'center'
-      ctx.fillText(displayText, canvas.width / 2, currentY + 25)
-      currentY += userTextHeight + spaceBetweenElements
+      ctx.fillText(`"${entry.quote}"`, canvas.width / 2, currentY + 25)
+      currentY += quoteHeight + spaceBetweenElements
     }
   
     // Format and draw date and time of completion
@@ -563,7 +545,7 @@ const LatinHamGame: React.FC = () => {
       ctx.fillRect(x, y, progressCellWidth, progressCellHeight)
       
       // Draw cell border
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
       ctx.lineWidth = 1
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
@@ -584,6 +566,37 @@ const LatinHamGame: React.FC = () => {
     }, 'image/png')
   }, [difficulty, formatTime, formatDateTime, hintCount])
 
+  const handleQuoteSubmit = useCallback((quote: string) => {
+    setWinQuote(quote)
+    setShowQuoteDialog(false)
+    
+    const newEntry: LeaderboardEntry = {
+      timestamp: new Date().toISOString(),
+      moves: moveCount,
+      time: elapsedTime,
+      grid: grid.map(row => [...row]),
+      initialGrid: initialGrid.map(row => [...row]),
+      quote: quote
+    }
+
+    setLeaderboard(prevLeaderboard => {
+      const updatedLeaderboard = {
+        ...prevLeaderboard,
+        [difficulty]: [...prevLeaderboard[difficulty], newEntry]
+          .sort((a, b) => a.moves - b.moves)
+          .slice(0, 12)
+      }
+      localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
+      return updatedLeaderboard
+    })
+    setLeaderboardUpdated(true)
+    setShowConfetti(true)
+    
+    setTimeout(() => {
+      setShowWinPopup(true)
+    }, 1000)
+  }, [difficulty, moveCount, elapsedTime, grid, initialGrid])
+
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
     setShowConfetti(false)
@@ -592,9 +605,10 @@ const LatinHamGame: React.FC = () => {
       moves: moveCount,
       time: elapsedTime,
       grid: grid.map(row => [...row]),
-      initialGrid: initialGrid.map(row => [...row])
+      initialGrid: initialGrid.map(row => [...row]),
+      quote: winQuote
     })
-  }, [handleViewCompletedBoard, moveCount, elapsedTime, grid, initialGrid])
+  }, [handleViewCompletedBoard, moveCount, elapsedTime, grid, initialGrid, winQuote])
 
   if (gameState === 'start') {
     return (
@@ -656,80 +670,39 @@ const LatinHamGame: React.FC = () => {
           <span>Hints: {hintCount}</span>
         </div>
       </div>
-      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
+      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-4">
         <ProgressBar grid={grid} />
       </div>
-      <div className="flex space-x-4">
-        {gameState === 'viewing' ? (
-          <>
-            <Button 
-              onClick={handleReturnFromViewingBoard}
-              className="bg-gray-500 hover:bg-gray-600 text-white"
-            >
-              Return to Game
-            </Button>
-            <Button 
-              onClick={handleNewGame}
-              className="bg-gray-500 hover:bg-gray-600 text-white"
-            >
-              New Game
-            </Button>
-            <Button
-              onClick={() => handleDownloadCompletedBoard(viewingEntry || {
-                timestamp: new Date().toISOString(),
-                moves: moveCount,
-                time: elapsedTime,
-                grid: grid,
-                initialGrid: initialGrid
-              }, 0)}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download Board
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button 
-              onClick={handleNewGame}
-              className="bg-gray-500 hover:bg-gray-600 text-white"
-            >
-              New Game
-            </Button>
-            <Button 
-              onClick={handleReset}
-              disabled={gameState === 'won'}
-              className="bg-gray-500 hover:bg-gray-600 text-white"
-            >
-              Reset
-            </Button>
-            <Button 
-              onClick={handleHint} 
-              disabled={gameState === 'won' || hintsActive}
-              className={hintsActive ? "bg-yellow-500 hover:bg-yellow-500 cursor-not-allowed" : "bg-gray-500 hover:bg-gray-600 text-white"}
-            >
-              Hint
-            </Button>
-            <Button 
-              onClick={handleTrashToggle} 
-              disabled={gameState === 'won'}
-              variant={isTrashMode ? "destructive" : "outline"}
-              className={isTrashMode ? "bg-red-500 hover:bg-red-600" : ""}
-            >
-              <Trash2 className="w-4 h-4" />
-              {isTrashMode ? "" : ""}
-            </Button>
-          </>
-        )}
-      </div>
-      <div className="mt-8 w-full max-w-xxl">
-        <Leaderboard 
-          entries={leaderboard[difficulty]} 
-          difficulty={difficulty}
-          onViewCompletedBoard={handleViewCompletedBoard}
-          onDownloadCompletedBoard={handleDownloadCompletedBoard}
-        />
-      </div>
+      {gameState !== 'viewing' && (
+        <div className="flex space-x-2 mb-8">
+          <Button onClick={handleNewGame} variant="secondary">New Game</Button>
+          <Button onClick={handleHint} variant="secondary">Hint</Button>
+          <Button onClick={handleReset} variant="secondary">Reset</Button>
+          <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "secondary"}>
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+      {gameState === 'viewing' && (
+        <div className="flex space-x-2 mb-8">
+          <Button onClick={handleReturnFromViewingBoard} variant="secondary">Return</Button>
+          <Button onClick={() => handleDownloadCompletedBoard(viewingEntry!, 1)} variant="secondary">
+            <Download className="w-4 h-4 mr-2" />
+            Download
+          </Button>
+        </div>
+      )}
+      {gameState === 'viewing' && viewingEntry && viewingEntry.quote && (
+        <div className="text-center italic mb-8">
+          "{viewingEntry.quote}"
+        </div>
+      )}
+      <Leaderboard 
+        entries={leaderboard[difficulty]}
+        difficulty={difficulty}
+        onViewCompletedBoard={handleViewCompletedBoard}
+        onDownloadCompletedBoard={handleDownloadCompletedBoard}
+      />
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
         <DialogContent>
           <DialogHeader>
@@ -737,31 +710,42 @@ const LatinHamGame: React.FC = () => {
           </DialogHeader>
           <p>Are you sure you want to start a new game? Your current progress will be lost.</p>
           <DialogFooter>
-            <Button onClick={() => setShowNewGameConfirmation(false)} variant="outline">Cancel</Button>
+            <Button onClick={() => setShowNewGameConfirmation(false)}>Cancel</Button>
             <Button onClick={confirmNewGame}>Confirm</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {showWinPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black bg-opacity-50 z-40"></div>
-          <div className="bg-white p-8 rounded-lg shadow-xl z-50">
-            <h2 className="text-2xl font-bold mb-4">New latinHAM!</h2>
-            <p className="mb-4">Congratulations! You&apos;ve completed the puzzle!</p>
-            <Button onClick={handleCloseWinPopup}>View Completed Game</Button>
-          </div>
-        </div>
-      )}
+      <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Congratulations! You won!</DialogTitle>
+          </DialogHeader>
+          <p>Enter a quote to commemorate your victory:</p>
+          <Input
+            placeholder="Enter your quote here"
+            value={winQuote}
+            onChange={(e) => setWinQuote(e.target.value)}
+          />
+          <DialogFooter>
+            <Button onClick={() => handleQuoteSubmit(winQuote)}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showWinPopup} onOpenChange={setShowWinPopup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Congratulations!</DialogTitle>
+          </DialogHeader>
+          <p>You've completed the puzzle!</p>
+          <p>Moves: {moveCount}</p>
+          <p>Time: {formatTime(elapsedTime)}</p>
+          <p>Quote: "{winQuote}"</p>
+          <DialogFooter>
+            <Button onClick={handleCloseWinPopup}>View Completed Board</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-      <a
-        href="https://willtajer.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
-        aria-label="Visit Will Tajer's website"
-      >
-        Created by Will Tajer
-      </a>
     </div>
   )
 }
