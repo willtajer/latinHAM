@@ -491,7 +491,7 @@ const LatinHamGame: React.FC = () => {
         ctx.shadowOffsetY = 0
   
         // Draw cell border
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
         ctx.lineWidth = 1
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
