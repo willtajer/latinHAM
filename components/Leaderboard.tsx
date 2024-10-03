@@ -1,7 +1,7 @@
 import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Eye, Download } from 'lucide-react'
+import { Download } from 'lucide-react'
 
 export interface LeaderboardEntry {
   timestamp: string
@@ -54,34 +54,29 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
   const rankedEntries = [...entries].sort((a, b) => a.moves - b.moves)
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4">
+    <div className="w-full max-w-5xl mx-auto px-4 mb-20">
       <h2 className="text-2xl font-bold mb-4 text-center">Your Top 10 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
       <div className="overflow-x-auto">
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">#</TableHead>
+              <TableHead className="w-24 text-center">Rank # / Moves</TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
               <TableHead className="w-24 text-center">Actions</TableHead>
-              <TableHead className="w-16 text-center">Duration</TableHead>
-              <TableHead className="w-8 text-center">Moves</TableHead>
+              <TableHead className="w-32 text-center">Duration</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rankedEntries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
-                <TableCell className="font-medium text-center align-middle">{index + 1}</TableCell>
+                <TableCell className="font-medium text-center align-middle">{`${index + 1}/${entry.moves}`}</TableCell>
                 <TableCell className="text-center py-2">
-                  <div className="flex justify-center">
+                  <div className="flex justify-center cursor-pointer" onClick={() => onViewCompletedBoard(entry)}>
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
                 <TableCell className="text-center align-middle">
                   <div className="flex justify-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => onViewCompletedBoard(entry)}>
-                      <Eye className="w-4 h-4" />
-                      <span className="sr-only">View</span>
-                    </Button>
                     <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index + 1)}>
                       <Download className="w-4 h-4" />
                       <span className="sr-only">Download</span>
@@ -89,7 +84,6 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                   </div>
                 </TableCell>
                 <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
-                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
               </TableRow>
             ))}
           </TableBody>
