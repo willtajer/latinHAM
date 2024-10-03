@@ -87,8 +87,8 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
-                <TableCell className="text-center align-middle">{formatDateTime(entry.timestamp)}</TableCell>
                 <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
+                <TableCell className="text-center align-middle">{formatDateTime(entry.timestamp)}</TableCell>
                 <TableCell className="text-center align-middle">
                   <div className="flex justify-center space-x-2">
                     <Button variant="outline" size="sm" onClick={() => onViewCompletedBoard(entry)}>
