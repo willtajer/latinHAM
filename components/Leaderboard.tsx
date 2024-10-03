@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { ArrowUpDown, Search, Download } from 'lucide-react'
+import { ArrowUpDown, Eye, Download } from 'lucide-react'
 
 export interface LeaderboardEntry {
   timestamp: string
@@ -9,7 +9,7 @@ export interface LeaderboardEntry {
   time: number
   hints: number
   grid: number[][]
-  initialGrid: number[][] // Add this line
+  initialGrid: number[][]
 }
 
 interface LeaderboardProps {
@@ -19,9 +19,35 @@ interface LeaderboardProps {
   onDownloadCompletedBoard: (entry: LeaderboardEntry, rank: number) => void
 }
 
+const colorClasses = [
+  'bg-red-500',
+  'bg-blue-500',
+  'bg-yellow-500',
+  'bg-green-500',
+  'bg-purple-500',
+  'bg-orange-500',
+]
+
+const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
+  return (
+    <div className="grid grid-cols-6 bg-gray-200 p-2 rounded-lg shadow-inner">
+      {grid.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex">
+          {row.map((cell, colIndex) => (
+            <div
+              key={`${rowIndex}-${colIndex}`}
+              className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white border border-gray-300'}`}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
-  const [sortColumn, setSortColumn] = useState<keyof LeaderboardEntry>('moves')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [sortColumn, setSortColumn] = useState<keyof LeaderboardEntry>('timestamp')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   const sortedEntries = [...entries].sort((a, b) => {
     if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1
@@ -34,7 +60,7 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
       setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
     } else {
       setSortColumn(column)
-      setSortDirection('asc')
+      setSortDirection('desc')
     }
   }
 
@@ -56,50 +82,38 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12 text-center">Rank</TableHead>
+              <TableHead className="w-16 text-center">Rank</TableHead>
               <TableHead className="w-40">
                 <Button variant="ghost" onClick={() => handleSort('timestamp')} className="w-full justify-start">
-                  Time & Date <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Date & Time <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="w-24 text-center">
-                <Button variant="ghost" onClick={() => handleSort('moves')} className="w-full justify-center">
-                  Moves <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead className="w-24 text-center">
-                <Button variant="ghost" onClick={() => handleSort('time')} className="w-full justify-center">
-                  Duration <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead className="w-24 text-center">
-                <Button variant="ghost" onClick={() => handleSort('hints')} className="w-full justify-center">
-                  Hints <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
+              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
               <TableHead className="w-32 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedEntries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
-                <TableCell className="font-medium text-center">{index + 1}</TableCell>
-                <TableCell>{formatDateTime(entry.timestamp)}</TableCell>
-                <TableCell className="text-center">{entry.moves}</TableCell>
-                <TableCell className="text-center">{formatTime(entry.time)}</TableCell>
-                <TableCell className="text-center">{entry.hints}</TableCell>
-                <TableCell className="text-right">
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => onViewCompletedBoard(entry)}>
-                    <Search className="w-4 h-4" />
-                    <span className="sr-only">View</span>
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index + 1)}>
-                    <Download className="w-4 h-4" />
-                    <span className="sr-only">Download</span>
-                  </Button>
-                </div>
-              </TableCell>
+                <TableCell className="font-medium text-center align-middle">{index + 1}</TableCell>
+                <TableCell className="align-middle">{formatDateTime(entry.timestamp)}</TableCell>
+                <TableCell className="text-center py-2">
+                  <div className="flex justify-center">
+                    <MiniProgressBar grid={entry.grid} />
+                  </div>
+                </TableCell>
+                <TableCell className="text-center align-middle">
+                  <div className="flex justify-center space-x-2">
+                    <Button variant="outline" size="sm" onClick={() => onViewCompletedBoard(entry)}>
+                      <Eye className="w-4 h-4" />
+                      <span className="sr-only">View</span>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index + 1)}>
+                      <Download className="w-4 h-4" />
+                      <span className="sr-only">Download</span>
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -107,10 +121,4 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
       </div>
     </div>
   )
-}
-
-function formatTime(seconds: number) {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }

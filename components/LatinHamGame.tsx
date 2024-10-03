@@ -7,7 +7,7 @@ import { DifficultySelector } from './DifficultySelector'
 import { Leaderboard, LeaderboardEntry } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Trash2, ArrowLeft } from 'lucide-react'
+import { Trash2, ArrowLeft, Download } from 'lucide-react'
 
 const colorClasses = [
   'bg-red-500',
@@ -328,6 +328,9 @@ const LatinHamGame: React.FC = () => {
     setViewingEntry(entry)
     setGrid(entry.grid)
     setGameState('viewing')
+    setMoveCount(entry.moves)
+    setElapsedTime(entry.time)
+    setHintCount(entry.hints)
   }, [gameState, grid])
 
   const handleBackToGame = useCallback(() => {
@@ -336,11 +339,21 @@ const LatinHamGame: React.FC = () => {
       setGameState(previousGameState)
       if (previousGameState === 'playing') {
         setGrid(previousGrid)
+        // Restore previous game state
+        setMoveCount(prevMoveCount => prevMoveCount)
+        setElapsedTime(prevElapsedTime => prevElapsedTime)
+        setHintCount(prevHintCount => prevHintCount)
+      } else if (previousGameState === 'won') {
+        // Keep the completed game state
+        setGrid(viewingEntry?.grid || [])
       }
     } else {
       setGameState('start')
+      setMoveCount(0)
+      setElapsedTime(0)
+      setHintCount(0)
     }
-  }, [previousGameState, previousGrid])
+  }, [previousGameState, previousGrid, viewingEntry])
 
   const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry, rank: number) => {
     const canvas = document.createElement('canvas')
@@ -429,7 +442,9 @@ const LatinHamGame: React.FC = () => {
       <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
         <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
         <p className="text-center mt-4">
-          Click on a cell to cycle through colors. Each color should appear once per row and column.
+          {gameState === 'viewing' 
+            ? "Viewing a completed puzzle from the leaderboard." 
+            : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
       </div>
       <div className="w-[calc(6*3rem+5*0.75rem)] mt-4 mb-2">
@@ -451,15 +466,26 @@ const LatinHamGame: React.FC = () => {
       <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
         <ProgressBar grid={grid} />
       </div>
-      <div className="flex space-x-4 mt-2">
+      <div className="flex space-x-4">
         {gameState === 'viewing' ? (
-          <Button 
-            onClick={handleBackToGame}
-            className="bg-gray-500 hover:bg-gray-600 text-white"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Game
-          </Button>
+          <>
+            <Button 
+              onClick={handleBackToGame}
+              className="bg-gray-500 hover:bg-gray-600 text-white"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Game
+            </Button>
+            {viewingEntry && (
+              <Button
+                onClick={() => handleDownloadCompletedBoard(viewingEntry, 0)}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Board
+              </Button>
+            )}
+          </>
         ) : (
           <>
             <Button 
