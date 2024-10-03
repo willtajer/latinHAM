@@ -406,7 +406,7 @@ const LatinHamGame: React.FC = () => {
     const cardPadding = 10
     const cellCornerRadius = 10
     const userTextHeight = displayText ? 40 : 0
-    const spaceBetweenBoardAndUserText = 30
+    const spaceBetweenBoardAndUserText = 20
     const spaceBetweenUserTextAndInfo = displayText ? spaceBetweenBoardAndUserText : 0
     const spaceBetweenElements = 10
   
@@ -527,12 +527,25 @@ const LatinHamGame: React.FC = () => {
     
     // Draw "latinHAM" in bold
     ctx.font = 'bold 14px Arial'
-    const latinHAMWidth = ctx.measureText('latinHAM').width
-    ctx.fillText('latinHAM', canvas.width / 2 - latinHAMWidth / 2 - 5, currentY + 25)
+    const latinHAMText = 'latinHAM'
+    const latinHAMWidth = ctx.measureText(latinHAMText).width
     
     // Draw "#" and the timestamp in regular font
     ctx.font = '14px Arial'
-    ctx.fillText(`#${formattedDateTime}`, canvas.width / 2 + latinHAMWidth / 2 + 5, currentY + 25)
+    const timestampText = `#${formattedDateTime}`
+    const timestampWidth = ctx.measureText(timestampText).width
+    
+    // Calculate total width and positions
+    const totalWidth = latinHAMWidth + timestampWidth + 10 // 10px spacing between texts
+    const startX = (canvas.width - totalWidth) / 2
+    
+    // Draw "latinHAM"
+    ctx.font = 'bold 14px Arial'
+    ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 25)
+    
+    // Draw timestamp
+    ctx.font = '14px Arial'
+    ctx.fillText(timestampText, startX + latinHAMWidth + 10 + timestampWidth / 2, currentY + 25)
     
     currentY += dateTimeHeight + spaceBetweenElements
   
