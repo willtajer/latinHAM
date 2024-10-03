@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { BOARD_SIZE, createLatinSquare, prefillCells, checkWin } from '../utils/gameLogic'
 import { GameBoard } from './GameBoard'
 import { DifficultySelector } from './DifficultySelector'
@@ -91,6 +91,7 @@ const LatinHamGame: React.FC = () => {
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
   const [previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
   const [previousGrid, setPreviousGrid] = useState<number[][]>([])
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
@@ -172,7 +173,7 @@ const LatinHamGame: React.FC = () => {
         grid: grid.map(row => [...row]),
         initialGrid: initialGrid.map(row => [...row])
       }
-  
+
       setLeaderboard(prevLeaderboard => {
         const updatedLeaderboard = {
           ...prevLeaderboard,
@@ -186,7 +187,7 @@ const LatinHamGame: React.FC = () => {
       setLeaderboardUpdated(true)
     }
   }, [difficulty, moveCount, elapsedTime, leaderboardUpdated, grid, initialGrid])
-  
+
   useEffect(() => {
     if (gameState === 'playing' && checkWin(grid)) {
       handleWin()
@@ -354,9 +355,17 @@ const LatinHamGame: React.FC = () => {
   }, [previousGameState, previousGrid, viewingEntry])
 
   const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry, rank: number) => {
-    const canvas = document.createElement('canvas')
+    const canvas = canvasRef.current
+    if (!canvas) {
+      console.error('Canvas element not found')
+      return
+    }
+
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!ctx) {
+      console.error('Unable to get 2D context from canvas')
+      return
+    }
 
     const cellSize = 60
     const cellSpacing = 8
@@ -403,12 +412,19 @@ const LatinHamGame: React.FC = () => {
     })
 
     // Convert canvas to image and download
-    const dataUrl = canvas.toDataURL('image/png')
-    const link = document.createElement('a')
-    const fileName = `latinHAM_${difficulty}_rank${rank}_${formatDateTime(entry.timestamp)}_moves${entry.moves}_time${formatTime(entry.time)}.png`
-    link.download = fileName
-    link.href = dataUrl
-    link.click()
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        console.error('Failed to create blob from canvas')
+        return
+      }
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      const fileName = `latinHAM_${difficulty}_rank${rank}_${formatDateTime(entry.timestamp)}_moves${entry.moves}_time${formatTime(entry.time)}.png`
+      link.download = fileName
+      link.href = url
+      link.click()
+      URL.revokeObjectURL(url)
+    }, 'image/png')
   }, [difficulty, formatTime, formatDateTime])
 
   if (gameState === 'start') {
@@ -543,6 +559,7 @@ const LatinHamGame: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
       <a
         href="https://willtajer.com/"
         target="_blank"
