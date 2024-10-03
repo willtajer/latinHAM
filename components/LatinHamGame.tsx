@@ -172,7 +172,7 @@ const LatinHamGame: React.FC = () => {
         grid: grid.map(row => [...row]),
         initialGrid: initialGrid.map(row => [...row])
       }
-
+  
       setLeaderboard(prevLeaderboard => {
         const updatedLeaderboard = {
           ...prevLeaderboard,
@@ -185,8 +185,8 @@ const LatinHamGame: React.FC = () => {
       })
       setLeaderboardUpdated(true)
     }
-  }, [difficulty, moveCount, elapsedTime, hintCount, leaderboardUpdated, grid, initialGrid])
-
+  }, [difficulty, moveCount, elapsedTime, leaderboardUpdated, grid, initialGrid])
+  
   useEffect(() => {
     if (gameState === 'playing' && checkWin(grid)) {
       handleWin()

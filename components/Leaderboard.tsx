@@ -45,17 +45,6 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
 }
 
 export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
-  const formatDateTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-    const formattedDate = date.toLocaleDateString('en-US', { 
-      month: '2-digit', 
-      day: '2-digit', 
-      year: '2-digit'
-    })
-    return `${time} ${formattedDate}`
-  }
-
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
