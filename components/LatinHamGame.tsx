@@ -564,7 +564,7 @@ const LatinHamGame: React.FC = () => {
       ctx.fillRect(x, y, progressCellWidth, progressCellHeight)
       
       // Draw cell border
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
       ctx.lineWidth = 1
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
