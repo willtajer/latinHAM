@@ -29,7 +29,7 @@ const colorMap: { [key: string]: string } = {
 }
 
 const PreviewCell: React.FC<{ value: number }> = ({ value }) => {
-  const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-white'
+  const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-transparent'
   return (
     <div className={`w-6 h-6 ${colorClass}`}></div>
   )
@@ -41,6 +41,20 @@ const GamePreview: React.FC = () => {
   return (
     <div className="grid grid-cols-6 bg-gray-200 p-2 rounded-lg shadow-inner mb-8">
       {previewGrid.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex">
+          {row.map((cell, colIndex) => (
+            <PreviewCell key={`${rowIndex}-${colIndex}`} value={cell} />
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const ProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
+  return (
+    <div className="grid grid-cols-6 bg-gray-200 p-2 rounded-lg shadow-inner mb-4">
+      {grid.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, colIndex) => (
             <PreviewCell key={`${rowIndex}-${colIndex}`} value={cell} />
@@ -156,7 +170,8 @@ const LatinHamGame: React.FC = () => {
         moves: moveCount,
         time: elapsedTime,
         hints: hintCount,
-        grid: grid.map(row => [...row])
+        grid: grid.map(row => [...row]),
+        initialGrid: initialGrid.map(row => [...row])
       }
 
       setLeaderboard(prevLeaderboard => {
@@ -171,7 +186,7 @@ const LatinHamGame: React.FC = () => {
       })
       setLeaderboardUpdated(true)
     }
-  }, [difficulty, moveCount, elapsedTime, hintCount, leaderboardUpdated, grid])
+  }, [difficulty, moveCount, elapsedTime, hintCount, leaderboardUpdated, grid, initialGrid])
 
   useEffect(() => {
     if (gameState === 'playing' && checkWin(grid)) {
@@ -353,21 +368,21 @@ const LatinHamGame: React.FC = () => {
         // Draw cell background
         const colorClass = colorClasses[cell - 1] || 'bg-white'
         ctx.fillStyle = colorMap[colorClass] || 'white'
-        ctx.beginPath()
-        ctx.moveTo(x + borderRadius, y)
-        ctx.arcTo(x + cellSize, y, x + cellSize, y + cellSize, borderRadius)
-        ctx.arcTo(x + cellSize, y + cellSize, x, y + cellSize, borderRadius)
-        ctx.arcTo(x, y + cellSize, x, y, borderRadius)
-        ctx.arcTo(x, y, x + cellSize, y, borderRadius)
-        ctx.closePath()
-        ctx.fill()
+        ctx.fillRect(x, y, cellSize, cellSize)
+
+        // Draw border for pre-locked cells
+        if (entry.initialGrid[rowIndex][colIndex] !== 0) {
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
+          ctx.lineWidth = 2
+          ctx.strokeRect(x, y, cellSize, cellSize)
+        }
 
         // Add subtle shadow
         ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'
         ctx.shadowBlur = 4
         ctx.shadowOffsetX = 2
         ctx.shadowOffsetY = 2
-        ctx.fill()
+        ctx.fillRect(x, y, cellSize, cellSize)
 
         // Reset shadow
         ctx.shadowColor = 'transparent'
@@ -384,7 +399,7 @@ const LatinHamGame: React.FC = () => {
     link.download = fileName
     link.href = dataUrl
     link.click()
-  }, [difficulty, formatTime, formatDateTime, BOARD_SIZE, colorClasses, colorMap])
+  }, [difficulty, formatTime, formatDateTime])
 
   if (gameState === 'start') {
     return (
@@ -434,7 +449,10 @@ const LatinHamGame: React.FC = () => {
         onCellClick={handleCellClick}
         isTrashMode={isTrashMode}
       />
-      <div className="flex space-x-4 mt-4">
+      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
+        <ProgressBar grid={grid} />
+      </div>
+      <div className="flex space-x-4 mt-2">
         {gameState === 'viewing' ? (
           <Button 
             onClick={handleBackToGame}

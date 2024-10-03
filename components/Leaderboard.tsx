@@ -9,6 +9,7 @@ export interface LeaderboardEntry {
   time: number
   hints: number
   grid: number[][]
+  initialGrid: number[][] // Add this line
 }
 
 interface LeaderboardProps {
