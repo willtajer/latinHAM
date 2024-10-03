@@ -406,7 +406,7 @@ const LatinHamGame: React.FC = () => {
     const cardPadding = 10
     const cellCornerRadius = 10
     const userTextHeight = displayText ? 40 : 0
-    const spaceBetweenBoardAndUserText = 20
+    const spaceBetweenBoardAndUserText = 30
     const spaceBetweenUserTextAndInfo = displayText ? spaceBetweenBoardAndUserText : 0
     const spaceBetweenElements = 10
   
@@ -465,14 +465,14 @@ const LatinHamGame: React.FC = () => {
         // Draw contrasting border for preset tiles
         if (entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000' // Black color for the border
-          ctx.lineWidth = 5
+          ctx.lineWidth = 5 // Changed from 2 to 5
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
           ctx.stroke()
   
           // Draw a white inner border to create a double-border effect
           ctx.strokeStyle = '#FFFFFF'
           ctx.lineWidth = 1
-          drawRoundedRect(x + 1, y + 1, cellSize - 2, cellSize - 2, cellCornerRadius - 1)
+          drawRoundedRect(x + 2.5, y + 2.5, cellSize - 5, cellSize - 5, cellCornerRadius - 2.5) // Adjusted to account for thicker outer border
           ctx.stroke()
         }
   
@@ -491,7 +491,7 @@ const LatinHamGame: React.FC = () => {
         ctx.shadowOffsetY = 0
   
         // Draw cell border
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
         ctx.lineWidth = 1
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
@@ -522,6 +522,9 @@ const LatinHamGame: React.FC = () => {
     const completionDate = new Date(entry.timestamp)
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
     
+    // Add difficulty indicator
+    const difficultyIndicator = difficulty.charAt(0).toUpperCase()
+    
     ctx.fillStyle = '#000000'
     ctx.textAlign = 'center'
     
@@ -530,9 +533,9 @@ const LatinHamGame: React.FC = () => {
     const latinHAMText = 'latinHAM'
     const latinHAMWidth = ctx.measureText(latinHAMText).width
     
-    // Draw "#" and the timestamp in regular font
+    // Draw "#" and the timestamp with difficulty indicator in regular font
     ctx.font = '14px Arial'
-    const timestampText = `#${formattedDateTime}`
+    const timestampText = `#${formattedDateTime}${difficultyIndicator}`
     const timestampWidth = ctx.measureText(timestampText).width
     
     // Calculate total width and positions
@@ -543,7 +546,7 @@ const LatinHamGame: React.FC = () => {
     ctx.font = 'bold 14px Arial'
     ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 25)
     
-    // Draw timestamp
+    // Draw timestamp with difficulty indicator
     ctx.font = '14px Arial'
     ctx.fillText(timestampText, startX + latinHAMWidth + 10 + timestampWidth / 2, currentY + 25)
     
@@ -574,7 +577,7 @@ const LatinHamGame: React.FC = () => {
       }
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      const fileName = `latinHAM_${difficulty}_rank${rank}_${formattedDateTime}_moves${entry.moves}_time${formatTime(entry.time)}.png`
+      const fileName = `latinHAM_${difficulty}_rank${rank}_${formattedDateTime}${difficultyIndicator}_moves${entry.moves}_time${formatTime(entry.time)}.png`
       link.download = fileName
       link.href = url
       link.click()
