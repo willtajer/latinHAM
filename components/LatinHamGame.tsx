@@ -169,7 +169,6 @@ const LatinHamGame: React.FC = () => {
         timestamp: new Date().toISOString(),
         moves: moveCount,
         time: elapsedTime,
-        hints: hintCount,
         grid: grid.map(row => [...row]),
         initialGrid: initialGrid.map(row => [...row])
       }
@@ -330,7 +329,6 @@ const LatinHamGame: React.FC = () => {
     setGameState('viewing')
     setMoveCount(entry.moves)
     setElapsedTime(entry.time)
-    setHintCount(entry.hints)
   }, [gameState, grid])
 
   const handleBackToGame = useCallback(() => {
@@ -407,7 +405,7 @@ const LatinHamGame: React.FC = () => {
     // Convert canvas to image and download
     const dataUrl = canvas.toDataURL('image/png')
     const link = document.createElement('a')
-    const fileName = `latinHAM_${difficulty}_rank${rank}_${formatDateTime(entry.timestamp)}_moves${entry.moves}_time${formatTime(entry.time)}_hints${entry.hints}.png`
+    const fileName = `latinHAM_${difficulty}_rank${rank}_${formatDateTime(entry.timestamp)}_moves${entry.moves}_time${formatTime(entry.time)}.png`
     link.download = fileName
     link.href = dataUrl
     link.click()

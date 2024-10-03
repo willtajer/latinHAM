@@ -7,7 +7,6 @@ export interface LeaderboardEntry {
   timestamp: string
   moves: number
   time: number
-  hints: number
   grid: number[][]
   initialGrid: number[][]
 }
@@ -46,8 +45,8 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
 }
 
 export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
-  const [sortColumn, setSortColumn] = useState<keyof LeaderboardEntry>('timestamp')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [sortColumn, setSortColumn] = useState<keyof LeaderboardEntry>('moves')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const sortedEntries = [...entries].sort((a, b) => {
     if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1
@@ -60,7 +59,7 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
       setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
     } else {
       setSortColumn(column)
-      setSortDirection('desc')
+      setSortDirection('asc')
     }
   }
 
@@ -75,23 +74,34 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
     return `${time} ${formattedDate}`
   }
 
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}m ${remainingSeconds}s`
+  }
+
   return (
-    <div className="w-full max-w-5xl mx-auto px-8">
+    <div className="w-full max-w-5xl mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Your Top 10 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
       <div className="overflow-x-auto">
         <Table className="w-full">
           <TableHeader>
             <TableRow>
               <TableHead className="w-16 text-center">Rank</TableHead>
-              <TableHead className="w-40">
-                <Button variant="ghost" onClick={() => handleSort('timestamp')} className="w-full justify-start">
-                  Date & Time <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
               <TableHead className="w-24 text-center">
                 <Button variant="ghost" onClick={() => handleSort('moves')} className="w-full justify-center">
                   Moves <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
+              <TableHead className="w-40 text-center">
+                <Button variant="ghost" onClick={() => handleSort('timestamp')} className="w-full justify-center">
+                  Date & Time <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead className="w-32 text-center">
+                <Button variant="ghost" onClick={() => handleSort('time')} className="w-full justify-center">
+                  Duration <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
               <TableHead className="w-32 text-center">Actions</TableHead>
@@ -101,14 +111,14 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
             {sortedEntries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
                 <TableCell className="font-medium text-center align-middle">{index + 1}</TableCell>
-                <TableCell className="align-middle">{formatDateTime(entry.timestamp)}</TableCell>
+                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
                 <TableCell className="text-center py-2">
-                  <div className="flex justify-center">
+                  <div className="flex w-[calc(6*3rem+6*0.75rem)] justify-center">
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
-                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
-                <TableCell className="text-center align-middle">{entry.hints}</TableCell>
+                <TableCell className="text-center align-middle">{formatDateTime(entry.timestamp)}</TableCell>
+                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center align-middle">
                   <div className="flex justify-center space-x-2">
                     <Button variant="outline" size="sm" onClick={() => onViewCompletedBoard(entry)}>
