@@ -90,8 +90,8 @@ const LatinHamGame: React.FC = () => {
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [leaderboardUpdated, setLeaderboardUpdated] = useState<boolean>(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
-  const [_previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
-  const [_previousGrid, setPreviousGrid] = useState<number[][]>([])
+  const [previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
+  const [previousGrid, setPreviousGrid] = useState<number[][]>([])
   const [showConfetti, setShowConfetti] = useState(false)
   const [showWinPopup, setShowWinPopup] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -332,14 +332,27 @@ const LatinHamGame: React.FC = () => {
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     if (gameState === 'playing' || gameState === 'won') {
       setPreviousGameState(gameState)
+      setPreviousGrid(grid.map(row => [...row]))
     }
-    setPreviousGrid(grid.map(row => [...row]))
     setViewingEntry(entry)
     setGrid(entry.grid)
     setGameState('viewing')
     setMoveCount(entry.moves)
     setElapsedTime(entry.time)
   }, [gameState, grid])
+
+  const handleReturnFromViewingBoard = useCallback(() => {
+    if (previousGameState) {
+      setGameState(previousGameState)
+      setGrid(previousGrid)
+      setPreviousGameState(null)
+      setPreviousGrid([])
+      setViewingEntry(null)
+    } else {
+      // If there's no previous state, start a new game
+      handleNewGame()
+    }
+  }, [previousGameState, previousGrid, handleNewGame])
 
   const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry, rank: number) => {
     const canvas = canvasRef.current
@@ -580,6 +593,12 @@ const LatinHamGame: React.FC = () => {
         {gameState === 'viewing' ? (
           <>
             <Button 
+              onClick={handleReturnFromViewingBoard}
+              className="bg-gray-500 hover:bg-gray-600 text-white"
+            >
+              Return to Game
+            </Button>
+            <Button 
               onClick={handleNewGame}
               className="bg-gray-500 hover:bg-gray-600 text-white"
             >
@@ -667,7 +686,9 @@ const LatinHamGame: React.FC = () => {
       <a
         href="https://willtajer.com/"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener nor
+
+eferrer"
         className="fixed bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
         aria-label="Visit Will Tajer's website"
       >
