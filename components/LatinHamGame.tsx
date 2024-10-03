@@ -90,8 +90,8 @@ const LatinHamGame: React.FC = () => {
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [leaderboardUpdated, setLeaderboardUpdated] = useState<boolean>(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
-  const [previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
-  const [previousGrid, setPreviousGrid] = useState<number[][]>([])
+  const [_previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
+  const [_previousGrid, setPreviousGrid] = useState<number[][]>([])
   const [showConfetti, setShowConfetti] = useState(false)
   const [showWinPopup, setShowWinPopup] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -189,6 +189,11 @@ const LatinHamGame: React.FC = () => {
       })
       setLeaderboardUpdated(true)
       setShowConfetti(true)
+      
+      // Delay showing the win popup by 1 second
+      setTimeout(() => {
+        setShowWinPopup(true)
+      }, 1000)
     }
   }, [difficulty, moveCount, elapsedTime, leaderboardUpdated, grid, initialGrid])
 
@@ -418,7 +423,7 @@ const LatinHamGame: React.FC = () => {
         // Draw contrasting border for preset tiles
         if (entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000' // Black color for the border
-          ctx.lineWidth = 4
+          ctx.lineWidth = 2
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
           ctx.stroke()
 
@@ -444,7 +449,7 @@ const LatinHamGame: React.FC = () => {
         ctx.shadowOffsetY = 0
 
         // Draw cell border
-        ctx.strokeStyle = 'rgba(0, 0, 0, 1)'
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
         ctx.lineWidth = 1
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
