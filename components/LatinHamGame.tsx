@@ -182,14 +182,13 @@ const LatinHamGame: React.FC = () => {
           ...prevLeaderboard,
           [difficulty]: [...prevLeaderboard[difficulty], newEntry]
             .sort((a, b) => a.moves - b.moves)
-            .slice(0, 10)
+            .slice(0, 12)
         }
         localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
         return updatedLeaderboard
       })
       setLeaderboardUpdated(true)
       setShowConfetti(true)
-      setShowWinPopup(true)
     }
   }, [difficulty, moveCount, elapsedTime, leaderboardUpdated, grid, initialGrid])
 
@@ -354,29 +353,80 @@ const LatinHamGame: React.FC = () => {
     const cellSpacing = 8
     const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
     const padding = 20
-    canvas.width = boardSize + 2 * padding
-    canvas.height = boardSize + 2 * padding
+    const dateTimeHeight = 30
+    const infoRowHeight = 40
+    const progressBarHeight = 20
+    const bottomPadding = 40
+    const cornerRadius = 20
+    const cardPadding = 10
+    const spaceBetweenBoardAndInfo = 50
+    const spaceBetweenInfoAndDateTime = 20
+    const cellCornerRadius = 10
 
-    // Draw background
-    ctx.fillStyle = '#f3f4f6' // light grey background
+    const contentWidth = boardSize + 2 * padding
+    const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndDateTime + dateTimeHeight + progressBarHeight + bottomPadding
+
+    canvas.width = contentWidth + 2 * cardPadding
+    canvas.height = contentHeight + 2 * cardPadding
+
+    // Draw black background for the card
+    ctx.fillStyle = '#000000'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Draw rounded rectangle for the main content
+    ctx.fillStyle = '#f3f4f6'
+    ctx.beginPath()
+    ctx.moveTo(cardPadding + cornerRadius, cardPadding)
+    ctx.lineTo(cardPadding + contentWidth - cornerRadius, cardPadding)
+    ctx.arcTo(cardPadding + contentWidth, cardPadding, cardPadding + contentWidth, cardPadding + cornerRadius, cornerRadius)
+    ctx.lineTo(cardPadding + contentWidth, cardPadding + contentHeight - cornerRadius)
+    ctx.arcTo(cardPadding + contentWidth, cardPadding + contentHeight, cardPadding + contentWidth - cornerRadius, cardPadding + contentHeight, cornerRadius)
+    ctx.lineTo(cardPadding + cornerRadius, cardPadding + contentHeight)
+    ctx.arcTo(cardPadding, cardPadding + contentHeight, cardPadding, cardPadding + contentHeight - cornerRadius, cornerRadius)
+    ctx.lineTo(cardPadding, cardPadding + cornerRadius)
+    ctx.arcTo(cardPadding, cardPadding, cardPadding + cornerRadius, cardPadding, cornerRadius)
+    ctx.closePath()
+    ctx.fill()
+
+    // Adjust the drawing coordinates to account for the card padding
+    const adjustX = (x: number) => x + cardPadding
+    const adjustY = (y: number) => y + cardPadding
+
+    // Helper function to draw rounded rectangle
+    const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
+      ctx.beginPath()
+      ctx.moveTo(x + radius, y)
+      ctx.arcTo(x + width, y, x + width, y + height, radius)
+      ctx.arcTo(x + width, y + height, x, y + height, radius)
+      ctx.arcTo(x, y + height, x, y, radius)
+      ctx.arcTo(x, y, x + width, y, radius)
+      ctx.closePath()
+    }
 
     // Draw cells
     entry.grid.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
-        const x = padding + colIndex * (cellSize + cellSpacing)
-        const y = padding + rowIndex * (cellSize + cellSpacing)
+        const x = adjustX(padding + colIndex * (cellSize + cellSpacing))
+        const y = adjustY(padding + rowIndex * (cellSize + cellSpacing))
 
         // Draw cell background
         const colorClass = colorClasses[cell - 1] || 'bg-white'
         ctx.fillStyle = colorMap[colorClass] || 'white'
-        ctx.fillRect(x, y, cellSize, cellSize)
+        drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
+        ctx.fill()
 
-        // Draw border for pre-locked cells
+        // Draw contrasting border for preset tiles
         if (entry.initialGrid[rowIndex][colIndex] !== 0) {
-          ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
-          ctx.lineWidth = 2
-          ctx.strokeRect(x, y, cellSize, cellSize)
+          ctx.strokeStyle = '#000000' // Black color for the border
+          ctx.lineWidth = 4
+          drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
+          ctx.stroke()
+
+          // Draw a white inner border to create a double-border effect
+          ctx.strokeStyle = '#FFFFFF'
+          ctx.lineWidth = 1
+          drawRoundedRect(x + 1, y + 1, cellSize - 2, cellSize - 2, cellCornerRadius - 1)
+          ctx.stroke()
         }
 
         // Add subtle shadow
@@ -384,14 +434,55 @@ const LatinHamGame: React.FC = () => {
         ctx.shadowBlur = 4
         ctx.shadowOffsetX = 2
         ctx.shadowOffsetY = 2
-        ctx.fillRect(x, y, cellSize, cellSize)
+        drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
+        ctx.fill()
 
         // Reset shadow
         ctx.shadowColor = 'transparent'
         ctx.shadowBlur = 0
         ctx.shadowOffsetX = 0
         ctx.shadowOffsetY = 0
+
+        // Draw cell border
+        ctx.strokeStyle = 'rgba(0, 0, 0, 1)'
+        ctx.lineWidth = 1
+        drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
+        ctx.stroke()
       })
+    })
+
+    // Draw info row (moves, time, hints)
+    const infoRowY = adjustY(boardSize + padding + spaceBetweenBoardAndInfo)
+    ctx.fillStyle = '#000000'
+    ctx.font = 'bold 16px Arial'
+    ctx.textAlign = 'center'
+    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${hintCount}`, canvas.width / 2, infoRowY + 25)
+
+    // Draw date and time of completion
+    const dateTimeY = infoRowY + infoRowHeight + spaceBetweenInfoAndDateTime
+    ctx.fillStyle = '#000000'
+    ctx.font = '14px Arial'
+    ctx.textAlign = 'center'
+    const completionDate = new Date(entry.timestamp)
+    const dateTimeString = completionDate.toLocaleString()
+    ctx.fillText(`Completed on: ${dateTimeString}`, canvas.width / 2, dateTimeY)
+
+    // Draw progress bar
+    const progressBarY = dateTimeY + dateTimeHeight + 10
+    const progressCellWidth = (contentWidth - 2 * padding) / (BOARD_SIZE * BOARD_SIZE)
+    const progressCellHeight = progressBarHeight
+
+    entry.grid.flat().forEach((cell, index) => {
+      const x = adjustX(padding + index * progressCellWidth)
+      const y = progressBarY
+      const colorClass = colorClasses[cell - 1] || 'bg-white'
+      ctx.fillStyle = colorMap[colorClass] || 'white'
+      ctx.fillRect(x, y, progressCellWidth, progressCellHeight)
+      
+      // Draw cell border
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
+      ctx.lineWidth = 1
+      ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
 
     // Convert canvas to image and download
@@ -408,7 +499,7 @@ const LatinHamGame: React.FC = () => {
       link.click()
       URL.revokeObjectURL(url)
     }, 'image/png')
-  }, [difficulty, formatTime, formatDateTime])
+  }, [difficulty, formatTime, formatDateTime, hintCount])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
@@ -448,7 +539,11 @@ const LatinHamGame: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
-      {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />}
+      {showConfetti && (
+        <div className="fixed inset-0 z-40 pointer-events-none">
+          <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
+        </div>
+      )}
       <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
         <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
         <p className="text-center mt-4">
@@ -456,13 +551,6 @@ const LatinHamGame: React.FC = () => {
             ? "Viewing a completed puzzle from the leaderboard." 
             : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
-      </div>
-      <div className="w-[calc(6*3rem+5*0.75rem)] mt-4 mb-2">
-        <div className="flex justify-between font-bold text-md">
-          <span>Moves: {moveCount}</span>
-          <span>Time: {formatTime(elapsedTime)}</span>
-          <span>Hints: {hintCount}</span>
-        </div>
       </div>
       <GameBoard 
         grid={grid}
@@ -473,6 +561,13 @@ const LatinHamGame: React.FC = () => {
         onCellClick={handleCellClick}
         isTrashMode={isTrashMode}
       />
+      <div className="w-[calc(6*3rem+5*0.75rem)] mt-4 mb-2">
+        <div className="flex justify-between font-bold text-md">
+          <span>Moves: {moveCount}</span>
+          <span>Time: {formatTime(elapsedTime)}</span>
+          <span>Hints: {hintCount}</span>
+        </div>
+      </div>
       <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
         <ProgressBar grid={grid} />
       </div>
@@ -553,17 +648,16 @@ const LatinHamGame: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={showWinPopup} onOpenChange={setShowWinPopup}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>New latinHAM!</DialogTitle>
-          </DialogHeader>
-          <p>Congratulations! You&apos;ve completed the puzzle!</p>
-          <DialogFooter>
+      {showWinPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-50 z-40"></div>
+          <div className="bg-white p-8 rounded-lg shadow-xl z-50">
+            <h2 className="text-2xl font-bold mb-4">New latinHAM!</h2>
+            <p className="mb-4">Congratulations! You&apos;ve completed the puzzle!</p>
             <Button onClick={handleCloseWinPopup}>View Completed Game</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
       <a
         href="https://willtajer.com/"
@@ -572,7 +666,7 @@ const LatinHamGame: React.FC = () => {
         className="fixed bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
         aria-label="Visit Will Tajer's website"
       >
-        Created by Will Tajer A.
+        Created by Will Tajer
       </a>
     </div>
   )

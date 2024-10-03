@@ -51,19 +51,19 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const rankedEntries = [...entries].sort((a, b) => a.moves - b.moves)
+  const rankedEntries = [...entries].sort((a, b) => a.moves - b.moves).slice(0, 12)
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 mb-20">
-      <h2 className="text-2xl font-bold mb-4 text-center">Your Top 10 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Your Top 12 - {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</h2>
       <div className="overflow-x-auto">
         <Table className="w-full">
           <TableHeader>
             <TableRow>
               <TableHead className="w-24 text-center">#/Moves</TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
               <TableHead className="w-32 text-center">Duration</TableHead>
+              <TableHead className="w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -75,15 +75,16 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
+                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center align-middle">
                   <div className="flex justify-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index + 1)}>
+                    <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, index +
+1)}>
                       <Download className="w-4 h-4" />
                       <span className="sr-only">Download</span>
                     </Button>
                   </div>
                 </TableCell>
-                <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
