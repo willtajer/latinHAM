@@ -406,12 +406,12 @@ const LatinHamGame: React.FC = () => {
     const cardPadding = 10
     const cellCornerRadius = 10
     const userTextHeight = displayText ? 40 : 0
-    const spaceBetweenBoardAndUserText = 30
-    const spaceBetweenUserTextAndInfo = displayText ? spaceBetweenBoardAndUserText : 0
+    const spaceBetweenBoardAndInfo = 10
+    const spaceBetweenInfoAndUserText = displayText ? 20 : 0
     const spaceBetweenElements = 10
   
     const contentWidth = boardSize + 2 * padding
-    const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndUserText + userTextHeight + spaceBetweenUserTextAndInfo + infoRowHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
+    const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndUserText + userTextHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
   
     canvas.width = contentWidth + 2 * cardPadding
     canvas.height = contentHeight + 2 * cardPadding
@@ -500,23 +500,22 @@ const LatinHamGame: React.FC = () => {
   
     let currentY = adjustY(boardSize + padding)
   
-    // Draw user text if provided
-    if (displayText) {
-      currentY += spaceBetweenBoardAndUserText
-      ctx.fillStyle = '#000000'
-      ctx.font = 'bold 18px Arial'
-      ctx.textAlign = 'center'
-      ctx.fillText(displayText, canvas.width / 2, currentY + 25)
-      currentY += userTextHeight
-    }
-  
     // Draw info row (moves, time, hints)
-    currentY += spaceBetweenUserTextAndInfo
+    currentY += spaceBetweenBoardAndInfo
     ctx.fillStyle = '#000000'
     ctx.font = 'bold 16px Arial'
     ctx.textAlign = 'center'
     ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${hintCount}`, canvas.width / 2, currentY + 25)
-    currentY += infoRowHeight + spaceBetweenElements
+    currentY += infoRowHeight + spaceBetweenInfoAndUserText
+  
+    // Draw user text if provided
+    if (displayText) {
+      ctx.fillStyle = '#000000'
+      ctx.font = 'bold 18px Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText(displayText, canvas.width / 2, currentY + 25)
+      currentY += userTextHeight + spaceBetweenElements
+    }
   
     // Format and draw date and time of completion
     const completionDate = new Date(entry.timestamp)
@@ -564,7 +563,7 @@ const LatinHamGame: React.FC = () => {
       ctx.fillRect(x, y, progressCellWidth, progressCellHeight)
       
       // Draw cell border
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
       ctx.lineWidth = 1
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
