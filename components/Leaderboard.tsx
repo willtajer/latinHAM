@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { ArrowUpDown, Eye, Download } from 'lucide-react'
+import { Eye, Download } from 'lucide-react'
 
 export interface LeaderboardEntry {
   timestamp: string
@@ -45,24 +45,6 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
 }
 
 export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
-  const [sortColumn, setSortColumn] = useState<keyof LeaderboardEntry>('moves')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-
-  const sortedEntries = [...entries].sort((a, b) => {
-    if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1
-    if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1
-    return 0
-  })
-
-  const handleSort = (column: keyof LeaderboardEntry) => {
-    if (column === sortColumn) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortColumn(column)
-      setSortDirection('asc')
-    }
-  }
-
   const formatDateTime = (timestamp: string) => {
     const date = new Date(timestamp)
     const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
@@ -87,36 +69,22 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">Rank</TableHead>
+              <TableHead className="w-24 text-center">Moves</TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">Completed Board</TableHead>
-              <TableHead className="w-24 text-center">
-                <Button variant="ghost" onClick={() => handleSort('moves')} className="w-full justify-center">
-                  Moves <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead className="w-40 text-center">
-                <Button variant="ghost" onClick={() => handleSort('timestamp')} className="w-full justify-center">
-                  Date & Time <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead className="w-32 text-center">
-                <Button variant="ghost" onClick={() => handleSort('time')} className="w-full justify-center">
-                  Duration <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
+              <TableHead className="w-40 text-center">Date & Time</TableHead>
+              <TableHead className="w-32 text-center">Duration</TableHead>
               <TableHead className="w-32 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedEntries.map((entry, index) => (
+            {entries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
-                <TableCell className="font-medium text-center align-middle">{index + 1}</TableCell>
+                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
                 <TableCell className="text-center py-2">
                   <div className="flex justify-center">
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
-                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
                 <TableCell className="text-center align-middle">{formatDateTime(entry.timestamp)}</TableCell>
                 <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center align-middle">
