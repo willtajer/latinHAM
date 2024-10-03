@@ -32,13 +32,27 @@ const colorMap: { [key: string]: string } = {
 const PreviewCell: React.FC<{ value: number }> = ({ value }) => {
   const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-transparent'
   return (
-    <div className={`w-6 h-6 ${colorClass}`}></div>
+    <div className={`w-6 h-6 ${colorClass} transition-colors duration-300`}></div>
   )
 }
 
 const GamePreview: React.FC = () => {
-  const previewGrid = createLatinSquare()
+  const [previewGrid, setPreviewGrid] = useState(() => createLatinSquare())
   
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPreviewGrid(prevGrid => {
+        const newGrid = prevGrid.map(row => [...row])
+        const randomRow = Math.floor(Math.random() * BOARD_SIZE)
+        const randomCol = Math.floor(Math.random() * BOARD_SIZE)
+        newGrid[randomRow][randomCol] = (newGrid[randomRow][randomCol] % BOARD_SIZE) + 1
+        return newGrid
+      })
+    }, 420)
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="grid grid-cols-6 bg-gray-200 p-2 rounded-lg shadow-inner mb-8">
       {previewGrid.map((row, rowIndex) => (
@@ -544,7 +558,7 @@ const LatinHamGame: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <div className="w-[calc(6*3rem+6*0.75rem)]">
-          <h1 className="text-6xl font-bold mb-6 text-center">latinHAM</h1>
+          <h1 className="text-6xl font-bold mb-6 mt-8 text-center">latinHAM</h1>
           <GamePreview />
           <p className="text-center mt-4 mb-8">
             Fill the grid with colors so that each color appears exactly once in each row and column.
