@@ -18,6 +18,16 @@ const colorClasses = [
   'bg-orange-500',
 ]
 
+const colorMap: { [key: string]: string } = {
+  'bg-red-500': '#ef4444',
+  'bg-blue-500': '#3b82f6',
+  'bg-yellow-500': '#eab308',
+  'bg-green-500': '#22c55e',
+  'bg-purple-500': '#a855f7',
+  'bg-orange-500': '#f97316',
+  'bg-white': '#ffffff',
+}
+
 const PreviewCell: React.FC<{ value: number }> = ({ value }) => {
   const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-white'
   return (
@@ -287,7 +297,12 @@ const LatinHamGame: React.FC = () => {
   const formatTime = useCallback((seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+    return `${minutes}m${remainingSeconds.toString().padStart(2, '0')}s`
+  }, [])
+
+  const formatDateTime = useCallback((timestamp: string) => {
+    const date = new Date(timestamp)
+    return date.toISOString().split('.')[0].replace(/[-:]/g, '').replace('T', '_')
   }, [])
 
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
@@ -311,6 +326,36 @@ const LatinHamGame: React.FC = () => {
       setGameState('start')
     }
   }, [previousGameState, previousGrid])
+
+  const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry, rank: number) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const cellSize = 50
+    const boardSize = BOARD_SIZE * cellSize
+    canvas.width = boardSize
+    canvas.height = boardSize
+
+    // Draw the grid
+    entry.grid.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        const colorClass = colorClasses[cell - 1] || 'bg-white'
+        ctx.fillStyle = colorMap[colorClass] || 'white'
+        ctx.fillRect(colIndex * cellSize, rowIndex * cellSize, cellSize, cellSize)
+        ctx.strokeStyle = 'black'
+        ctx.strokeRect(colIndex * cellSize, rowIndex * cellSize, cellSize, cellSize)
+      })
+    })
+
+    // Convert canvas to image and download
+    const dataUrl = canvas.toDataURL('image/png')
+    const link = document.createElement('a')
+    const fileName = `latinHAM_${difficulty}_rank${rank}_${formatDateTime(entry.timestamp)}_moves${entry.moves}_time${formatTime(entry.time)}_hints${entry.hints}.png`
+    link.download = fileName
+    link.href = dataUrl
+    link.click()
+  }, [difficulty, formatTime, formatDateTime])
 
   if (gameState === 'start') {
     return (
@@ -411,8 +456,9 @@ const LatinHamGame: React.FC = () => {
       <div className="mt-16 w-full max-w-xxl">
         <Leaderboard 
           entries={leaderboard[difficulty]} 
-          difficulty={difficulty} 
+          difficulty={difficulty}
           onViewCompletedBoard={handleViewCompletedBoard}
+          onDownloadCompletedBoard={handleDownloadCompletedBoard}
         />
       </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
