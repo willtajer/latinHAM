@@ -8,6 +8,7 @@ import { Leaderboard, LeaderboardEntry } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Trash2, ArrowLeft, Download } from 'lucide-react'
+import Confetti from 'react-confetti'
 
 const colorClasses = [
   'bg-red-500',
@@ -91,6 +92,8 @@ const LatinHamGame: React.FC = () => {
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
   const [previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
   const [previousGrid, setPreviousGrid] = useState<number[][]>([])
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [showWinPopup, setShowWinPopup] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -185,6 +188,8 @@ const LatinHamGame: React.FC = () => {
         return updatedLeaderboard
       })
       setLeaderboardUpdated(true)
+      setShowConfetti(true)
+      setShowWinPopup(true)
     }
   }, [difficulty, moveCount, elapsedTime, leaderboardUpdated, grid, initialGrid])
 
@@ -427,6 +432,18 @@ const LatinHamGame: React.FC = () => {
     }, 'image/png')
   }, [difficulty, formatTime, formatDateTime])
 
+  const handleCloseWinPopup = useCallback(() => {
+    setShowWinPopup(false)
+    setShowConfetti(false)
+    handleViewCompletedBoard({
+      timestamp: new Date().toISOString(),
+      moves: moveCount,
+      time: elapsedTime,
+      grid: grid.map(row => [...row]),
+      initialGrid: initialGrid.map(row => [...row])
+    })
+  }, [handleViewCompletedBoard, moveCount, elapsedTime, grid, initialGrid])
+
   if (gameState === 'start') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -453,6 +470,7 @@ const LatinHamGame: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
+      {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />}
       <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
         <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
         <p className="text-center mt-4">
@@ -484,21 +502,24 @@ const LatinHamGame: React.FC = () => {
         {gameState === 'viewing' ? (
           <>
             <Button 
-              onClick={handleBackToGame}
+              onClick={handleNewGame}
               className="bg-gray-500 hover:bg-gray-600 text-white"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Game
+              New Game
             </Button>
-            {viewingEntry && (
-              <Button
-                onClick={() => handleDownloadCompletedBoard(viewingEntry, 0)}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download Board
-              </Button>
-            )}
+            <Button
+              onClick={() => handleDownloadCompletedBoard(viewingEntry || {
+                timestamp: new Date().toISOString(),
+                moves: moveCount,
+                time: elapsedTime,
+                grid: grid,
+                initialGrid: initialGrid
+              }, 0)}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Board
+            </Button>
           </>
         ) : (
           <>
@@ -534,11 +555,6 @@ const LatinHamGame: React.FC = () => {
           </>
         )}
       </div>
-      {gameState === 'won' && !viewingEntry && (
-        <div className="mt-16 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">
-          Congratulations! You solved the puzzle!
-        </div>
-      )}
       <div className="mt-24 w-full max-w-xxl">
         <Leaderboard 
           entries={leaderboard[difficulty]} 
@@ -556,6 +572,17 @@ const LatinHamGame: React.FC = () => {
           <DialogFooter>
             <Button onClick={() => setShowNewGameConfirmation(false)} variant="outline">Cancel</Button>
             <Button onClick={confirmNewGame}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showWinPopup} onOpenChange={setShowWinPopup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New latinHAM!</DialogTitle>
+          </DialogHeader>
+          <p>Congratulations! You've completed the puzzle!</p>
+          <DialogFooter>
+            <Button onClick={handleCloseWinPopup}>View Completed Game</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
