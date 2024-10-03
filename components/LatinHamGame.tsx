@@ -41,7 +41,7 @@ const GamePreview: React.FC = () => {
   )
 }
 
-export function LatinHamGame() {
+const LatinHamGame: React.FC = () => {
   const [grid, setGrid] = useState<number[][]>([])
   const [locked, setLocked] = useState<boolean[][]>([])
   const [edited, setEdited] = useState<boolean[][]>([])
@@ -65,6 +65,8 @@ export function LatinHamGame() {
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [leaderboardUpdated, setLeaderboardUpdated] = useState<boolean>(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
+  const [previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
+  const [previousGrid, setPreviousGrid] = useState<number[][]>([])
 
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
@@ -289,15 +291,26 @@ export function LatinHamGame() {
   }, [])
 
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
+    if (gameState === 'playing' || gameState === 'won') {
+      setPreviousGameState(gameState)
+    }
+    setPreviousGrid(grid.map(row => [...row]))
     setViewingEntry(entry)
     setGrid(entry.grid)
     setGameState('viewing')
-  }, [])
+  }, [gameState, grid])
 
-  const handleBackToLeaderboard = useCallback(() => {
+  const handleBackToGame = useCallback(() => {
     setViewingEntry(null)
-    setGameState('won')
-  }, [])
+    if (previousGameState === 'playing' || previousGameState === 'won') {
+      setGameState(previousGameState)
+      if (previousGameState === 'playing') {
+        setGrid(previousGrid)
+      }
+    } else {
+      setGameState('start')
+    }
+  }, [previousGameState, previousGrid])
 
   if (gameState === 'start') {
     return (
@@ -339,10 +352,10 @@ export function LatinHamGame() {
         </div>
       </div>
       <GameBoard 
-        grid={grid} 
-        locked={locked} 
+        grid={grid}
+        locked={locked}
         edited={edited}
-        hints={hints} 
+        hints={hints}
         showNumbers={showNumbers}
         onCellClick={handleCellClick}
         isTrashMode={isTrashMode}
@@ -350,7 +363,7 @@ export function LatinHamGame() {
       <div className="flex space-x-4 mt-4">
         {gameState === 'viewing' ? (
           <Button 
-            onClick={handleBackToLeaderboard}
+            onClick={handleBackToGame}
             className="bg-gray-500 hover:bg-gray-600 text-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -391,7 +404,9 @@ export function LatinHamGame() {
         )}
       </div>
       {gameState === 'won' && !viewingEntry && (
-        <div className="mt-4 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">Congratulations! You solved the puzzle!</div>
+        <div className="mt-4 w-[calc(6*3rem+6*0.75rem)] text-center text-2xl font-bold p-4 text-green-600">
+          Congratulations! You solved the puzzle!
+        </div>
       )}
       <div className="mt-16 w-full max-w-xxl">
         <Leaderboard 
@@ -424,3 +439,5 @@ export function LatinHamGame() {
     </div>
   )
 }
+
+export default LatinHamGame
