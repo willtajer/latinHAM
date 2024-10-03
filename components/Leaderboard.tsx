@@ -111,12 +111,12 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
             {sortedEntries.map((entry, index) => (
               <TableRow key={entry.timestamp}>
                 <TableCell className="font-medium text-center align-middle">{index + 1}</TableCell>
-                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
                 <TableCell className="text-center py-2">
                   <div className="flex w-[calc(6*3rem+6*0.75rem)] justify-center">
                     <MiniProgressBar grid={entry.grid} />
                   </div>
                 </TableCell>
+                <TableCell className="text-center align-middle">{entry.moves}</TableCell>
                 <TableCell className="text-center align-middle">{formatDateTime(entry.timestamp)}</TableCell>
                 <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 <TableCell className="text-center align-middle">
