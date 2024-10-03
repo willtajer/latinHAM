@@ -556,14 +556,14 @@ const LatinHamGame: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-6">
       {showConfetti && (
         <div className="fixed inset-0 z-40 pointer-events-none">
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
         </div>
       )}
       <div className="w-[calc(6*3rem+6*0.75rem)] mb-4">
-        <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
+        <h1 className="text-6xl font-bold mt-8 mb-2 text-center">latinHAM</h1>
         <p className="text-center mt-4">
           {gameState === 'viewing' 
             ? "Viewing a completed puzzle from the leaderboard." 
@@ -652,7 +652,7 @@ const LatinHamGame: React.FC = () => {
           </>
         )}
       </div>
-      <div className="mt-24 w-full max-w-xxl">
+      <div className="mt-8 w-full max-w-xxl">
         <Leaderboard 
           entries={leaderboard[difficulty]} 
           difficulty={difficulty}
