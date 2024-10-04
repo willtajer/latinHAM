@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Trash2, Download } from 'lucide-react'
+import Image from 'next/image'
 import Confetti from 'react-confetti'
 
 const colorClasses = [
@@ -655,7 +656,7 @@ const LatinHamGame: React.FC = () => {
       <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Congratulations! You won!</DialogTitle>
+          <DialogTitle>Congratulations! You won!</DialogTitle>
           </DialogHeader>
           <p>Enter a quote to commemorate your victory:</p>
           <Input
@@ -676,15 +677,16 @@ const LatinHamGame: React.FC = () => {
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
           <p>You've completed the puzzle!</p>
-          <img src={handleDownloadCompletedBoard({
-            timestamp: new Date().toISOString(),
-            moves: moveCount,
-            time: elapsedTime,
-            grid: grid,
-            initialGrid: initialGrid,
-            quote: winQuote,
-            hints: hintCount
-          })} alt="Completed Game Card" className="w-full h-auto" />
+          <Image 
+            src={handleDownloadCompletedBoard({
+              timestamp: new Date().toISOString(),
+              moves: moveCount,
+              time: elapsedTime,
+              grid: grid,
+              initialGrid: initialGrid,
+              quote: winQuote,
+              hints: hintCount
+          }) || ''} alt="Completed Game Card" className="w-full h-auto" />
           <DialogFooter>
             <div className="flex justify-center gap-2 w-full">
               <Button onClick={handleNewGame}>Start New Game</Button>
