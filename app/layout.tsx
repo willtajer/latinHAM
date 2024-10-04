@@ -5,6 +5,13 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import './globals.css'
 import { ModeToggle } from '@/components/ModeToggle'
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton
+} from '@clerk/nextjs'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -40,24 +47,38 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`bg-background text-foreground ${inter.className}`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Analytics />
-          <SpeedInsights />
-          <header>
-            <ModeToggle />
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`bg-background text-foreground ${inter.className}`}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+          <header className="w-full py-4 px-6 flex justify-end items-center space-x-4">
+            <Analytics />
+            <SpeedInsights />
+            <div className="flex items-center space-x-4">
+              <SignedOut>
+                <SignInButton>
+                  <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+              <ModeToggle />
+            </div>
           </header>
           <main>
             {children}
           </main>
-        </ThemeProvider>
-      </body>
-    </html>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

@@ -617,7 +617,7 @@ const LatinHamGame: React.FC = () => {
           <span>Hints: {gameState === 'viewing' ? viewingEntry?.hints : hintCount}</span>
         </div>
       </div>
-      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-2">
+      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
         <ProgressBar grid={grid} />
       </div>
       {gameState !== 'viewing' && (
