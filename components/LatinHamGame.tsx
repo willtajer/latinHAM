@@ -692,23 +692,23 @@ const LatinHamGame: React.FC = () => {
           &ldquo;{viewingEntry.quote}&rdquo;
         </div>
       )}
-      <div className="mt-8">
-        <Leaderboard 
-          entries={leaderboard[difficulty]}
-          difficulty={difficulty}
-          onViewCompletedBoard={handleViewCompletedBoard}
-          onDownloadCompletedBoard={handleDownloadCompletedBoard}
+      <Leaderboard 
+        entries={leaderboard[difficulty]}
+        difficulty={difficulty}
+        onViewCompletedBoard={handleViewCompletedBoard}
+        onDownloadCompletedBoard={handleDownloadCompletedBoard}
       />
-      </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Start a New Game?</DialogTitle>
           </DialogHeader>
           <p>Are you sure you want to start a new game? Your current progress will be lost.</p>
-          <DialogFooter>
-            <Button onClick={() => setShowNewGameConfirmation(false)}>Cancel</Button>
-            <Button onClick={confirmNewGame}>Confirm</Button>
+          <DialogFooter className="sm:space-x-2">
+            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+              <Button onClick={() => setShowNewGameConfirmation(false)} variant="outline" className="sm:w-auto">Cancel</Button>
+              <Button onClick={confirmNewGame} className="sm:w-auto">Confirm</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
