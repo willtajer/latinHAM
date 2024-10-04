@@ -636,6 +636,7 @@ const LatinHamGame: React.FC = () => {
         entries={leaderboard[difficulty]}
         difficulty={difficulty}
         onViewCompletedBoard={handleViewCompletedBoard}
+        onDownloadCompletedBoard={handleDownloadCompletedBoard}
       />
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
         <DialogContent>
