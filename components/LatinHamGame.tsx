@@ -8,7 +8,7 @@ import { Leaderboard, LeaderboardEntry } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Trash2, Download, X } from 'lucide-react'
+import { Trash2, Download } from 'lucide-react'
 import Confetti from 'react-confetti'
 
 const colorClasses = [
@@ -105,8 +105,6 @@ const LatinHamGame: React.FC = () => {
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [leaderboardUpdated, setLeaderboardUpdated] = useState<boolean>(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
-  const [previousGameState, setPreviousGameState] = useState<'playing' | 'won' | null>(null)
-  const [previousGrid, setPreviousGrid] = useState<number[][]>([])
   const [showConfetti, setShowConfetti] = useState(false)
   const [showWinPopup, setShowWinPopup] = useState(false)
   const [winQuote, setWinQuote] = useState<string>("")
@@ -593,7 +591,7 @@ const LatinHamGame: React.FC = () => {
           {gameState === 'viewing' 
             ? "Viewing a completed puzzle from the leaderboard." 
             : isGameWon
-            ? "Congratulations! You've completed the puzzle."
+            ? "Congratulations! You&apos;ve completed the puzzle."
             : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
       </div>
@@ -677,7 +675,7 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You've completed the puzzle!</p>
+          <p>You&apos;ve completed the puzzle!</p>
           <img src={handleDownloadCompletedBoard({
             timestamp: new Date().toISOString(),
             moves: moveCount,
