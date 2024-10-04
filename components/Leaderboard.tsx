@@ -18,6 +18,7 @@ export interface LeaderboardEntry {
   grid: number[][]
   initialGrid: number[][]
   quote: string
+  hints: number // Added this line to include the hints property
 }
 
 interface LeaderboardProps {

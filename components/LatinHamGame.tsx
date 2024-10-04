@@ -139,13 +139,13 @@ const LatinHamGame: React.FC = () => {
     }
 
     const savedLeaderboard = localStorage.getItem('leaderboard')
-    if (savedLeaderboard) {
-      setLeaderboard(JSON.parse(savedLeaderboard))
+      if (savedLeaderboard) {
+        setLeaderboard(JSON.parse(savedLeaderboard))
     }
   }, [])
 
   useEffect(() => {
-    if (gameState === 'playing' || gameState === 'won') {
+    if (gameState !== 'start') {
       const savedGameState = {
         grid,
         locked,
@@ -176,11 +176,7 @@ const LatinHamGame: React.FC = () => {
     let timer: NodeJS.Timeout
     if (gameState === 'playing' && startTime !== null) {
       timer = setInterval(() => {
-        setElapsedTime(prevTime => {
-          const newTime = prevTime + 1
-          localStorage.setItem('elapsedTime', newTime.toString())
-          return newTime
-        })
+        setElapsedTime(prevTime => prevTime + 1)
       }, 1000)
     }
     return () => clearInterval(timer)
@@ -331,9 +327,6 @@ const LatinHamGame: React.FC = () => {
     setViewingEntry(entry)
     setGrid(entry.grid)
     setGameState('viewing')
-    setMoveCount(entry.moves)
-    setElapsedTime(entry.time)
-    setWinQuote(entry.quote)
 
     // Smooth scroll to the viewed board
     setTimeout(() => {
@@ -353,6 +346,16 @@ const LatinHamGame: React.FC = () => {
       setPreviousGameState(null)
       setPreviousGrid([])
       setViewingEntry(null)
+      
+      // Restore the previous game state
+      const savedState = localStorage.getItem('gameState')
+      if (savedState) {
+        const parsedState = JSON.parse(savedState)
+        setMoveCount(parsedState.moveCount)
+        setElapsedTime(parsedState.elapsedTime)
+        setHintCount(parsedState.hintCount)
+        setLeaderboardUpdated(parsedState.leaderboardUpdated)
+      }
     } else {
       handleNewGame()
     }
@@ -379,11 +382,11 @@ const LatinHamGame: React.FC = () => {
     const infoRowHeight = 40
     const quoteHeight = entry.quote ? 40 : 0
     const progressBarHeight = 20
-    const bottomPadding = 20
+    const bottomPadding = 5
     const cornerRadius = 20
     const cardPadding = 10
     const cellCornerRadius = 10
-    const spaceBetweenBoardAndInfo = 30
+    const spaceBetweenBoardAndInfo = 10
     const spaceBetweenInfoAndQuote = entry.quote ? 20 : 0
     const spaceBetweenElements = 10
   
@@ -468,7 +471,7 @@ const LatinHamGame: React.FC = () => {
         ctx.shadowOffsetY = 0
   
         // Draw cell border
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
         ctx.lineWidth = 1
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
@@ -571,7 +574,8 @@ const LatinHamGame: React.FC = () => {
       time: elapsedTime,
       grid: grid.map(row => [...row]),
       initialGrid: initialGrid.map(row => [...row]),
-      quote: quote
+      quote: quote,
+      hints: hintCount
     }
 
     setLeaderboard(prevLeaderboard => {
@@ -590,7 +594,7 @@ const LatinHamGame: React.FC = () => {
     setTimeout(() => {
       setShowWinPopup(true)
     }, 1000)
-  }, [difficulty, moveCount, elapsedTime, grid, initialGrid])
+  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
@@ -601,9 +605,12 @@ const LatinHamGame: React.FC = () => {
       time: elapsedTime,
       grid: grid.map(row => [...row]),
       initialGrid: initialGrid.map(row => [...row]),
-      quote: winQuote
+      quote: winQuote,
+      hints: hintCount
     })
-  }, [handleViewCompletedBoard, moveCount, elapsedTime, grid, initialGrid, winQuote])
+  }, [handleViewCompletedBoard, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
+
+  const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
 
   if (gameState === 'start') {
     return (
@@ -641,6 +648,8 @@ const LatinHamGame: React.FC = () => {
         <p className="text-center mt-4">
           {gameState === 'viewing' 
             ? "Viewing a completed puzzle from the leaderboard." 
+            : isGameWon
+            ? "Congratulations! You've completed the puzzle."
             : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
       </div>
@@ -660,9 +669,9 @@ const LatinHamGame: React.FC = () => {
       </div>
       <div className="w-[calc(6*3rem+5*0.75rem)] mt-4 mb-2">
         <div className="flex justify-between font-bold text-md">
-          <span>Moves: {moveCount}</span>
-          <span>Time: {formatTime(elapsedTime)}</span>
-          <span>Hints: {hintCount}</span>
+          <span>Moves: {gameState === 'viewing' ? viewingEntry?.moves : moveCount}</span>
+          <span>Time: {formatTime(gameState === 'viewing' ? viewingEntry?.time || 0 : elapsedTime)}</span>
+          <span>Hints: {gameState === 'viewing' ? viewingEntry?.hints : hintCount}</span>
         </div>
       </div>
       <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-2">
@@ -671,9 +680,9 @@ const LatinHamGame: React.FC = () => {
       {gameState !== 'viewing' && (
         <div className="flex space-x-2 mb-8">
           <Button onClick={handleNewGame} variant="secondary">New Game</Button>
-          <Button onClick={handleHint} variant="secondary">Hint</Button>
-          <Button onClick={handleReset} variant="secondary">Reset</Button>
-          <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "secondary"}>
+          <Button onClick={handleHint} variant="secondary" disabled={isGameWon}>Hint</Button>
+          <Button onClick={handleReset} variant="secondary" disabled={isGameWon}>Reset</Button>
+          <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "secondary"} disabled={isGameWon}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
@@ -687,7 +696,7 @@ const LatinHamGame: React.FC = () => {
           </Button>
         </div>
       )}
-      {gameState === 'viewing' && viewingEntry && viewingEntry.quote && (
+      {(gameState === 'viewing' || isGameWon) && viewingEntry && viewingEntry.quote && (
         <div className="text-center italic mb-8">
           &ldquo;{viewingEntry.quote}&rdquo;
         </div>
