@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Download, ChevronUp, ChevronDown, Eye } from 'lucide-react'
+import { ChevronUp, ChevronDown, Eye } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -25,7 +25,6 @@ interface LeaderboardProps {
   entries: LeaderboardEntry[]
   difficulty: 'easy' | 'medium' | 'hard'
   onViewCompletedBoard: (entry: LeaderboardEntry) => void
-  onDownloadCompletedBoard: (entry: LeaderboardEntry, rank: number) => void
 }
 
 const colorClasses = [
@@ -54,7 +53,7 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
   )
 }
 
-export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
+export function Leaderboard({ entries, difficulty, onViewCompletedBoard }: LeaderboardProps) {
   const [sortColumn, setSortColumn] = useState<'moves' | 'time'>('moves')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
