@@ -32,7 +32,7 @@ interface CellProps {
 const Cell: React.FC<CellProps> = ({ value, locked, edited, isHinted, showNumber, onClick, isTrashMode }) => {
   const baseClasses = "w-12 h-12 flex items-center justify-center text-lg font-bold relative transition-all duration-150 ease-in-out rounded-md shadow-sm"
   const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-white dark:bg-gray-600'
-  const borderClass = locked ? 'border-2 border-gray-600 dark:border-white' : 'border border-gray-300 dark:border-gray-500'
+  const borderClass = locked ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'
   const cursorClass = locked ? 'cursor-not-allowed' : 'cursor-pointer'
   const hintClass = isHinted ? 'ring-4 ring-yellow-400' : ''
   const trashModeClass = isTrashMode && edited && value !== 0 ? 'ring-2 ring-red-500' : ''
