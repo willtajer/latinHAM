@@ -665,7 +665,7 @@ const LatinHamGame: React.FC = () => {
           <span>Hints: {hintCount}</span>
         </div>
       </div>
-      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-4">
+      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-2">
         <ProgressBar grid={grid} />
       </div>
       {gameState !== 'viewing' && (
@@ -692,12 +692,14 @@ const LatinHamGame: React.FC = () => {
           &ldquo;{viewingEntry.quote}&rdquo;
         </div>
       )}
-      <Leaderboard 
-        entries={leaderboard[difficulty]}
-        difficulty={difficulty}
-        onViewCompletedBoard={handleViewCompletedBoard}
-        onDownloadCompletedBoard={handleDownloadCompletedBoard}
+      <div className="mt-8">
+        <Leaderboard 
+          entries={leaderboard[difficulty]}
+          difficulty={difficulty}
+          onViewCompletedBoard={handleViewCompletedBoard}
+          onDownloadCompletedBoard={handleDownloadCompletedBoard}
       />
+      </div>
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
         <DialogContent>
           <DialogHeader>
