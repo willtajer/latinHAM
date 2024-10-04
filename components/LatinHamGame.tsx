@@ -8,7 +8,7 @@ import { Leaderboard, LeaderboardEntry } from './Leaderboard'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Trash2, Download } from 'lucide-react'
+import { Trash2, Download, X } from 'lucide-react'
 import Confetti from 'react-confetti'
 
 const colorClasses = [
@@ -363,7 +363,7 @@ const LatinHamGame: React.FC = () => {
     }
   }, [previousGameState, previousGrid, handleNewGame])
 
-  const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry, rank: number) => {
+  const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     const canvas = canvasRef.current
     if (!canvas) {
       console.error('Canvas element not found')
@@ -557,7 +557,7 @@ const LatinHamGame: React.FC = () => {
     setLeaderboardUpdated(true)
     setShowConfetti(true)
     
-    const completedCardImage = handleDownloadCompletedBoard(newEntry, 1)
+    const completedCardImage = handleDownloadCompletedBoard(newEntry)
     setShowWinPopup(true)
     return completedCardImage
   }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount, handleDownloadCompletedBoard])
@@ -575,6 +575,27 @@ const LatinHamGame: React.FC = () => {
       hints: hintCount
     })
   }, [handleViewCompletedBoard, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
+
+  const handleDownload = useCallback(() => {
+    if (gameState === 'playing' || gameState === 'won') {
+      const entry: LeaderboardEntry = {
+        timestamp: new Date().toISOString(),
+        moves: moveCount,
+        time: elapsedTime,
+        grid: grid.map(row => [...row]),
+        initialGrid: initialGrid.map(row => [...row]),
+        quote: winQuote,
+        hints: hintCount
+      }
+      const imageDataUrl = handleDownloadCompletedBoard(entry)
+      if (imageDataUrl) {
+        const link = document.createElement('a')
+        link.href = imageDataUrl
+        link.download = `latinHAM_${difficulty}_moves${moveCount}_time${formatTime(elapsedTime)}.png`
+        link.click()
+      }
+    }
+  }, [gameState, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount, handleDownloadCompletedBoard, difficulty, formatTime])
 
   const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
 
@@ -594,7 +615,7 @@ const LatinHamGame: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
-          aria-label="Visit Will Tajer's website"
+          aria-label="Visit Will Tajer&apos;s website"
         >
           Created by Will Tajer
         </a>
@@ -615,7 +636,7 @@ const LatinHamGame: React.FC = () => {
           {gameState === 'viewing' 
             ? "Viewing a completed puzzle from the leaderboard." 
             : isGameWon
-            ? "Congratulations! You've completed the puzzle."
+            ? "Congratulations! You&apos;ve completed the puzzle."
             : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
       </div>
@@ -653,13 +674,20 @@ const LatinHamGame: React.FC = () => {
           <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "ghost"} className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
             <Trash2 className="w-4 h-4" />
           </Button>
+          <Button onClick={handleDownload} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
+            <Download className="w-4 h-4 mr-2" />
+            Download
+          </Button>
         </div>
       )}
       
       {gameState === 'viewing' && (
         <div className="flex space-x-2 mb-8">
-          <Button onClick={handleReturnFromViewingBoard} variant="ghost" className="hover:bg-transparent focus:bg-transparent">Return</Button>
-          <Button onClick={() => handleDownloadCompletedBoard(viewingEntry!, 1)} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
+          <Button onClick={handleReturnFromViewingBoard} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
+            <X className="w-4 h-4 mr-2" />
+            Close
+          </Button>
+          <Button onClick={() => handleDownloadCompletedBoard(viewingEntry!)} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
             <Download className="w-4 h-4 mr-2" />
             Download
           </Button>
@@ -719,7 +747,7 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You've completed the puzzle!</p>
+          <p>You&apos;ve completed the puzzle!</p>
           <img src={handleDownloadCompletedBoard({
             timestamp: new Date().toISOString(),
             moves: moveCount,
@@ -728,9 +756,10 @@ const LatinHamGame: React.FC = () => {
             initialGrid: initialGrid,
             quote: winQuote,
             hints: hintCount
-          }, 1)} alt="Completed Game Card" className="w-full h-auto" />
+          })} alt="Completed Game Card" className="w-full h-auto" />
           <DialogFooter>
             <Button onClick={handleNewGame}>Start New Game</Button>
+            <Button onClick={handleCloseWinPopup}>View Completed Board</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
