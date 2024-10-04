@@ -31,12 +31,12 @@ interface CellProps {
 
 const Cell: React.FC<CellProps> = ({ value, locked, edited, isHinted, showNumber, onClick, isTrashMode }) => {
   const baseClasses = "w-12 h-12 flex items-center justify-center text-lg font-bold relative transition-all duration-150 ease-in-out rounded-md shadow-sm"
-  const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-white'
-  const borderClass = locked ? 'border-2 border-gray-600' : 'border border-gray-300'
+  const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-white dark:bg-gray-600'
+  const borderClass = locked ? 'border-2 border-gray-600 dark:border-white' : 'border border-gray-300 dark:border-gray-500'
   const cursorClass = locked ? 'cursor-not-allowed' : 'cursor-pointer'
   const hintClass = isHinted ? 'ring-4 ring-yellow-400' : ''
   const trashModeClass = isTrashMode && edited && value !== 0 ? 'ring-2 ring-red-500' : ''
-  const interactiveClasses = !locked ? 'hover:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50' : ''
+  const interactiveClasses = !locked ? 'hover:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-opacity-50' : ''
 
   return (
     <div
@@ -57,7 +57,7 @@ const Cell: React.FC<CellProps> = ({ value, locked, edited, isHinted, showNumber
 
 export function GameBoard({ grid, locked, edited, hints, showNumbers, onCellClick, isTrashMode }: GameBoardProps) {
   return (
-    <div className="grid grid-cols-6 gap-3 bg-gray-200 p-3 rounded-lg shadow-inner">
+    <div className="grid grid-cols-6 gap-3 bg-gray-200 dark:bg-gray-700 p-3 rounded-lg shadow-inner">
       {grid.map((row, rowIndex) =>
         row.map((cell, colIndex) => (
           <Cell

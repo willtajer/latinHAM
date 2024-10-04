@@ -55,7 +55,7 @@ const GamePreview: React.FC = () => {
   }, [])
 
   return (
-    <div className="grid grid-cols-6 bg-gray-200 p-2 rounded-lg shadow-inner mb-8">
+    <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner mb-8">
       {previewGrid.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, colIndex) => (
@@ -69,7 +69,7 @@ const GamePreview: React.FC = () => {
 
 const ProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
   return (
-    <div className="grid grid-cols-6 bg-gray-200 p-2 rounded-lg shadow-inner mb-4">
+    <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner mb-4">
       {grid.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, colIndex) => (
@@ -678,18 +678,19 @@ const LatinHamGame: React.FC = () => {
       </div>
       {gameState !== 'viewing' && (
         <div className="flex space-x-2 mb-8">
-          <Button onClick={handleNewGame} variant="secondary">New Game</Button>
-          <Button onClick={handleHint} variant="secondary" disabled={isGameWon || hintsActive}>Hint</Button>
-          <Button onClick={handleReset} variant="secondary" disabled={isGameWon}>Reset</Button>
-          <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "secondary"} disabled={isGameWon}>
+          <Button onClick={handleNewGame} variant="ghost" className="hover:bg-transparent focus:bg-transparent">New Game</Button>
+          <Button onClick={handleHint} variant="ghost" className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon || hintsActive}>Hint</Button>
+          <Button onClick={handleReset} variant="ghost" className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>Reset</Button>
+          <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "ghost"} className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       )}
+      
       {gameState === 'viewing' && (
         <div className="flex space-x-2 mb-8">
-          <Button onClick={handleReturnFromViewingBoard} variant="secondary">Return</Button>
-          <Button onClick={() => handleDownloadCompletedBoard(viewingEntry!, 1)} variant="secondary">
+          <Button onClick={handleReturnFromViewingBoard} variant="ghost" className="hover:bg-transparent focus:bg-transparent">Return</Button>
+          <Button onClick={() => handleDownloadCompletedBoard(viewingEntry!, 1)} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
             <Download className="w-4 h-4 mr-2" />
             Download
           </Button>

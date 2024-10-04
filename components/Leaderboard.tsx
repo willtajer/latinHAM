@@ -18,7 +18,7 @@ export interface LeaderboardEntry {
   grid: number[][]
   initialGrid: number[][]
   quote: string
-  hints: number // Added this line to include the hints property
+  hints: number
 }
 
 interface LeaderboardProps {
@@ -39,13 +39,13 @@ const colorClasses = [
 
 const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
   return (
-    <div className="grid grid-cols-6 bg-gray-200 p-2 rounded-lg shadow-inner">
+    <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
       {grid.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white border border-gray-300'}`}
+              className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
             />
           ))}
         </div>
