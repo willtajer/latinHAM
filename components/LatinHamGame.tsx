@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input'
 import { Trash2, Download } from 'lucide-react'
 import Image from 'next/image'
 import Confetti from 'react-confetti'
-import { useUser } from '@clerk/nextjs'
 
 const colorClasses = [
   'bg-red-500',
@@ -114,38 +113,6 @@ const LatinHamGame: React.FC = () => {
   const [showViewPopup, setShowViewPopup] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
-
-  const { user } = useUser()
-
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      if (user) {
-        try {
-          const difficulties = ['easy', 'medium', 'hard']
-          const newLeaderboard: Record<string, LeaderboardEntry[]> = {}
-          
-          for (const diff of difficulties) {
-            const response = await fetch(`/api/get-leaderboard?difficulty=${diff}`)
-            if (response.ok) {
-              const data = await response.json()
-              newLeaderboard[diff] = data
-            }
-          }
-          
-          setLeaderboard(newLeaderboard)
-        } catch (error) {
-          console.error('Failed to fetch leaderboard:', error)
-        }
-      } else {
-        const savedLeaderboard = localStorage.getItem('leaderboard')
-        if (savedLeaderboard) {
-          setLeaderboard(JSON.parse(savedLeaderboard))
-        }
-      }
-    }
-
-    fetchLeaderboard()
-  }, [user])
 
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
@@ -539,7 +506,7 @@ const LatinHamGame: React.FC = () => {
     return canvas.toDataURL('image/png')
   }, [difficulty, formatTime])
 
-  const handleQuoteSubmit = useCallback(async (quote: string) => {
+  const handleQuoteSubmit = useCallback((quote: string) => {
     setWinQuote(quote)
     setShowQuoteDialog(false)
     
@@ -553,43 +520,23 @@ const LatinHamGame: React.FC = () => {
       hints: hintCount
     }
 
-    if (user) {
-      try {
-        await fetch('/api/save-game', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ ...newEntry, difficulty }),
-        })
-        // Fetch updated leaderboard
-        const response = await fetch(`/api/get-leaderboard?difficulty=${difficulty}`)
-        if (response.ok) {
-          const updatedLeaderboard = await response.json()
-          setLeaderboard(prev => ({ ...prev, [difficulty]: updatedLeaderboard }))
-        }
-      } catch (error) {
-        console.error('Failed to save game:', error)
+    setLeaderboard(prevLeaderboard => {
+      const updatedLeaderboard = {
+        ...prevLeaderboard,
+        [difficulty]: [...prevLeaderboard[difficulty], newEntry]
+          .sort((a, b) => a.moves - b.moves)
+          .slice(0, 12)
       }
-    } else {
-      // Update local leaderboard for non-signed-in users
-      setLeaderboard(prev => {
-        const updatedLeaderboard = {
-          ...prev,
-          [difficulty]: [...prev[difficulty], newEntry]
-            .sort((a, b) => a.moves - b.moves)
-            .slice(0, 12)
-        }
-        localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
-        return updatedLeaderboard
-      })
-    }
-
+      localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
+      return updatedLeaderboard
+    })
     setLeaderboardUpdated(true)
     setShowConfetti(true)
+    
+    const completedCardImage = handleDownloadCompletedBoard(newEntry)
     setShowWinPopup(true)
-    return handleDownloadCompletedBoard(newEntry)
-  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount, user, handleDownloadCompletedBoard])
+    return completedCardImage
+  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount, handleDownloadCompletedBoard])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
@@ -633,7 +580,7 @@ const LatinHamGame: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground sm:mt-24">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
       {showConfetti && (
         <div className="fixed inset-0 z-40 pointer-events-none">
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
@@ -670,25 +617,27 @@ const LatinHamGame: React.FC = () => {
           <span>Hints: {gameState === 'viewing' ? viewingEntry?.hints : hintCount}</span>
         </div>
       </div>
-      <div className="w-[calc(6*3rem+5*0.75rem)] mt-2 mb-4 flex justify-between">
-        <Button onClick={handleNewGame} variant="outline">
-          New Game
-        </Button>
-        <Button onClick={handleReset} variant="outline" disabled={gameState === 'viewing'}>
-          Reset
-        </Button>
-        <Button onClick={handleHint} variant="outline" disabled={gameState === 'viewing'}>
-          Hint
-        </Button>
-        <Button onClick={handleTrashToggle} variant="outline" disabled={gameState === 'viewing'}>
-          <Trash2 className={`h-4 w-4 ${isTrashMode ? 'text-red-500' : ''}`} />
-        </Button>
+      <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
+        <ProgressBar grid={grid} />
       </div>
+      {gameState !== 'viewing' && (
+        <div className="flex space-x-2 mb-8">
+          <Button onClick={handleNewGame} variant="ghost" className="hover:bg-transparent focus:bg-transparent">New Game</Button>
+          <Button onClick={handleHint} variant="ghost" className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
+            {hintsActive ? 'Hide Hints' : 'Hint'}
+          </Button>
+          <Button onClick={handleReset} variant="ghost" className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>Reset</Button>
+          <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "ghost"} className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+      
       <Leaderboard 
         entries={leaderboard[difficulty]}
         difficulty={difficulty}
         onViewCompletedBoard={handleViewCompletedBoard}
-        onDownloadCompletedBoard={handleDownload}
+        onDownloadCompletedBoard={handleDownloadCompletedBoard}
       />
       <Dialog open={showNewGameConfirmation} onOpenChange={setShowNewGameConfirmation}>
         <DialogContent>
@@ -696,72 +645,89 @@ const LatinHamGame: React.FC = () => {
             <DialogTitle>Start a New Game?</DialogTitle>
           </DialogHeader>
           <p>Are you sure you want to start a new game? Your current progress will be lost.</p>
-          <DialogFooter>
-            <Button onClick={() => setShowNewGameConfirmation(false)} variant="outline">Cancel</Button>
-            <Button onClick={confirmNewGame}>New Game</Button>
+          <DialogFooter className="sm:space-x-2">
+            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+              <Button onClick={() => setShowNewGameConfirmation(false)} variant="outline" className="sm:w-auto">Cancel</Button>
+              <Button onClick={confirmNewGame} className="sm:w-auto">Confirm</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Congratulations!</DialogTitle>
+          <DialogTitle>Congratulations! You won!</DialogTitle>
           </DialogHeader>
-          <p>You've completed the puzzle! Would you like to add a quote to your leaderboard entry?</p>
-          <Input 
-            placeholder="Enter your quote here (optional)"
-            onChange={(e) => setWinQuote(e.target.value)}
+          <p>Enter a quote to commemorate your victory:</p>
+          <Input
+            placeholder="Enter your quote here"
             value={winQuote}
+            onChange={(e) => setWinQuote(e.target.value)}
           />
           <DialogFooter>
             <Button onClick={() => handleQuoteSubmit(winQuote)}>Submit</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={showWinPopup} onOpenChange={handleCloseWinPopup}>
+      <Dialog open={showWinPopup} onOpenChange={(open) => {
+          if (!open) handleCloseWinPopup();
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You've completed the puzzle!</p>
-          <p>Moves: {moveCount}</p>
-          <p>Time: {formatTime(elapsedTime)}</p>
-          <p>Hints: {hintCount}</p>
-          {winQuote && <p>Your quote: "{winQuote}"</p>}
+          <p>You&apos;ve completed the puzzle!</p>
+          <Image 
+            src={handleDownloadCompletedBoard({
+              timestamp: new Date().toISOString(),
+              moves: moveCount,
+              time: elapsedTime,
+              grid: grid,
+              initialGrid: initialGrid,
+              quote: winQuote,
+              hints: hintCount
+          }) || ''} alt="Completed Game Card" className="w-full h-auto" />
           <DialogFooter>
-            <Button onClick={handleCloseWinPopup}>Close</Button>
+            <div className="flex justify-center gap-2 w-full">
+              <Button onClick={handleNewGame}>Start New Game</Button>
+              <Button onClick={() => handleDownload({
+                timestamp: new Date().toISOString(),
+                moves: moveCount,
+                time: elapsedTime,
+                grid: grid,
+                initialGrid: initialGrid,
+                quote: winQuote,
+                hints: hintCount
+              })} variant="outline"> 
+                <Download className="w-4 h-4" />
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={showViewPopup} onOpenChange={handleCloseViewPopup}>
-        <DialogContent className="max-w-3xl">
+      <Dialog open={showViewPopup} onOpenChange={setShowViewPopup}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Viewing Completed Board</DialogTitle>
+            <DialogTitle>Completed Puzzle</DialogTitle>
           </DialogHeader>
           {viewingEntry && (
             <>
-              <div className="flex justify-center">
-                <GameBoard 
-                  grid={viewingEntry.grid}
-                  locked={viewingEntry.initialGrid.map(row => row.map(cell => cell !== 0))}
-                  edited={viewingEntry.grid.map(row => row.map(cell => cell !== 0))}
-                  hints={Array(BOARD_SIZE).fill(false).map(() => Array(BOARD_SIZE).fill(false))}
-                  showNumbers={false}
-                  onCellClick={() => {}}
-                  isTrashMode={false}
-                />
-              </div>
-              <div className="mt-4">
-                <p>Moves: {viewingEntry.moves}</p>
-                <p>Time: {formatTime(viewingEntry.time)}</p>
-                <p>Hints: {viewingEntry.hints}</p>
-                {viewingEntry.quote && <p>Quote: "{viewingEntry.quote}"</p>}
-              </div>
+              <img 
+                src={handleDownloadCompletedBoard(viewingEntry)} 
+                alt="Completed Game Card" 
+                className="w-full h-auto"
+              />
+              <DialogFooter>
+                <div className="flex justify-between w-full">
+                  <Button onClick={handleCloseViewPopup}>Close</Button>
+                  <Button onClick={() => handleDownload(viewingEntry)} variant="outline">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </DialogFooter>
             </>
           )}
-          <DialogFooter>
-            <Button onClick={handleCloseViewPopup}>Close</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
