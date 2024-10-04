@@ -41,22 +41,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-background text-foreground">
-      <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-      <Analytics/>
-      <SpeedInsights/>
-      <header>
+      <body className={`bg-background text-foreground ${inter.className}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Analytics />
+          <SpeedInsights />
+          <header>
             <ModeToggle />
-      </header>
-      <main>
-        {children}
-      </main>
-      </ThemeProvider>
+          </header>
+          <main>
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   )
