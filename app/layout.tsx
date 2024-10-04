@@ -56,7 +56,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-          <header className="w-full py-4 px-6 flex justify-end items-center space-x-4">
+          <header className="fixed top-0 right-0 z-50 p-4">
             <Analytics />
             <SpeedInsights />
             <div className="flex items-center space-x-4">
@@ -68,7 +68,14 @@ export default function RootLayout({
                 </SignInButton>
               </SignedOut>
               <SignedIn>
-                <UserButton afterSignOutUrl="/" />
+                <UserButton 
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-10 h-10"
+                    }
+                  }}
+                />
               </SignedIn>
               <ModeToggle />
             </div>
