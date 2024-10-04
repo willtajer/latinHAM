@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS leaderboard_entries (
+  id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  difficulty TEXT NOT NULL,
+  moves INTEGER NOT NULL,
+  time INTEGER NOT NULL,
+  grid JSONB NOT NULL,
+  initial_grid JSONB NOT NULL,
+  quote TEXT,
+  hints INTEGER NOT NULL,
+  timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

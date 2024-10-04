@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
-import './globals.css'
 import { ModeToggle } from '@/components/ModeToggle'
 import {
   ClerkProvider,
@@ -12,6 +11,8 @@ import {
   SignedOut,
   UserButton
 } from '@clerk/nextjs'
+import { LoginHandler } from '@/components/LoginHandler'
+import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
     url: 'https://latinham.willtajer.com',
     images: [
       {
-        url: 'http://willtajer.com/wp-content/uploads/2024/10/latinHAM.png', // Replace with your actual Open Graph image URL
+        url: 'http://willtajer.com/wp-content/uploads/2024/10/latinHAM.png',
         width: 1200,
         height: 630,
         alt: '36latinHAM Game Preview',
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '36latinHAM',
     description: 'A challenging puzzle game based on Latin squares and the HAM problem',
-    images: ['http://willtajer.com/wp-content/uploads/2024/10/latinHAMtwitter-e1727909000790.png'], // Replace with your actual Twitter card image URL
+    images: ['http://willtajer.com/wp-content/uploads/2024/10/latinHAMtwitter-e1727909000790.png'],
   },
 }
 
@@ -56,35 +57,36 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-          <header className="sticky top-0 right-0 z-50 w-full">
-            <div className="flex justify-end items-center p-4">
-              <Analytics />
-              <SpeedInsights />
-              <div className="flex items-center space-x-4">
-                <SignedOut>
-                  <SignInButton>
-                    <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton 
-                    afterSignOutUrl="/"
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-10 h-10"
-                      }
-                    }}
-                  />
-                </SignedIn>
-                <ModeToggle />
+            <header className="sticky top-0 right-0 z-50 w-full">
+              <div className="flex justify-end items-center p-4">
+                <Analytics />
+                <SpeedInsights />
+                <div className="flex items-center space-x-4">
+                  <SignedOut>
+                    <SignInButton>
+                      <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                        Sign In
+                      </button>
+                    </SignInButton>
+                  </SignedOut>
+                  <SignedIn>
+                    <UserButton 
+                      afterSignOutUrl="/"
+                      appearance={{
+                        elements: {
+                          avatarBox: "w-10 h-10"
+                        }
+                      }}
+                    />
+                  </SignedIn>
+                  <ModeToggle />
+                </div>
               </div>
-            </div>
-          </header>
-          <main>
-            {children}
-          </main>
+            </header>
+            <main>
+              <LoginHandler />
+              {children}
+            </main>
           </ThemeProvider>
         </body>
       </html>
