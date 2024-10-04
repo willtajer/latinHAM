@@ -613,7 +613,7 @@ const LatinHamGame: React.FC = () => {
 
   if (gameState === 'start') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
         <div className="w-[calc(6*3rem+6*0.75rem)]">
           <h1 className="text-6xl font-bold mb-6 text-center">latinHAM</h1>
           <GamePreview />
@@ -636,7 +636,7 @@ const LatinHamGame: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-8">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
       {showConfetti && (
         <div className="fixed inset-0 z-40 pointer-events-none">
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
