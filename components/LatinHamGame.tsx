@@ -474,7 +474,7 @@ const LatinHamGame: React.FC = () => {
     ctx.fillStyle = '#000000'
     ctx.font = 'bold 16px Arial'
     ctx.textAlign = 'center'
-    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${hintCount}`, canvas.width / 2, currentY + 25)
+    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${entry.hints}`, canvas.width / 2, currentY + 25)
     currentY += infoRowHeight + spaceBetweenInfoAndQuote
   
     if (entry.quote) {
@@ -527,20 +527,8 @@ const LatinHamGame: React.FC = () => {
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
   
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        console.error('Failed to create blob from canvas')
-        return
-      }
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      const fileName = `latinHAM_${difficulty}_rank${rank}_${formattedDateTime}${difficultyIndicator}_moves${entry.moves}_time${formatTime(entry.time)}.png`
-      link.download = fileName
-      link.href = url
-      link.click()
-      URL.revokeObjectURL(url)
-    }, 'image/png')
-  }, [difficulty, formatTime, hintCount])
+    return canvas.toDataURL('image/png')
+  }, [difficulty, formatTime])
 
   const handleQuoteSubmit = useCallback((quote: string) => {
     setWinQuote(quote)
@@ -569,10 +557,10 @@ const LatinHamGame: React.FC = () => {
     setLeaderboardUpdated(true)
     setShowConfetti(true)
     
-    setTimeout(() => {
-      setShowWinPopup(true)
-    }, 1000)
-  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount])
+    const completedCardImage = handleDownloadCompletedBoard(newEntry, 1)
+    setShowWinPopup(true)
+    return completedCardImage
+  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount, handleDownloadCompletedBoard])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
@@ -714,7 +702,15 @@ const LatinHamGame: React.FC = () => {
             onChange={(e) => setWinQuote(e.target.value)}
           />
           <DialogFooter>
-            <Button onClick={() => handleQuoteSubmit(winQuote)}>Submit</Button>
+            <Button onClick={() => {
+              const completedCardImage = handleQuoteSubmit(winQuote)
+              if (completedCardImage) {
+                const link = document.createElement('a')
+                link.href = completedCardImage
+                link.download = 'completed_latinHAM.png'
+                link.click()
+              }
+            }}>Submit</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -723,12 +719,18 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You&apos;ve completed the puzzle!</p>
-          <p>Moves: {moveCount}</p>
-          <p>Time: {formatTime(elapsedTime)}</p>
-          <p>Quote: &ldquo;{winQuote}&rdquo;</p>
+          <p>You've completed the puzzle!</p>
+          <img src={handleDownloadCompletedBoard({
+            timestamp: new Date().toISOString(),
+            moves: moveCount,
+            time: elapsedTime,
+            grid: grid,
+            initialGrid: initialGrid,
+            quote: winQuote,
+            hints: hintCount
+          }, 1)} alt="Completed Game Card" className="w-full h-auto" />
           <DialogFooter>
-            <Button onClick={handleCloseWinPopup}>View Completed Board</Button>
+            <Button onClick={handleNewGame}>Start New Game</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
