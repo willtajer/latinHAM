@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Trash2, Download } from 'lucide-react'
 import Image from 'next/image'
 import Confetti from 'react-confetti'
+import { useUser } from '@clerk/nextjs'
 
 const colorClasses = [
   'bg-red-500',
@@ -114,6 +115,38 @@ const LatinHamGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
+  const { user } = useUser()
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      if (user) {
+        try {
+          const difficulties = ['easy', 'medium', 'hard']
+          const newLeaderboard: Record<string, LeaderboardEntry[]> = {}
+          
+          for (const diff of difficulties) {
+            const response = await fetch(`/api/get-leaderboard?difficulty=${diff}`)
+            if (response.ok) {
+              const data = await response.json()
+              newLeaderboard[diff] = data
+            }
+          }
+          
+          setLeaderboard(newLeaderboard)
+        } catch (error) {
+          console.error('Failed to fetch leaderboard:', error)
+        }
+      } else {
+        const savedLeaderboard = localStorage.getItem('leaderboard')
+        if (savedLeaderboard) {
+          setLeaderboard(JSON.parse(savedLeaderboard))
+        }
+      }
+    }
+
+    fetchLeaderboard()
+  }, [user])
+
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
     if (savedState) {
@@ -138,11 +171,13 @@ const LatinHamGame: React.FC = () => {
       setGameState('start')
     }
 
-    const savedLeaderboard = localStorage.getItem('leaderboard')
-    if (savedLeaderboard) {
-      setLeaderboard(JSON.parse(savedLeaderboard))
+    if (!user) {
+      const savedLeaderboard = localStorage.getItem('leaderboard')
+      if (savedLeaderboard) {
+        setLeaderboard(JSON.parse(savedLeaderboard))
+      }
     }
-  }, [])
+  }, [user])
 
   useEffect(() => {
     if (gameState !== 'start') {
@@ -169,8 +204,10 @@ const LatinHamGame: React.FC = () => {
   }, [grid, locked, edited, gameState, difficulty, hints, showNumbers, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime, hintsActive, leaderboardUpdated, winQuote])
 
   useEffect(() => {
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard))
-  }, [leaderboard])
+    if (!user) {
+      localStorage.setItem('leaderboard', JSON.stringify(leaderboard))
+    }
+  }, [leaderboard, user])
 
   useEffect(() => {
     let timer: NodeJS.Timeout
@@ -506,7 +543,7 @@ const LatinHamGame: React.FC = () => {
     return canvas.toDataURL('image/png')
   }, [difficulty, formatTime])
 
-  const handleQuoteSubmit = useCallback((quote: string) => {
+  const handleQuoteSubmit = useCallback(async (quote: string) => {
     setWinQuote(quote)
     setShowQuoteDialog(false)
     
@@ -520,23 +557,43 @@ const LatinHamGame: React.FC = () => {
       hints: hintCount
     }
 
-    setLeaderboard(prevLeaderboard => {
-      const updatedLeaderboard = {
-        ...prevLeaderboard,
-        [difficulty]: [...prevLeaderboard[difficulty], newEntry]
-          .sort((a, b) => a.moves - b.moves)
-          .slice(0, 12)
+    if (user) {
+      try {
+        await fetch('/api/save-game', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...newEntry, difficulty }),
+        })
+        // Fetch updated leaderboard
+        const response = await fetch(`/api/get-leaderboard?difficulty=${difficulty}`)
+        if (response.ok) {
+          const updatedLeaderboard = await response.json()
+          setLeaderboard(prev => ({ ...prev, [difficulty]: updatedLeaderboard }))
+        }
+      } catch (error) {
+        console.error('Failed to save game:', error)
       }
-      localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
-      return updatedLeaderboard
-    })
+    } else {
+      // Update local leaderboard for non-signed-in users
+      setLeaderboard(prev => {
+        const updatedLeaderboard = {
+          ...prev,
+          [difficulty]: [...prev[difficulty], newEntry]
+            .sort((a, b) => a.moves - b.moves)
+            .slice(0, 12)
+        }
+        localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard))
+        return updatedLeaderboard
+      })
+    }
+
     setLeaderboardUpdated(true)
     setShowConfetti(true)
-    
-    const completedCardImage = handleDownloadCompletedBoard(newEntry)
     setShowWinPopup(true)
-    return completedCardImage
-  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount, handleDownloadCompletedBoard])
+    return handleDownloadCompletedBoard(newEntry)
+  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, hintCount, user, handleDownloadCompletedBoard])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
