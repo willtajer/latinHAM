@@ -662,7 +662,7 @@ const LatinHamGame: React.FC = () => {
           locked={locked}
           edited={edited}
           hints={hints}
-          showNumbers={showNumbers}
+          showNumbers={false}
           onCellClick={handleCellClick}
           isTrashMode={isTrashMode}
         />
@@ -680,7 +680,7 @@ const LatinHamGame: React.FC = () => {
       {gameState !== 'viewing' && (
         <div className="flex space-x-2 mb-8">
           <Button onClick={handleNewGame} variant="secondary">New Game</Button>
-          <Button onClick={handleHint} variant="secondary" disabled={isGameWon}>Hint</Button>
+          <Button onClick={handleHint} variant="secondary" disabled={isGameWon || hintsActive}>Hint</Button>
           <Button onClick={handleReset} variant="secondary" disabled={isGameWon}>Reset</Button>
           <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "secondary"} disabled={isGameWon}>
             <Trash2 className="w-4 h-4" />
