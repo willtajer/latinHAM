@@ -396,9 +396,8 @@ const LatinHamGame: React.FC = () => {
     canvas.width = contentWidth + 2 * cardPadding
     canvas.height = contentHeight + 2 * cardPadding
   
-    // Draw black background for the card
-    ctx.fillStyle = '#000000'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // Draw transparent background for the card
+    ctx.clearRect(0, 0, canvas.width, canvas.height)  
   
     // Draw rounded rectangle for the main content
     ctx.fillStyle = '#f3f4f6'
