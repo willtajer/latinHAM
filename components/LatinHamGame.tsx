@@ -591,7 +591,7 @@ const LatinHamGame: React.FC = () => {
           {gameState === 'viewing' 
             ? "Viewing a completed puzzle from the leaderboard." 
             : isGameWon
-            ? "Congratulations! You&apos;ve completed the puzzle."
+            ? "Congratulations! You've completed the puzzle."
             : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
       </div>
@@ -675,7 +675,7 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You&apos;ve completed the puzzle!</p>
+          <p>You've completed the puzzle!</p>
           <img src={handleDownloadCompletedBoard({
             timestamp: new Date().toISOString(),
             moves: moveCount,
