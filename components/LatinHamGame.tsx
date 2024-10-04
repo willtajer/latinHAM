@@ -39,7 +39,7 @@ const PreviewCell: React.FC<{ value: number }> = ({ value }) => {
 
 const GamePreview: React.FC = () => {
   const [previewGrid, setPreviewGrid] = useState(() => createLatinSquare())
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setPreviewGrid(prevGrid => {
@@ -111,6 +111,7 @@ const LatinHamGame: React.FC = () => {
   const [showWinPopup, setShowWinPopup] = useState(false)
   const [winQuote, setWinQuote] = useState<string>("")
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
+  const [showViewPopup, setShowViewPopup] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
@@ -139,8 +140,8 @@ const LatinHamGame: React.FC = () => {
     }
 
     const savedLeaderboard = localStorage.getItem('leaderboard')
-      if (savedLeaderboard) {
-        setLeaderboard(JSON.parse(savedLeaderboard))
+    if (savedLeaderboard) {
+      setLeaderboard(JSON.parse(savedLeaderboard))
     }
   }, [])
 
@@ -218,6 +219,8 @@ const LatinHamGame: React.FC = () => {
     setDifficulty(selectedDifficulty)
     setLeaderboardUpdated(false)
     setWinQuote("")
+    setShowWinPopup(false)
+    setShowConfetti(false)
   }, [])
 
   const handleCellClick = useCallback((row: number, col: number) => {
@@ -254,6 +257,8 @@ const LatinHamGame: React.FC = () => {
 
   const handleNewGame = useCallback(() => {
     setShowNewGameConfirmation(true)
+    setShowWinPopup(false)
+    setShowConfetti(false)
   }, [])
 
   const confirmNewGame = useCallback(() => {
@@ -263,6 +268,8 @@ const LatinHamGame: React.FC = () => {
     setShowNewGameConfirmation(false)
     setLeaderboardUpdated(false)
     setWinQuote("")
+    setShowWinPopup(false)
+    setShowConfetti(false)
   }, [])
 
   const handleHint = useCallback(() => {
@@ -324,44 +331,14 @@ const LatinHamGame: React.FC = () => {
   }, [])
 
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
-    if (gameState === 'playing' || gameState === 'won') {
-      setPreviousGameState(gameState)
-      setPreviousGrid(grid.map(row => [...row]))
-    }
     setViewingEntry(entry)
-    setGrid(entry.grid)
-    setGameState('viewing')
+    setShowViewPopup(true)
+  }, [])
 
-    setTimeout(() => {
-      if (viewedBoardRef.current) {
-        viewedBoardRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        })
-      }
-    }, 100)
-  }, [gameState, grid])
-
-  const handleReturnFromViewingBoard = useCallback(() => {
-    if (previousGameState) {
-      setGameState(previousGameState)
-      setGrid(previousGrid)
-      setPreviousGameState(null)
-      setPreviousGrid([])
-      setViewingEntry(null)
-      
-      const savedState = localStorage.getItem('gameState')
-      if (savedState) {
-        const parsedState = JSON.parse(savedState)
-        setMoveCount(parsedState.moveCount)
-        setElapsedTime(parsedState.elapsedTime)
-        setHintCount(parsedState.hintCount)
-        setLeaderboardUpdated(parsedState.leaderboardUpdated)
-      }
-    } else {
-      handleNewGame()
-    }
-  }, [previousGameState, previousGrid, handleNewGame])
+  const handleCloseViewPopup = useCallback(() => {
+    setShowViewPopup(false)
+    setViewingEntry(null)
+  }, [])
 
   const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     const canvas = canvasRef.current
@@ -369,13 +346,13 @@ const LatinHamGame: React.FC = () => {
       console.error('Canvas element not found')
       return
     }
-  
+
     const ctx = canvas.getContext('2d')
     if (!ctx) {
       console.error('Unable to get 2D context from canvas')
       return
     }
-  
+
     const cellSize = 60
     const cellSpacing = 8
     const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
@@ -391,15 +368,15 @@ const LatinHamGame: React.FC = () => {
     const spaceBetweenBoardAndInfo = 10
     const spaceBetweenInfoAndQuote = entry.quote ? 20 : 0
     const spaceBetweenElements = 10
-  
+
     const contentWidth = boardSize + 2 * padding
     const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndQuote + quoteHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
-  
+
     canvas.width = contentWidth + 2 * cardPadding
     canvas.height = contentHeight + 2 * cardPadding
-  
+
     ctx.clearRect(0, 0, canvas.width, canvas.height)  
-  
+
     ctx.fillStyle = '#f3f4f6'
     ctx.beginPath()
     ctx.moveTo(cardPadding + cornerRadius, cardPadding)
@@ -413,10 +390,10 @@ const LatinHamGame: React.FC = () => {
     ctx.arcTo(cardPadding, cardPadding, cardPadding + cornerRadius, cardPadding, cornerRadius)
     ctx.closePath()
     ctx.fill()
-  
+
     const adjustX = (x: number) => x + cardPadding
     const adjustY = (y: number) => y + cardPadding
-  
+
     const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number) => {
       ctx.beginPath()
       ctx.moveTo(x + radius, y)
@@ -426,57 +403,57 @@ const LatinHamGame: React.FC = () => {
       ctx.arcTo(x, y, x + width, y, radius)
       ctx.closePath()
     }
-  
+
     entry.grid.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
         const x = adjustX(padding + colIndex * (cellSize + cellSpacing))
         const y = adjustY(padding + rowIndex * (cellSize + cellSpacing))
-  
+
         const colorClass = colorClasses[cell - 1] || 'bg-white'
         ctx.fillStyle = colorMap[colorClass] || 'white'
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.fill()
-  
+
         if (entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000'
           ctx.lineWidth = 5
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
           ctx.stroke()
-  
+
           ctx.strokeStyle = '#FFFFFF'
           ctx.lineWidth = 1
           drawRoundedRect(x + 2.5, y + 2.5, cellSize - 5, cellSize - 5, cellCornerRadius - 2.5)
           ctx.stroke()
         }
-  
+
         ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'
         ctx.shadowBlur = 4
         ctx.shadowOffsetX = 2
         ctx.shadowOffsetY = 2
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.fill()
-  
+
         ctx.shadowColor = 'transparent'
         ctx.shadowBlur = 0
         ctx.shadowOffsetX = 0
         ctx.shadowOffsetY = 0
-  
+
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
         ctx.lineWidth = 1
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
       })
     })
-  
+
     let currentY = adjustY(boardSize + padding)
-  
+
     currentY += spaceBetweenBoardAndInfo
     ctx.fillStyle = '#000000'
     ctx.font = 'bold 16px Arial'
     ctx.textAlign = 'center'
     ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${entry.hints}`, canvas.width / 2, currentY + 25)
     currentY += infoRowHeight + spaceBetweenInfoAndQuote
-  
+
     if (entry.quote) {
       ctx.fillStyle = '#000000'
       ctx.font = 'bold 18px Arial'
@@ -484,7 +461,7 @@ const LatinHamGame: React.FC = () => {
       ctx.fillText(`"${entry.quote}"`, canvas.width / 2, currentY + 25)
       currentY += quoteHeight + spaceBetweenElements
     }
-  
+
     const completionDate = new Date(entry.timestamp)
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
     
@@ -511,10 +488,10 @@ const LatinHamGame: React.FC = () => {
     ctx.fillText(timestampText, startX + latinHAMWidth + 10 + timestampWidth / 2, currentY + 25)
     
     currentY += dateTimeHeight + spaceBetweenElements
-  
+
     const progressCellWidth = (contentWidth - 2 * padding) / (BOARD_SIZE * BOARD_SIZE)
     const progressCellHeight = progressBarHeight
-  
+
     entry.grid.flat().forEach((cell, index) => {
       const x = adjustX(padding + index * progressCellWidth)
       const y = currentY
@@ -526,7 +503,7 @@ const LatinHamGame: React.FC = () => {
       ctx.lineWidth = 1
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
-  
+
     return canvas.toDataURL('image/png')
   }, [difficulty, formatTime])
 
@@ -565,37 +542,17 @@ const LatinHamGame: React.FC = () => {
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
     setShowConfetti(false)
-    handleViewCompletedBoard({
-      timestamp: new Date().toISOString(),
-      moves: moveCount,
-      time: elapsedTime,
-      grid: grid.map(row => [...row]),
-      initialGrid: initialGrid.map(row => [...row]),
-      quote: winQuote,
-      hints: hintCount
-    })
-  }, [handleViewCompletedBoard, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
+  }, [])
 
-  const handleDownload = useCallback(() => {
-    if (gameState === 'playing' || gameState === 'won') {
-      const entry: LeaderboardEntry = {
-        timestamp: new Date().toISOString(),
-        moves: moveCount,
-        time: elapsedTime,
-        grid: grid.map(row => [...row]),
-        initialGrid: initialGrid.map(row => [...row]),
-        quote: winQuote,
-        hints: hintCount
-      }
-      const imageDataUrl = handleDownloadCompletedBoard(entry)
-      if (imageDataUrl) {
-        const link = document.createElement('a')
-        link.href = imageDataUrl
-        link.download = `latinHAM_${difficulty}_moves${moveCount}_time${formatTime(elapsedTime)}.png`
-        link.click()
-      }
+  const handleDownload = useCallback((entry: LeaderboardEntry) => {
+    const imageDataUrl = handleDownloadCompletedBoard(entry)
+    if (imageDataUrl) {
+      const link = document.createElement('a')
+      link.href = imageDataUrl
+      link.download = `latinHAM_${difficulty}_moves${entry.moves}_time${formatTime(entry.time)}.png`
+      link.click()
     }
-  }, [gameState, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount, handleDownloadCompletedBoard, difficulty, formatTime])
+  }, [difficulty, handleDownloadCompletedBoard, formatTime])
 
   const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
 
@@ -615,7 +572,7 @@ const LatinHamGame: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
-          aria-label="Visit Will Tajer&apos;s website"
+          aria-label="Visit Will Tajer's website"
         >
           Created by Will Tajer
         </a>
@@ -636,7 +593,7 @@ const LatinHamGame: React.FC = () => {
           {gameState === 'viewing' 
             ? "Viewing a completed puzzle from the leaderboard." 
             : isGameWon
-            ? "Congratulations! You&apos;ve completed the puzzle."
+            ? "Congratulations! You've completed the puzzle."
             : "Click on a cell to cycle through colors. Each color should appear once per row and column."}
         </p>
       </div>
@@ -674,30 +631,9 @@ const LatinHamGame: React.FC = () => {
           <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "ghost"} className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
             <Trash2 className="w-4 h-4" />
           </Button>
-          <Button onClick={handleDownload} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
-            <Download className="w-4 h-4 mr-2" />
-            Download
-          </Button>
         </div>
       )}
       
-      {gameState === 'viewing' && (
-        <div className="flex space-x-2 mb-8">
-          <Button onClick={handleReturnFromViewingBoard} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
-            <X className="w-4 h-4 mr-2" />
-            Close
-          </Button>
-          <Button onClick={() => handleDownloadCompletedBoard(viewingEntry!)} variant="ghost" className="hover:bg-transparent focus:bg-transparent">
-            <Download className="w-4 h-4 mr-2" />
-            Download
-          </Button>
-        </div>
-      )}
-      {(gameState === 'viewing' || isGameWon) && viewingEntry && viewingEntry.quote && (
-        <div className="text-center italic mb-8">
-          &ldquo;{viewingEntry.quote}&rdquo;
-        </div>
-      )}
       <Leaderboard 
         entries={leaderboard[difficulty]}
         difficulty={difficulty}
@@ -730,24 +666,18 @@ const LatinHamGame: React.FC = () => {
             onChange={(e) => setWinQuote(e.target.value)}
           />
           <DialogFooter>
-            <Button onClick={() => {
-              const completedCardImage = handleQuoteSubmit(winQuote)
-              if (completedCardImage) {
-                const link = document.createElement('a')
-                link.href = completedCardImage
-                link.download = 'completed_latinHAM.png'
-                link.click()
-              }
-            }}>Submit</Button>
+            <Button onClick={() => handleQuoteSubmit(winQuote)}>Submit</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={showWinPopup} onOpenChange={setShowWinPopup}>
+      <Dialog open={showWinPopup} onOpenChange={(open) => {
+          if (!open) handleCloseWinPopup();
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You&apos;ve completed the puzzle!</p>
+          <p>You've completed the puzzle!</p>
           <img src={handleDownloadCompletedBoard({
             timestamp: new Date().toISOString(),
             moves: moveCount,
@@ -758,9 +688,46 @@ const LatinHamGame: React.FC = () => {
             hints: hintCount
           })} alt="Completed Game Card" className="w-full h-auto" />
           <DialogFooter>
-            <Button onClick={handleNewGame}>Start New Game</Button>
-            <Button onClick={handleCloseWinPopup}>View Completed Board</Button>
+            <div className="flex justify-center gap-2 w-full">
+              <Button onClick={handleNewGame}>Start New Game</Button>
+              <Button onClick={() => handleDownload({
+                timestamp: new Date().toISOString(),
+                moves: moveCount,
+                time: elapsedTime,
+                grid: grid,
+                initialGrid: initialGrid,
+                quote: winQuote,
+                hints: hintCount
+              })} variant="outline"> 
+                <Download className="w-4 h-4" />
+              </Button>
+            </div>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showViewPopup} onOpenChange={setShowViewPopup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Completed Puzzle</DialogTitle>
+          </DialogHeader>
+          {viewingEntry && (
+            <>
+              <img 
+                src={handleDownloadCompletedBoard(viewingEntry)} 
+                alt="Completed Game Card" 
+                className="w-full h-auto"
+              />
+              <DialogFooter>
+                <div className="flex justify-between w-full">
+                  <Button onClick={handleCloseViewPopup}>Close</Button>
+                  <Button onClick={() => handleDownload(viewingEntry)} variant="outline">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
       <canvas ref={canvasRef} style={{ display: 'none' }} />

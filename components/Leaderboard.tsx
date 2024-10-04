@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Download, ChevronUp, ChevronDown } from 'lucide-react'
+import { Download, ChevronUp, ChevronDown, Eye } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -131,9 +131,9 @@ export function Leaderboard({ entries, difficulty, onViewCompletedBoard, onDownl
                   <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                   <TableCell className="text-center align-middle">
                     <div className="flex justify-center space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => onDownloadCompletedBoard(entry, entryNumber)}>
-                        <Download className="w-4 h-4" />
-                        <span className="sr-only">Download</span>
+                      <Button variant="ghost" size="icon" onClick={() => onViewCompletedBoard(entry)}>
+                        <Eye className="w-4 h-4" />
+                        <span className="sr-only">View</span>
                       </Button>
                     </div>
                   </TableCell>
