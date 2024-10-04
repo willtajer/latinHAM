@@ -22,9 +22,10 @@ export interface LeaderboardEntry {
 }
 
 interface LeaderboardProps {
-  entries: LeaderboardEntry[]
-  difficulty: 'easy' | 'medium' | 'hard'
-  onViewCompletedBoard: (entry: LeaderboardEntry) => void
+  entries: LeaderboardEntry[];
+  difficulty: "easy" | "medium" | "hard";
+  onViewCompletedBoard: (entry: LeaderboardEntry) => void;
+  onDownloadCompletedBoard: (entry: LeaderboardEntry) => string | undefined;
 }
 
 const colorClasses = [
