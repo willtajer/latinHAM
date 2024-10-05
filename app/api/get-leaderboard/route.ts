@@ -19,21 +19,45 @@ export async function GET(request: NextRequest) {
     `
 
     // Ensure the returned data matches the LeaderboardEntry type
-    const formattedLeaderboard = result.rows.map(entry => ({
-      timestamp: entry.timestamp.toISOString(),
-      moves: Number(entry.moves),
-      time: Number(entry.time),
-      grid: JSON.parse(entry.grid),
-      initialGrid: JSON.parse(entry.initial_grid),
-      quote: entry.quote || '',
-      hints: Number(entry.hints)
-    }))
+    const formattedLeaderboard = result.rows.map(entry => {
+      try {
+        return {
+          timestamp: new Date(entry.timestamp).toISOString(),
+          moves: Number(entry.moves),
+          time: Number(entry.time),
+          grid: parseJsonField(entry.grid),
+          initialGrid: parseJsonField(entry.initial_grid),
+          quote: entry.quote || '',
+          hints: Number(entry.hints)
+        }
+      } catch (parseError) {
+        console.error('Error parsing entry:', entry, parseError)
+        return null
+      }
+    }).filter(Boolean)
 
-    console.log('Fetched leaderboard:', formattedLeaderboard)
+    console.log('Fetched leaderboard:', JSON.stringify(formattedLeaderboard))
 
     return NextResponse.json(formattedLeaderboard)
   } catch (error) {
     console.error('Failed to fetch leaderboard:', error)
     return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
   }
+}
+
+function parseJsonField(field: any): any[] {
+  if (Array.isArray(field)) {
+    return field
+  }
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field)
+      return Array.isArray(parsed) ? parsed : []
+    } catch (error) {
+      console.error('Error parsing JSON field:', field, error)
+      return []
+    }
+  }
+  console.error('Invalid field type:', typeof field)
+  return []
 }
