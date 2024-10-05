@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { ChevronUp, ChevronDown, Eye, Download } from 'lucide-react'
+import { ChevronUp, ChevronDown, Eye } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
