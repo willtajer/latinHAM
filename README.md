@@ -1,3 +1,6 @@
+Here's an updated version of your README.md that reflects the current state of the latinHAM application:
+
+```markdown
 # latinHAM
 
 ## Table of Contents
@@ -8,9 +11,11 @@
 5. [Project Structure](#project-structure)
 6. [Game Rules](#game-rules)
 7. [Components](#components)
-8. [Deployment](#deployment)
-9. [Contributing](#contributing)
-10. [License](#license)
+8. [API Routes](#api-routes)
+9. [Deployment](#deployment)
+10. [Future Improvements](#future-improvements)
+11. [Contributing](#contributing)
+12. [License](#license)
 
 ## Introduction
 
@@ -22,9 +27,10 @@ latinHAM is a web-based puzzle game inspired by the classic Latin Square puzzle.
 - Three difficulty levels: Easy, Medium, and Hard
 - Color-based gameplay with optional number hints
 - Move counter, timer, and hint system
-- Personal leaderboard for each difficulty level
+- Global leaderboard for each difficulty level
+- User authentication and profile management
 - Responsive design for various screen sizes
-- Local storage for game state persistence
+- Server-side game state persistence
 - New game confirmation dialog
 - Reset and hint functionalities
 - Trash mode for easy cell clearing
@@ -33,10 +39,11 @@ latinHAM is a web-based puzzle game inspired by the classic Latin Square puzzle.
 - Quote submission for completed puzzles
 - Viewing and downloading of completed puzzles
 - Pagination for leaderboard entries
+- Dark mode support
 
 ## Technologies Used
 
-- Next.js 14
+- Next.js 14 with App Router
 - React 18
 - TypeScript
 - Tailwind CSS
@@ -44,36 +51,60 @@ latinHAM is a web-based puzzle game inspired by the classic Latin Square puzzle.
 - Lucide React icons
 - Framer Motion for animations
 - react-confetti for celebration effects
+- Clerk for authentication
+- PostgreSQL (Neon) for database storage
+- Vercel for deployment
 
 ## Getting Started
 
 To run this project locally, follow these steps:
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/willtajer/latinHAM.git
-   cd latinHAM
-   ```
+```
+
+git clone [https://github.com/willtajer/latinHAM.git](https://github.com/willtajer/latinHAM.git)
+cd latinHAM
+
+```plaintext
 
 2. Install dependencies:
-   ```
-   npm install
-   ```
+```
 
-3. Run the development server:
-   ```
-   npm run dev
-   ```
+npm install
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
+```plaintext
+
+3. Set up environment variables:
+Create a `.env.local` file in the root directory and add the following variables:
+```
+
+DATABASE_URL=your_neon_database_url
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+```plaintext
+
+4. Run the development server:
+```
+
+npm run dev
+
+```plaintext
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
 ## Project Structure
 
 The project follows the Next.js 14 App Router structure:
 
 ```
+
 latinHAM/
 ├── app/
+│   ├── api/
+│   │   ├── get-leaderboard/
+│   │   ├── save-game/
+│   │   └── sync-games/
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
@@ -83,6 +114,9 @@ latinHAM/
 │   ├── Leaderboard.tsx
 │   └── ui/
 │       └── (shadcn/ui components)
+├── lib/
+│   ├── db.ts
+│   └── schema.ts
 ├── utils/
 │   └── gameLogic.ts
 ├── public/
@@ -91,7 +125,8 @@ latinHAM/
 ├── next.config.js
 ├── package.json
 └── tsconfig.json
-```
+
+```plaintext
 
 ## Game Rules
 
@@ -116,6 +151,7 @@ The main game component that manages the game state, difficulty selection, and o
 - Leaderboard integration
 - Quote submission for completed puzzles
 - Viewing and downloading completed puzzles
+- User authentication state management
 
 ### GameBoard
 
@@ -134,33 +170,48 @@ Allows players to choose between Easy, Medium, and Hard difficulty levels. It af
 
 ### Leaderboard
 
-Displays the player's scores for the current difficulty level. It includes:
+Displays the global scores for the current difficulty level. It includes:
 - Sorting functionality for different score aspects (moves, time)
-- Persistent storage of scores using local storage
+- Server-side persistence of scores
 - Responsive design for various screen sizes
 - Pagination for browsing through entries
 - Mini preview of completed boards
 - Download functionality for completed puzzles
 
+## API Routes
+
+- `/api/get-leaderboard`: Fetches the leaderboard data for a specific difficulty
+- `/api/save-game`: Saves a completed game to the leaderboard
+- `/api/sync-games`: Synchronizes locally stored games with the server for authenticated users
+
 ## Deployment
 
-The game is deployed on my website and can be accessed at [latinham.willtajer.com](https://latinham.willtajer.com).
+The game is deployed on Vercel and can be accessed at [latinham.willtajer.com](https://latinham.willtajer.com).
 
 To deploy the game:
 
-1. Build the project:
-   ```
-   npm run build
-   ```
+1. Ensure you have the Vercel CLI installed:
+```
 
-2. Follow the deployment instructions for your hosting provider. For most Next.js applications, you can use Vercel for easy deployment:
+npm install -g vercel
 
-   ```
-   npm install -g vercel
-   vercel
-   ```
+```plaintext
 
-   Follow the prompts to deploy your application.
+2. Deploy the application:
+```
+
+vercel
+
+```plaintext
+
+Follow the prompts to deploy your application.
+
+## Future Improvements
+
+- Implement more advanced puzzle generation algorithms
+- Add social sharing features for completed puzzles
+- Introduce daily challenges and special events
+- Optimize performance for larger grid sizes
 
 ## Contributing
 
@@ -179,3 +230,18 @@ Copyright © 2024 Will Tajer. All rights reserved.
 This project is proprietary and confidential. Unauthorized copying, transferring or reproduction of this project, via any medium, is strictly prohibited.
 
 For licensing inquiries or permissions, please contact Will Tajer at https://willtajer.com/contact/. Knaht Uoy
+```
+
+This updated README reflects the current state of your latinHAM application, including:
+
+1. Added information about user authentication and profile management.
+2. Updated the Technologies Used section to include Clerk, PostgreSQL (Neon), and Vercel.
+3. Added instructions for setting up environment variables.
+4. Updated the Project Structure to include the new API routes and lib directory.
+5. Added an API Routes section to describe the new server-side functionality.
+6. Updated the LatinHamGame and Leaderboard component descriptions to reflect the new server-side persistence and global leaderboard features.
+7. Added a Future Improvements section to highlight potential enhancements.
+8. Made minor adjustments throughout to reflect the current state of the application.
+
+
+The overall structure and style of the original README have been maintained while incorporating all the recent developments and improvements.
