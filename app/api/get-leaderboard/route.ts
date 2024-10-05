@@ -2,6 +2,26 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { sql } from '@/lib/db'
 
+interface LeaderboardEntry {
+  timestamp: string;
+  moves: number;
+  time: number;
+  grid: number[][];
+  initialGrid: number[][];
+  quote: string;
+  hints: number;
+}
+
+interface DatabaseEntry {
+  timestamp: Date;
+  moves: number | string;
+  time: number | string;
+  grid: string | number[][];
+  initial_grid: string | number[][];
+  quote: string | null;
+  hints: number | string;
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const difficulty = searchParams.get('difficulty')
@@ -11,14 +31,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await sql`
+    const result = await sql<DatabaseEntry>`
       SELECT * FROM leaderboard_entries 
       WHERE difficulty = ${difficulty} 
       ORDER BY moves ASC 
       LIMIT 12
     `
 
-    // Ensure the returned data matches the LeaderboardEntry type
     const formattedLeaderboard = result.rows.map(entry => {
       try {
         return {
@@ -29,12 +48,12 @@ export async function GET(request: NextRequest) {
           initialGrid: parseJsonField(entry.initial_grid),
           quote: entry.quote || '',
           hints: Number(entry.hints)
-        }
+        } as LeaderboardEntry
       } catch (parseError) {
         console.error('Error parsing entry:', entry, parseError)
         return null
       }
-    }).filter(Boolean)
+    }).filter((entry): entry is LeaderboardEntry => entry !== null)
 
     console.log('Fetched leaderboard:', JSON.stringify(formattedLeaderboard))
 
@@ -45,7 +64,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function parseJsonField(field: any): any[] {
+function parseJsonField(field: string | number[][]): number[][] {
   if (Array.isArray(field)) {
     return field
   }
