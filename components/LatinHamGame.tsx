@@ -731,7 +731,7 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Congratulations!</DialogTitle>
           </DialogHeader>
-          <p>You've completed the puzzle!</p>
+          <p>You&apos;ve completed the puzzle!</p>
           <Image 
             src={handleDownloadCompletedBoard({
               timestamp: new Date().toISOString(),
