@@ -229,19 +229,5 @@ Copyright © 2024 Will Tajer. All rights reserved.
 
 This project is proprietary and confidential. Unauthorized copying, transferring or reproduction of this project, via any medium, is strictly prohibited.
 
-For licensing inquiries or permissions, please contact Will Tajer at https://willtajer.com/contact/. Knaht Uoy
+For licensing inquiries or permissions, please contact Will Tajer at https://willtajer.com/contact/. Knaht Uoy 3113
 ```
-
-This updated README reflects the current state of your latinHAM application, including:
-
-1. Added information about user authentication and profile management.
-2. Updated the Technologies Used section to include Clerk, PostgreSQL (Neon), and Vercel.
-3. Added instructions for setting up environment variables.
-4. Updated the Project Structure to include the new API routes and lib directory.
-5. Added an API Routes section to describe the new server-side functionality.
-6. Updated the LatinHamGame and Leaderboard component descriptions to reflect the new server-side persistence and global leaderboard features.
-7. Added a Future Improvements section to highlight potential enhancements.
-8. Made minor adjustments throughout to reflect the current state of the application.
-
-
-The overall structure and style of the original README have been maintained while incorporating all the recent developments and improvements.

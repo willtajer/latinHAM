@@ -117,37 +117,47 @@ const LatinHamGame: React.FC = () => {
 
   const { user, isLoaded } = useUser()
 
-  const fetchLeaderboard = useCallback(async () => {
-    if (user) {
-      try {
-        const difficulties = ['easy', 'medium', 'hard']
-        const newLeaderboard: Record<string, LeaderboardEntry[]> = {}
-        
-        for (const diff of difficulties) {
-          const response = await fetch(`/api/get-leaderboard?difficulty=${diff}`)
-          if (response.ok) {
-            const data = await response.json()
-            newLeaderboard[diff] = data
-          }
-        }
-        
-        setLeaderboard(newLeaderboard)
-      } catch (error) {
-        console.error('Failed to fetch leaderboard:', error)
-      }
-    } else {
-      const savedLeaderboard = localStorage.getItem('leaderboard')
-      if (savedLeaderboard) {
-        setLeaderboard(JSON.parse(savedLeaderboard))
+  const fetchLeaderboard = useCallback(async (): Promise<Record<string, LeaderboardEntry[]>> => {
+    const difficulties = ['easy', 'medium', 'hard']
+    const newLeaderboard: Record<string, LeaderboardEntry[]> = {}
+    
+    for (const diff of difficulties) {
+      const response = await fetch(`/api/get-leaderboard?difficulty=${diff}`)
+      if (response.ok) {
+        const data = await response.json()
+        newLeaderboard[diff] = data
       }
     }
-  }, [user])
+    
+    return newLeaderboard
+  }, [])
 
   useEffect(() => {
-    if (isLoaded) {
-      fetchLeaderboard()
+    const fetchLeaderboardData = async () => {
+      if (isLoaded) {
+        if (user) {
+          try {
+            const newLeaderboard = await fetchLeaderboard()
+            setLeaderboard(newLeaderboard)
+          } catch (error) {
+            console.error('Failed to fetch leaderboard:', error)
+          }
+        } else {
+          const savedLeaderboard = localStorage.getItem('leaderboard')
+          if (savedLeaderboard) {
+            try {
+              const parsedLeaderboard = JSON.parse(savedLeaderboard)
+              setLeaderboard(parsedLeaderboard)
+            } catch (error) {
+              console.error('Failed to parse saved leaderboard:', error)
+            }
+          }
+        }
+      }
     }
-  }, [isLoaded, fetchLeaderboard])
+  
+    fetchLeaderboardData()
+  }, [user, isLoaded, fetchLeaderboard])
 
   useEffect(() => {
     const savedState = localStorage.getItem('gameState')
@@ -569,7 +579,8 @@ const LatinHamGame: React.FC = () => {
           body: JSON.stringify({ ...newEntry, difficulty }),
         })
         // Fetch updated leaderboard
-        await fetchLeaderboard()
+        const updatedLeaderboard = await fetchLeaderboard()
+        setLeaderboard(updatedLeaderboard)
       } catch (error) {
         console.error('Failed to save game:', error)
       }
@@ -613,7 +624,7 @@ const LatinHamGame: React.FC = () => {
   if (gameState === 'start') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
-        <div className="w-[calc(6*3rem+6*0.75rem)]">
+        <div className="w-[calc(6*3rem+6*0.75rem)] mb-32">
           <h1 className="text-6xl font-bold mb-6 text-center">latinHAM</h1>
           <GamePreview />
           <p className="text-center mt-4 mb-8">

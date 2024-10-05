@@ -149,10 +149,6 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                         <Eye className="w-4 h-4" />
                         <span className="sr-only">View</span>
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => onDownloadCompletedBoard(entry)}>
-                        <Download className="w-4 h-4" />
-                        <span className="sr-only">Download</span>
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

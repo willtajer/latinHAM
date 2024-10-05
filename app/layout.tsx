@@ -57,14 +57,12 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <header className="sticky top-0 right-0 z-50 w-full">
-              <div className="flex justify-end items-center p-4">
-                <Analytics />
-                <SpeedInsights />
-                <div className="flex items-center space-x-4">
+            <header className="sticky top-0 left-0 right-0 z-50 w-full">
+              <div className="flex justify-between items-center p-4">
+                <div>
                   <SignedOut>
                     <SignInButton>
-                      <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                    <button className="px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors">
                         Sign In
                       </button>
                     </SignInButton>
@@ -79,14 +77,16 @@ export default function RootLayout({
                       }}
                     />
                   </SignedIn>
-                  <ModeToggle />
                 </div>
+                <ModeToggle />
               </div>
             </header>
             <main>
               <LoginHandler />
               {children}
             </main>
+            <Analytics />
+            <SpeedInsights />
           </ThemeProvider>
         </body>
       </html>
