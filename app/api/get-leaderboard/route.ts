@@ -1,31 +1,28 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { getAuth } from '@clerk/nextjs/server'
-import { sql } from '@vercel/postgres'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import pool from '@/lib/db'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).end()
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const difficulty = searchParams.get('difficulty')
+
+  if (!difficulty) {
+    return NextResponse.json({ error: 'Difficulty parameter is required' }, { status: 400 })
   }
-
-  const { userId } = getAuth(req)
-  if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
-
-  const difficulty = Array.isArray(req.query.difficulty) 
-    ? req.query.difficulty[0] 
-    : req.query.difficulty || ''
 
   try {
-    const { rows } = await sql`
-      SELECT * FROM leaderboard_entries
-      WHERE user_id = ${userId} AND difficulty = ${difficulty}
-      ORDER BY moves ASC, time ASC
-      LIMIT 12
-    `
-    res.status(200).json(rows)
+    const client = await pool.connect()
+    try {
+      const result = await client.query(
+        'SELECT * FROM leaderboard_entries WHERE difficulty = $1 ORDER BY moves ASC LIMIT 12',
+        [difficulty]
+      )
+      return NextResponse.json(result.rows)
+    } finally {
+      client.release()
+    }
   } catch (error) {
     console.error('Failed to fetch leaderboard:', error)
-    res.status(500).json({ error: 'Failed to fetch leaderboard' })
+    return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
   }
 }
