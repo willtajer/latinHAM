@@ -17,7 +17,21 @@ export async function GET(request: NextRequest) {
       ORDER BY moves ASC 
       LIMIT 12
     `
-    return NextResponse.json(result.rows)
+
+    // Ensure the returned data matches the LeaderboardEntry type
+    const formattedLeaderboard = result.rows.map(entry => ({
+      timestamp: entry.timestamp.toISOString(),
+      moves: Number(entry.moves),
+      time: Number(entry.time),
+      grid: JSON.parse(entry.grid),
+      initialGrid: JSON.parse(entry.initial_grid),
+      quote: entry.quote || '',
+      hints: Number(entry.hints)
+    }))
+
+    console.log('Fetched leaderboard:', formattedLeaderboard)
+
+    return NextResponse.json(formattedLeaderboard)
   } catch (error) {
     console.error('Failed to fetch leaderboard:', error)
     return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })

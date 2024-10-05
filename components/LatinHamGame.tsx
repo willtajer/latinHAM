@@ -765,23 +765,33 @@ const LatinHamGame: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Completed Puzzle</DialogTitle>
           </DialogHeader>
-          {viewingEntry && (
+          {viewingEntry ? (
             <>
-              <img 
-                src={handleDownloadCompletedBoard(viewingEntry)} 
-                alt="Completed Game Card" 
-                className="w-full h-auto"
-              />
+              {handleDownloadCompletedBoard(viewingEntry) ? (
+                <img 
+                  src={handleDownloadCompletedBoard(viewingEntry) || ''} 
+                  alt="Completed Game Card" 
+                  className="w-full h-auto"
+                />
+              ) : (
+                <p>Error: Unable to generate game card image.</p>
+              )}
               <DialogFooter>
                 <div className="flex justify-between w-full">
                   <Button onClick={handleCloseViewPopup}>Close</Button>
-                  <Button onClick={() => handleDownload(viewingEntry)} variant="outline">
+                  <Button 
+                    onClick={() => handleDownload(viewingEntry)} 
+                    variant="outline"
+                    disabled={!handleDownloadCompletedBoard(viewingEntry)}
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Download
                   </Button>
                 </div>
               </DialogFooter>
             </>
+          ) : (
+            <p>Error: No game data available.</p>
           )}
         </DialogContent>
       </Dialog>

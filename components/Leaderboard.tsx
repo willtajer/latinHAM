@@ -38,6 +38,11 @@ const colorClasses = [
 ]
 
 const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
+  if (!Array.isArray(grid) || grid.length === 0) {
+    console.error('Invalid grid data:', grid)
+    return null
+  }
+
   return (
     <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
       {grid.map((row, rowIndex) => (
