@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import pool from '@/lib/db'
+import { sql } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -11,16 +11,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const client = await pool.connect()
-    try {
-      const result = await client.query(
-        'SELECT * FROM leaderboard_entries WHERE difficulty = $1 ORDER BY moves ASC LIMIT 12',
-        [difficulty]
-      )
-      return NextResponse.json(result.rows)
-    } finally {
-      client.release()
-    }
+    const result = await sql`
+      SELECT * FROM leaderboard_entries 
+      WHERE difficulty = ${difficulty} 
+      ORDER BY moves ASC 
+      LIMIT 12
+    `
+    return NextResponse.json(result.rows)
   } catch (error) {
     console.error('Failed to fetch leaderboard:', error)
     return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
