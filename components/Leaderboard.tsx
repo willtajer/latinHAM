@@ -59,7 +59,7 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
   )
 }
 
-export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, onDownloadCompletedBoard }: LeaderboardProps) {
+export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: LeaderboardProps) {
   const [sortColumn, setSortColumn] = useState<'moves' | 'time'>('moves')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
