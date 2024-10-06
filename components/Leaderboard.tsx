@@ -26,25 +26,27 @@ const colorClasses = [
   'bg-orange-500',
 ]
 
-const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
+const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ grid, onClick }) => {
   if (!Array.isArray(grid) || grid.length === 0) {
     console.error('Invalid grid data:', grid)
     return null
   }
 
   return (
-    <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
-      {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex">
-          {row.map((cell, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
+    <button onClick={onClick} className="w-full">
+      <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
+        {grid.map((row, rowIndex) => (
+          <div key={rowIndex} className="flex">
+            {row.map((cell, colIndex) => (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </button>
   )
 }
 
@@ -125,11 +127,14 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
               return (
                 <TableRow key={entry.id}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
-                  <TableCell className="text-center align-middle">{(entry as LeaderboardEntry & { username?: string }).username ?? 'Anonymous'}</TableCell>
+                  <TableCell className="text-center align-middle">
+                    {(entry as LeaderboardEntry & { username?: string }).username ?? 'Anonymous'}
+                  </TableCell>
                   <TableCell className="text-center py-2">
-                    <button className="w-full" onClick={() => onViewCompletedBoard(entry)}>
-                      <MiniProgressBar grid={entry.grid} />
-                    </button>
+                    <MiniProgressBar 
+                      grid={entry.grid} 
+                      onClick={() => onViewCompletedBoard(entry)}
+                    />
                   </TableCell>
                   <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
                   <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
