@@ -38,20 +38,15 @@ const LatinHamGame: React.FC = () => {
     handleReset,
     handleTrashToggle,
     checkWin,
-    resetGame,
-    setGameState,
-    initializeGame,
   } = useGameLogic()
 
   const {
     leaderboard,
     handleQuoteSubmit: leaderboardHandleQuoteSubmit,
     handleViewCompletedBoard,
-    handleDownloadCompletedBoard,
   } = useLeaderboard(difficulty)
 
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
-  const [showWinPopup, setShowWinPopup] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
@@ -81,7 +76,6 @@ const LatinHamGame: React.FC = () => {
   }, [hasSubmittedQuote])
 
   const handleCloseWinPopup = useCallback(() => {
-    setShowWinPopup(false)
     setShowConfetti(false)
     setShowWinCard(false)
     setShowQuoteDialog(false)
