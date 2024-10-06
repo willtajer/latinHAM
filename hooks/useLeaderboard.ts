@@ -12,13 +12,20 @@ export const useLeaderboard = (difficulty: 'easy' | 'medium' | 'hard') => {
 
   const fetchLeaderboard = useCallback(async () => {
     try {
-      const response = await fetch('/api/leaderboard')
+      const response = await fetch(`/api/leaderboard?difficulty=${difficulty}`)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       const data = await response.json()
-      setLeaderboard(data)
+      console.log('Fetched leaderboard data:', data)
+      setLeaderboard(prevState => ({
+        ...prevState,
+        [difficulty]: data
+      }))
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error)
     }
-  }, [])
+  }, [difficulty])
 
   useEffect(() => {
     fetchLeaderboard()
@@ -31,7 +38,7 @@ export const useLeaderboard = (difficulty: 'easy' | 'medium' | 'hard') => {
     }
 
     try {
-      await fetch('/api/save-game', {
+      const response = await fetch('/api/save-game', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,6 +51,11 @@ export const useLeaderboard = (difficulty: 'easy' | 'medium' | 'hard') => {
           username: user.username || user.firstName || 'Anonymous'
         }),
       })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const result = await response.json()
+      console.log('Save game result:', result)
       await fetchLeaderboard()
     } catch (error) {
       console.error('Failed to save game:', error)
@@ -51,20 +63,12 @@ export const useLeaderboard = (difficulty: 'easy' | 'medium' | 'hard') => {
   }, [difficulty, fetchLeaderboard, user])
 
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
-    // Implementation for viewing completed board
     console.log('Viewing completed board:', entry)
-  }, [])
-
-  const handleDownloadCompletedBoard = useCallback((entry: LeaderboardEntry) => {
-    // Implementation for downloading completed board
-    console.log('Downloading completed board:', entry)
-    // Add your download logic here
   }, [])
 
   return {
     leaderboard,
     handleQuoteSubmit,
     handleViewCompletedBoard,
-    handleDownloadCompletedBoard,
   }
 }

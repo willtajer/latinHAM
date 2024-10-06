@@ -71,10 +71,10 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
     }
   }
 
-  const sortedEntries = Array.isArray(entries) ? [...entries].sort((a, b) => {
+  const sortedEntries = [...entries].sort((a, b) => {
     const compareValue = sortColumn === 'moves' ? a.moves - b.moves : a.time - b.time
     return sortDirection === 'asc' ? compareValue : -compareValue
-  }) : []
+  })
 
   const totalPages = Math.ceil(sortedEntries.length / entriesPerPage)
   const paginatedEntries = sortedEntries.slice(
@@ -82,11 +82,11 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
     currentPage * entriesPerPage
   )
 
-  if (!Array.isArray(entries) || entries.length === 0) {
+  if (entries.length === 0) {
     return (
       <div className="w-full max-w-5xl mx-auto px-4 mb-20">
         <h2 className="text-2xl font-bold mb-4 text-center">My {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAMs</h2>
-        <p className="text-center">No entries available.</p>
+        <p className="text-center">No entries available for {difficulty} difficulty.</p>
       </div>
     )
   }
