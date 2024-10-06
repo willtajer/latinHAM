@@ -93,7 +93,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 mb-20">
-      <h2 className="text-2xl font-bold mb-4 text-center">My {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAMs</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAMs</h2>
       <div className="overflow-x-auto">
         <Table className="w-full">
           <TableHeader>

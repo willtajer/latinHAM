@@ -83,6 +83,13 @@ export const useGameLogic = () => {
         newGrid[row][col] = (newGrid[row][col] % 6) + 1
         setMoveCount(prevCount => prevCount + 1)
       }
+
+      // Check for win condition after updating the grid
+      if (checkWin(newGrid)) {
+        setGameState('won')
+        setStartTime(null) // This will stop the timer
+      }
+
       return newGrid
     })
 
@@ -96,10 +103,6 @@ export const useGameLogic = () => {
     setShowNumbers(false)
     setHintsActive(false)
     setIsTrashMode(false)
-
-    if (checkWin(grid)) {
-      setGameState('won')
-    }
   }, [gameState, locked, isTrashMode, edited, grid])
 
   const handleSelectDifficulty = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
