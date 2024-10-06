@@ -43,7 +43,6 @@ const LatinHamGame: React.FC = () => {
   const {
     leaderboard,
     handleQuoteSubmit: leaderboardHandleQuoteSubmit,
-    handleViewCompletedBoard,
   } = useLeaderboard(difficulty)
 
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
