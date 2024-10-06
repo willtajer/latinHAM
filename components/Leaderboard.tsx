@@ -50,6 +50,13 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
   )
 }
 
+const getPlayerDisplay = (entry: LeaderboardEntry): string => {
+  if (typeof entry.id === 'string' && entry.id.length > 0) {
+    return `Player ${entry.id.slice(0, 8)}`;
+  }
+  return 'Unknown Player';
+};
+
 export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: LeaderboardProps) {
   const [sortColumn, setSortColumn] = useState<'moves' | 'time'>('moves')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
@@ -128,7 +135,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                 <TableRow key={entry.id || index}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
                   <TableCell className="text-center align-middle">
-                    Player {(entry.id && typeof entry.id === 'string') ? entry.id.slice(0, 8) : 'Unknown'}
+                    {getPlayerDisplay(entry)}
                   </TableCell>
                   <TableCell className="text-center py-2">
                     {entry.grid ? (
