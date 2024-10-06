@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { LeaderboardEntry } from '../types'
 import { useUser } from '@clerk/nextjs'
 
-export const useLeaderboard = (difficulty: 'easy' | 'medium' | 'hard') => {
+export function useLeaderboard(difficulty: 'easy' | 'medium' | 'hard') {
   const [leaderboard, setLeaderboard] = useState<Record<string, LeaderboardEntry[]>>({
     easy: [],
     medium: [],
