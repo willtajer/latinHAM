@@ -50,13 +50,6 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
   )
 }
 
-const getPlayerDisplay = (entry: LeaderboardEntry): string => {
-  if (typeof entry.id === 'string' && entry.id.length > 0) {
-    return `Player ${entry.id.slice(0, 8)}`;
-  }
-  return 'Unknown Player';
-};
-
 export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: LeaderboardProps) {
   const [sortColumn, setSortColumn] = useState<'moves' | 'time'>('moves')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
@@ -105,8 +98,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">#</TableHead>
-              <TableHead className="w-32 text-center">Player</TableHead>
+              <TableHead className="w-16 text-center">Rank</TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">latinHAM</TableHead>
               <TableHead 
                 className="w-24 text-center cursor-pointer"
@@ -134,9 +126,6 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
               return (
                 <TableRow key={entry.id || index}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
-                  <TableCell className="text-center align-middle">
-                    {getPlayerDisplay(entry)}
-                  </TableCell>
                   <TableCell className="text-center py-2">
                     {entry.grid ? (
                       <MiniProgressBar 

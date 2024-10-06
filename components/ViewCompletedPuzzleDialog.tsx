@@ -47,7 +47,7 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
           />
         </div>
         <DialogFooter className="flex justify-center">
-          <Button onClick={handleDownload} className="w-full sm:w-auto p-2" aria-label="Download completed puzzle">
+          <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
             <Download className="h-5 w-5 mr-2" />
             Download
           </Button>

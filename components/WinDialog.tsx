@@ -76,8 +76,10 @@ export const WinDialog: React.FC<WinDialogProps> = ({
               />
             </div>
             <DialogFooter className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button onClick={onStartNewGame} className="w-full sm:w-auto">Start New Game</Button>
-              <Button onClick={handleDownload} className="w-full sm:w-auto p-2" aria-label="Download completed puzzle">
+              <Button onClick={onStartNewGame} className="inline-flex items-center px-4 py-2">
+                Start New Game
+              </Button>
+              <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
                 <Download className="h-5 w-5 mr-2" />
                 Download
               </Button>
