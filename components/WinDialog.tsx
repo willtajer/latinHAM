@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
-import { Download } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 
 interface WinDialogProps {
   open: boolean
@@ -16,6 +16,7 @@ interface WinDialogProps {
   gameNumber?: number
   difficulty: 'easy' | 'medium' | 'hard'
   onStartNewGame: () => void
+  onResetGame: (initialGrid: number[][]) => void
   showQuoteInput: boolean
 }
 
@@ -29,6 +30,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   gameNumber,
   difficulty,
   onStartNewGame,
+  onResetGame,
   showQuoteInput
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
@@ -41,6 +43,13 @@ export const WinDialog: React.FC<WinDialogProps> = ({
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
+    }
+  }
+
+  const handleResetGame = () => {
+    if (entry && entry.initialGrid) {
+      onResetGame(entry.initialGrid)
+      onOpenChange(false)
     }
   }
 
@@ -75,14 +84,18 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                 onImageReady={setImageDataUrl}
               />
             </div>
-            <DialogFooter className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button onClick={onStartNewGame} className="inline-flex items-center px-4 py-2">
-                Start New Game
-              </Button>
-              <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
-                <Download className="h-5 w-5 mr-2" />
-                Download
-              </Button>
+            <DialogFooter className="flex flex-col items-center gap-4 justify-center">
+              <div className="flex justify-center w-full gap-4">
+                <Button onClick={onStartNewGame} className="inline-flex items-center px-4 py-2">
+                  Start New Game
+                </Button> 
+                <Button onClick={handleResetGame} className="inline-flex items-center p-2" aria-label="Reset and play this puzzle">
+                  <RefreshCw className="h-5 w-5" />
+                </Button>
+                <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
+                  <Download className="h-5 w-5" />
+                </Button>
+              </div>
             </DialogFooter>
           </>
         )}

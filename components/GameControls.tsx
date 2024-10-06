@@ -28,7 +28,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
       <Button onClick={handleHint} variant="ghost" className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
         {hintsActive ? 'Hide Hints' : 'Hint'}
       </Button>
-      <Button onClick={handleReset} variant="ghost" className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>Reset</Button>
+      <Button onClick={handleReset} variant="ghost" className="hover:bg-transparent focus:bg-transparent">Reset</Button>
       <Button onClick={handleTrashToggle} variant={isTrashMode ? "destructive" : "ghost"} className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
         <Trash2 className="w-4 h-4" />
       </Button>

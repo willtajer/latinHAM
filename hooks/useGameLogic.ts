@@ -155,6 +155,12 @@ export const useGameLogic = () => {
     setElapsedTime(0)
     setGameState('playing')
     setHintsActive(false)
+
+    // Check for win condition after resetting
+    if (checkWin(initialGrid)) {
+      setGameState('won')
+      setStartTime(null)
+    }
   }, [initialGrid])
 
   const handleTrashToggle = useCallback(() => {
@@ -182,10 +188,17 @@ export const useGameLogic = () => {
     setGameState('playing')
     setHintsActive(false)
     setDifficulty(selectedDifficulty)
+
+    // Check for win condition after initializing
+    if (checkWin(newGrid)) {
+      setGameState('won')
+      setStartTime(null)
+    }
   }, [])
 
-  const resetGame = useCallback(() => {
-    setGrid(initialGrid.map(row => [...row]))
+  const resetGame = useCallback((newInitialGrid: number[][]) => {
+    setGrid(newInitialGrid.map(row => [...row]))
+    setInitialGrid(newInitialGrid)
     setEdited(Array(6).fill(false).map(() => Array(6).fill(false)))
     setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
     setShowNumbers(false)
@@ -196,7 +209,13 @@ export const useGameLogic = () => {
     setElapsedTime(0)
     setGameState('playing')
     setHintsActive(false)
-  }, [initialGrid])
+
+    // Check for win condition after resetting
+    if (checkWin(newInitialGrid)) {
+      setGameState('won')
+      setStartTime(null)
+    }
+  }, [])
 
   useEffect(() => {
     let timer: NodeJS.Timeout

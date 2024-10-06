@@ -38,6 +38,7 @@ const LatinHamGame: React.FC = () => {
     handleReset,
     handleTrashToggle,
     checkWin,
+    resetGame,
   } = useGameLogic()
 
   const {
@@ -169,6 +170,20 @@ const LatinHamGame: React.FC = () => {
     clearGameState()
   }, [clearGameState])
 
+  const handleResetGame = useCallback((newInitialGrid: number[][]) => {
+    resetGame(newInitialGrid)
+    setHasSubmittedQuote(false)
+    setShowQuoteDialog(false)
+    setShowConfetti(false)
+    setShowWinCard(false)
+    setWinQuote("")
+    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
+    
+    if (checkWin(newInitialGrid)) {
+      handleWin()
+    }
+  }, [resetGame, checkWin, handleWin])
+
   if (showDifficultySelector) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
@@ -262,12 +277,14 @@ const LatinHamGame: React.FC = () => {
         difficulty={difficulty}
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}
+        onResetGame={handleResetGame}
       />
       <ViewCompletedPuzzleDialog 
         open={showViewPopup}
         onOpenChange={setShowViewPopup}
         entry={viewingEntry}
         difficulty={difficulty}
+        onResetGame={handleResetGame}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>

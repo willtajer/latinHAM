@@ -30,7 +30,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({
               Confirm
             </Button>
           </div>
-        </DialogFooter>s
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

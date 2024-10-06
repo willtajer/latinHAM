@@ -3,20 +3,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
-import { Download } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 
 interface ViewCompletedPuzzleDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   entry: LeaderboardEntry | null
   difficulty: 'easy' | 'medium' | 'hard'
+  onResetGame: (initialGrid: number[][]) => void
 }
 
 export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps> = ({
   open,
   onOpenChange,
   entry,
-  difficulty
+  difficulty,
+  onResetGame
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
 
@@ -28,6 +30,13 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
+    }
+  }
+
+  const handleResetGame = () => {
+    if (entry && entry.initialGrid) {
+      onResetGame(entry.initialGrid)
+      onOpenChange(false)
     }
   }
 
@@ -50,6 +59,10 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
           <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
             <Download className="h-5 w-5 mr-2" />
             Download
+          </Button>
+          <Button onClick={handleResetGame} className="inline-flex items-center p-2" aria-label="Reset and play this puzzle">
+            <RefreshCw className="h-5 w-5 mr-2" />
+            Play This latinHAM
           </Button>
         </DialogFooter>
       </DialogContent>
