@@ -22,6 +22,18 @@ interface DatabaseEntry {
   hints: number | string;
 }
 
+function parseJsonField(field: string | number[][]): number[][] {
+  if (typeof field === 'string') {
+    try {
+      return JSON.parse(field);
+    } catch (error) {
+      console.error('Error parsing JSON field:', error);
+      return [];
+    }
+  }
+  return field;
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const difficulty = searchParams.get('difficulty')
@@ -62,21 +74,4 @@ export async function GET(request: NextRequest) {
     console.error('Failed to fetch leaderboard:', error)
     return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
   }
-}
-
-function parseJsonField(field: string | number[][]): number[][] {
-  if (Array.isArray(field)) {
-    return field
-  }
-  if (typeof field === 'string') {
-    try {
-      const parsed = JSON.parse(field)
-      return Array.isArray(parsed) ? parsed : []
-    } catch (error) {
-      console.error('Error parsing JSON field:', field, error)
-      return []
-    }
-  }
-  console.error('Invalid field type:', typeof field)
-  return []
 }
