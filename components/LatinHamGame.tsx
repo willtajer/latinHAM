@@ -171,7 +171,8 @@ const LatinHamGame: React.FC = () => {
   }, [clearGameState])
 
   const handleResetGame = useCallback((newInitialGrid: number[][]) => {
-    resetGame(newInitialGrid)
+    console.log("Received Initial Grid in LatinHamGame:", initialGrid);
+    resetGame(initialGrid)
     setHasSubmittedQuote(false)
     setShowQuoteDialog(false)
     setShowConfetti(false)

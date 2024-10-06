@@ -35,6 +35,7 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
 
   const handleResetGame = () => {
     if (entry && entry.initialGrid) {
+      console.log("Initial Grid in ViewCompletedPuzzleDialog:", entry.initialGrid);
       onResetGame(entry.initialGrid)
       onOpenChange(false)
     }
