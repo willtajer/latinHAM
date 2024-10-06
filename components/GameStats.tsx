@@ -1,10 +1,11 @@
 // components/GameStats.tsx
 import React from 'react'
+import { LeaderboardEntry } from '../types'
 import { formatTime } from '../utils/formatTime'
 
 interface GameStatsProps {
   gameState: 'start' | 'playing' | 'won' | 'viewing'
-  viewingEntry: any
+  viewingEntry: LeaderboardEntry | null
   moveCount: number
   elapsedTime: number
   hintCount: number

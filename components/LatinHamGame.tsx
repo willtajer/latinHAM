@@ -15,7 +15,6 @@ import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 import { DifficultySelector } from './DifficultySelector'
 import { Leaderboard } from './Leaderboard'
 import Confetti from 'react-confetti'
-import { useUser } from '@clerk/nextjs'
 import { LeaderboardEntry } from '../types'
 
 const LatinHamGame: React.FC = () => {
@@ -35,12 +34,10 @@ const LatinHamGame: React.FC = () => {
     initialGrid,
     handleCellClick,
     handleSelectDifficulty,
-    handleNewGame,
     handleHint,
     handleReset,
     handleTrashToggle,
     checkWin,
-    initializeGame,
   } = useGameLogic()
 
   const {
@@ -61,8 +58,6 @@ const LatinHamGame: React.FC = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
-
-  const { user } = useUser()
 
   const handleWin = useCallback(() => {
     setShowQuoteDialog(true)
@@ -114,6 +109,11 @@ const LatinHamGame: React.FC = () => {
       handleWin()
     }
   }, [isGameWon, showQuoteDialog, showWinPopup, handleWin])
+
+  const handleViewCompletedBoardWrapper = useCallback((entry: LeaderboardEntry) => {
+    setViewingEntry(entry)
+    handleViewCompletedBoard(entry)
+  }, [handleViewCompletedBoard])
 
   if (showDifficultySelector) {
     return (
@@ -186,7 +186,7 @@ const LatinHamGame: React.FC = () => {
       <Leaderboard 
         entries={leaderboard[difficulty]}
         difficulty={difficulty}
-        onViewCompletedBoard={handleViewCompletedBoard}
+        onViewCompletedBoard={handleViewCompletedBoardWrapper}
         onDownloadCompletedBoard={handleDownloadCompletedBoard}
       />
       <NewGameDialog 
