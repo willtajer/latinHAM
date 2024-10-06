@@ -8,7 +8,7 @@ interface GameHeaderProps {
 
 export const GameHeader: React.FC<GameHeaderProps> = ({ gameState, isGameWon }) => {
   return (
-    <div className="w-[calc(6*3rem+6*0.75rem)] mt-8 mb-4">
+    <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-4">
       <h1 className="text-6xl font-bold mb-2 text-center">latinHAM</h1>
       <p className="text-center mt-4">
         {gameState === 'viewing' 
