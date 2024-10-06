@@ -156,8 +156,8 @@ const LatinHamGame: React.FC = () => {
 
   const handleViewCompletedBoardWrapper = useCallback((entry: LeaderboardEntry) => {
     setViewingEntry(entry)
-    handleViewCompletedBoard(entry)
-  }, [handleViewCompletedBoard])
+    setShowViewPopup(true)
+  }, [])
 
   const handleStartNewGame = useCallback(() => {
     setShowWinCard(false)

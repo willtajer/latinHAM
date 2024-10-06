@@ -1,7 +1,7 @@
 export interface LeaderboardEntry {
   id: string;
   userId: string;
-  username?: string;
+  username: string;
   difficulty: 'easy' | 'medium' | 'hard';
   moves: number;
   time: number;

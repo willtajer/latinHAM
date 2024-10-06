@@ -128,7 +128,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                 <TableRow key={entry.id}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
                   <TableCell className="text-center align-middle">
-                    {(entry as LeaderboardEntry & { username?: string }).username ?? 'Anonymous'}
+                    Player {entry.id.slice(0, 8)}
                   </TableCell>
                   <TableCell className="text-center py-2">
                     <MiniProgressBar 
