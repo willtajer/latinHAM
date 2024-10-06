@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { ChevronUp, ChevronDown, Eye } from 'lucide-react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -11,6 +10,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { LeaderboardEntry } from '@/types'
+import { useUser } from '@clerk/nextjs'
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
@@ -54,6 +54,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
   const entriesPerPage = 10
+  const { user } = useUser()
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -98,6 +99,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
           <TableHeader>
             <TableRow>
               <TableHead className="w-16 text-center">#</TableHead>
+              <TableHead className="w-32 text-center">Player</TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">latinHAM</TableHead>
               <TableHead 
                 className="w-24 text-center cursor-pointer"
@@ -117,7 +119,6 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -126,21 +127,14 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
               return (
                 <TableRow key={entry.id}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
+                  <TableCell className="text-center align-middle">{(entry as any).username ?? 'Anonymous'}</TableCell>
                   <TableCell className="text-center py-2">
-                    <div className="flex justify-center cursor-pointer" onClick={() => onViewCompletedBoard(entry)}>
+                    <button className="w-full" onClick={() => onViewCompletedBoard(entry)}>
                       <MiniProgressBar grid={entry.grid} />
-                    </div>
+                    </button>
                   </TableCell>
                   <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
                   <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
-                  <TableCell className="text-center align-middle">
-                    <div className="flex justify-center space-x-2">
-                      <Button variant="ghost" size="icon" onClick={() => onViewCompletedBoard(entry)}>
-                        <Eye className="w-4 h-4" />
-                        <span className="sr-only">View</span>
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               )
             })}

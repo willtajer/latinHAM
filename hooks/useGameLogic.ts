@@ -75,22 +75,23 @@ export const useGameLogic = () => {
     setGrid(prevGrid => {
       const newGrid = prevGrid.map(r => [...r])
       if (isTrashMode) {
-        if (edited[row][col]) {
+        if (edited[row][col] && newGrid[row][col] !== 0) {
           newGrid[row][col] = 0
+          setMoveCount(prevCount => prevCount + 1)
         }
       } else {
         newGrid[row][col] = (newGrid[row][col] % 6) + 1
+        setMoveCount(prevCount => prevCount + 1)
       }
       return newGrid
     })
 
     setEdited(prevEdited => {
       const newEdited = prevEdited.map(r => [...r])
-      newEdited[row][col] = !isTrashMode
+      newEdited[row][col] = !isTrashMode || (isTrashMode && grid[row][col] !== 0)
       return newEdited
     })
 
-    setMoveCount(prevCount => prevCount + 1)
     setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
     setShowNumbers(false)
     setHintsActive(false)
@@ -155,7 +156,6 @@ export const useGameLogic = () => {
 
   const handleTrashToggle = useCallback(() => {
     setIsTrashMode(prevMode => !prevMode)
-    setMoveCount(prevCount => prevCount + 1)
   }, [])
 
   const initializeGame = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
