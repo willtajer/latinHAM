@@ -10,7 +10,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { LeaderboardEntry } from '@/types'
-import { useUser } from '@clerk/nextjs'
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
@@ -54,7 +53,6 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
   const entriesPerPage = 10
-  const { user } = useUser()
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -127,7 +125,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
               return (
                 <TableRow key={entry.id}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
-                  <TableCell className="text-center align-middle">{(entry as any).username ?? 'Anonymous'}</TableCell>
+                  <TableCell className="text-center align-middle">{(entry as LeaderboardEntry & { username?: string }).username ?? 'Anonymous'}</TableCell>
                   <TableCell className="text-center py-2">
                     <button className="w-full" onClick={() => onViewCompletedBoard(entry)}>
                       <MiniProgressBar grid={entry.grid} />
