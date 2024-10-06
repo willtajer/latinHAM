@@ -38,6 +38,9 @@ const LatinHamGame: React.FC = () => {
     handleReset,
     handleTrashToggle,
     checkWin,
+    resetGame,
+    setGameState,
+    initializeGame,
   } = useGameLogic()
 
   const {
@@ -52,30 +55,75 @@ const LatinHamGame: React.FC = () => {
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
-  const [winQuote, setWinQuote] = useState("")
+  const [winQuote, setWinQuote] = useState(() => {
+    const savedWinQuote = localStorage.getItem('latinHamWinQuote')
+    return savedWinQuote || ""
+  })
   const [showConfetti, setShowConfetti] = useState(false)
-  const [showDifficultySelector, setShowDifficultySelector] = useState(true)
+  const [showDifficultySelector, setShowDifficultySelector] = useState(() => {
+    const savedGameState = localStorage.getItem('latinHamGameState')
+    return savedGameState ? savedGameState === 'start' : true
+  })
+  const [showWinCard, setShowWinCard] = useState(false)
+  const [hasSubmittedQuote, setHasSubmittedQuote] = useState(() => {
+    const savedHasSubmittedQuote = localStorage.getItem('latinHamHasSubmittedQuote')
+    return savedHasSubmittedQuote ? JSON.parse(savedHasSubmittedQuote) : false
+  })
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
   const handleWin = useCallback(() => {
-    setShowQuoteDialog(true)
-  }, [])
+    if (!hasSubmittedQuote) {
+      setShowQuoteDialog(true)
+      setShowConfetti(true)
+    }
+  }, [hasSubmittedQuote])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowWinPopup(false)
     setShowConfetti(false)
+    setShowWinCard(false)
+    setShowQuoteDialog(false)
+  }, [])
+
+  const clearGameState = useCallback(() => {
+    localStorage.removeItem('latinHamGrid')
+    localStorage.removeItem('latinHamLocked')
+    localStorage.removeItem('latinHamEdited')
+    localStorage.removeItem('latinHamGameState')
+    localStorage.removeItem('latinHamDifficulty')
+    localStorage.removeItem('latinHamHints')
+    localStorage.removeItem('latinHamSolution')
+    localStorage.removeItem('latinHamInitialGrid')
+    localStorage.removeItem('latinHamMoveCount')
+    localStorage.removeItem('latinHamHintCount')
+    localStorage.removeItem('latinHamStartTime')
+    localStorage.removeItem('latinHamElapsedTime')
+    localStorage.removeItem('latinHamWinQuote')
+    localStorage.removeItem('latinHamHasSubmittedQuote')
   }, [])
 
   const confirmNewGame = useCallback(() => {
     setShowDifficultySelector(true)
     setShowNewGameConfirmation(false)
-  }, [])
+    setShowQuoteDialog(false)
+    setShowConfetti(false)
+    setShowWinCard(false)
+    setHasSubmittedQuote(false)
+    setWinQuote("")
+    clearGameState()
+  }, [clearGameState])
 
   const handleDifficultySelect = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
     handleSelectDifficulty(selectedDifficulty)
     setShowDifficultySelector(false)
+    setHasSubmittedQuote(false)
+    setShowQuoteDialog(false)
+    setShowConfetti(false)
+    setShowWinCard(false)
+    setWinQuote("")
+    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
   }, [handleSelectDifficulty])
 
   const createLeaderboardEntry = useCallback((): LeaderboardEntry => {
@@ -97,23 +145,36 @@ const LatinHamGame: React.FC = () => {
     const updatedEntry = { ...entry, quote }
     await leaderboardHandleQuoteSubmit(quote, updatedEntry)
     setShowQuoteDialog(false)
-    setWinQuote("")
-    setShowConfetti(true)
-    setShowWinPopup(true)
+    setWinQuote(quote)
+    setShowWinCard(true)
+    setHasSubmittedQuote(true)
+    localStorage.setItem('latinHamWinQuote', quote)
+    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
   }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit])
 
   const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
 
   useEffect(() => {
-    if (isGameWon && !showQuoteDialog && !showWinPopup) {
+    if (isGameWon && !hasSubmittedQuote && !showQuoteDialog) {
       handleWin()
     }
-  }, [isGameWon, showQuoteDialog, showWinPopup, handleWin])
+  }, [isGameWon, hasSubmittedQuote, showQuoteDialog, handleWin])
 
   const handleViewCompletedBoardWrapper = useCallback((entry: LeaderboardEntry) => {
     setViewingEntry(entry)
     handleViewCompletedBoard(entry)
   }, [handleViewCompletedBoard])
+
+  const handleStartNewGame = useCallback(() => {
+    setShowWinCard(false)
+    setShowConfetti(false)
+    setShowDifficultySelector(true)
+    setHasSubmittedQuote(false)
+    setShowQuoteDialog(false)
+    setWinQuote("")
+    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
+    clearGameState()
+  }, [clearGameState])
 
   if (showDifficultySelector) {
     return (
@@ -187,7 +248,6 @@ const LatinHamGame: React.FC = () => {
         entries={leaderboard[difficulty]}
         difficulty={difficulty}
         onViewCompletedBoard={handleViewCompletedBoardWrapper}
-        onDownloadCompletedBoard={handleDownloadCompletedBoard}
       />
       <NewGameDialog 
         open={showNewGameConfirmation}
@@ -195,18 +255,26 @@ const LatinHamGame: React.FC = () => {
         onConfirm={confirmNewGame}
       />
       <WinDialog 
-        open={showQuoteDialog}
-        onOpenChange={setShowQuoteDialog}
+        open={showQuoteDialog || showWinCard}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseWinPopup()
+          }
+        }}
         onSubmit={handleQuoteSubmit}
         quote={winQuote}
         setQuote={setWinQuote}
+        entry={hasSubmittedQuote ? createLeaderboardEntry() : undefined}
+        gameNumber={leaderboard[difficulty].length + 1}
+        difficulty={difficulty}
+        onStartNewGame={handleStartNewGame}
+        showQuoteInput={!hasSubmittedQuote}
       />
       <ViewCompletedPuzzleDialog 
         open={showViewPopup}
         onOpenChange={setShowViewPopup}
         entry={viewingEntry}
-        onClose={handleCloseWinPopup}
-        onDownload={handleDownloadCompletedBoard}
+        difficulty={difficulty}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>

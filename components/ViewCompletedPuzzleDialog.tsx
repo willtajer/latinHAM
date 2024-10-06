@@ -1,52 +1,56 @@
-// components/ViewCompletedPuzzleDialog.tsx
-import React from 'react'
+import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { GameBoard } from './GameBoard'
-import { formatTime } from '../utils/formatTime'
+import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
+import { Download } from 'lucide-react'
 
 interface ViewCompletedPuzzleDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   entry: LeaderboardEntry | null
-  onClose: () => void
-  onDownload: (entry: LeaderboardEntry) => void
+  difficulty: 'easy' | 'medium' | 'hard'
 }
 
 export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps> = ({
   open,
   onOpenChange,
   entry,
-  onClose,
-  onDownload
+  difficulty
 }) => {
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
+
+  const handleDownload = () => {
+    if (imageDataUrl && entry) {
+      const link = document.createElement('a')
+      link.href = imageDataUrl
+      link.download = `latinHAM_${difficulty}_game${entry.id}.png`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
   if (!entry) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Completed Puzzle</DialogTitle>
         </DialogHeader>
-        <GameBoard
-          grid={entry.grid}
-          locked={Array(6).fill(Array(6).fill(true))}
-          edited={Array(6).fill(Array(6).fill(false))}
-          hints={Array(6).fill(Array(6).fill(false))}
-          showNumbers={false}
-          onCellClick={() => {}}
-          isTrashMode={false}
-        />
-        <div className="mt-4">
-          <p>Moves: {entry.moves}</p>
-          <p>Time: {formatTime(entry.time)}</p>
-          <p>Hints: {entry.hints}</p>
-          <p>Quote: &quot;{entry.quote}&quot;</p>
+        <div className="py-4">
+          <CompletedPuzzleCard 
+            entry={entry} 
+            difficulty={difficulty} 
+            onImageReady={setImageDataUrl}
+          />
         </div>
-        <DialogFooter>
-          <Button onClick={onClose}>Close</Button>
-          <Button onClick={() => onDownload(entry)}>Download</Button>
+        <DialogFooter className="flex justify-center">
+          <Button onClick={handleDownload} className="w-full sm:w-auto p-2" aria-label="Download completed puzzle">
+            <Download className="h-5 w-5 mr-2" />
+            Download
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
