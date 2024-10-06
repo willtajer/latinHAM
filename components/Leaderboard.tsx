@@ -125,19 +125,23 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
             {paginatedEntries.map((entry, index) => {
               const entryNumber = (currentPage - 1) * entriesPerPage + index + 1
               return (
-                <TableRow key={entry.id}>
+                <TableRow key={entry.id || index}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
                   <TableCell className="text-center align-middle">
-                    Player {entry.id.slice(0, 8)}
+                    Player {(entry.id && typeof entry.id === 'string') ? entry.id.slice(0, 8) : 'Unknown'}
                   </TableCell>
                   <TableCell className="text-center py-2">
-                    <MiniProgressBar 
-                      grid={entry.grid} 
-                      onClick={() => onViewCompletedBoard(entry)}
-                    />
+                    {entry.grid ? (
+                      <MiniProgressBar 
+                        grid={entry.grid} 
+                        onClick={() => onViewCompletedBoard(entry)}
+                      />
+                    ) : (
+                      <div>No grid data</div>
+                    )}
                   </TableCell>
-                  <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
-                  <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
+                  <TableCell className="font-medium text-center align-middle">{entry.moves || 'N/A'}</TableCell>
+                  <TableCell className="text-center align-middle">{entry.time ? formatDuration(entry.time) : 'N/A'}</TableCell>
                 </TableRow>
               )
             })}
