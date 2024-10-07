@@ -22,7 +22,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({
         </DialogHeader>
         <p>Are you sure you want to start a new game? Your current progress will be lost.</p>
         <DialogFooter>
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-center w-full space-x-2">
             <Button onClick={() => onOpenChange(false)} variant="outline">
               Cancel
             </Button>
