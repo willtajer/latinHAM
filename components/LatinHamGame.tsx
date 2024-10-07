@@ -69,41 +69,41 @@ const LatinHamGame: React.FC = () => {
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
   // components/LatinHamGame.tsx or hooks/useGameLogic.ts
-const handleWin = useCallback(async () => {
-  if (!hasSubmittedQuote) {
-    setShowQuoteDialog(true)
-    setShowConfetti(true)
-    
-    const gameData = {
-      difficulty,
-      moves: moveCount,
-      time: elapsedTime,
-      grid,
-      initialGrid,
-      quote: winQuote,
-      hints: hintCount,
-    }
-
-    try {
-      const response = await fetch('/api/saveGame', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(gameData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to save game')
+  const handleWin = useCallback(async () => {
+    if (!hasSubmittedQuote) {
+      setShowQuoteDialog(true)
+      setShowConfetti(true)
+      
+      const gameData = {
+        difficulty,
+        moves: moveCount,
+        time: elapsedTime,
+        grid,
+        initialGrid,
+        quote: winQuote,
+        hints: hintCount
       }
-
-      const savedGame = await response.json()
-      console.log('Game saved successfully:', savedGame)
-    } catch (error) {
-      console.error('Error saving game:', error)
+  
+      try {
+        const response = await fetch('/api/save-game', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(gameData),
+        })
+  
+        if (!response.ok) {
+          throw new Error('Failed to save game')
+        }
+  
+        const savedGame = await response.json()
+        console.log('Game saved successfully:', savedGame)
+      } catch (error) {
+        console.error('Error saving game:', error)
+      }
     }
-  }
-}, [hasSubmittedQuote, difficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
+  }, [hasSubmittedQuote, difficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowConfetti(false)

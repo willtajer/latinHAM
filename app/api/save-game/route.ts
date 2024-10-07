@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const result = await sql`
       INSERT INTO leaderboard_entries 
-      (user_id, difficulty, moves, time, grid, initial_grid, quote, hints, solve_number) 
+      (user_id, difficulty, moves, time, grid, initial_grid, quote, hints) 
       VALUES (
         ${userId}, 
         ${gameData.difficulty}, 
@@ -24,8 +24,7 @@ export async function POST(request: NextRequest) {
         ${JSON.stringify(gameData.grid)}, 
         ${JSON.stringify(gameData.initialGrid)}, 
         ${gameData.quote}, 
-        ${gameData.hints},
-        ${gameData.solveNumber}
+        ${gameData.hints}
       ) 
       RETURNING *
     `
