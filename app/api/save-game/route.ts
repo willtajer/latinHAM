@@ -1,10 +1,11 @@
+// pages/api/saveGame.ts or app/api/saveGame/route.ts (depending on your Next.js version)
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { sql } from '@/lib/db'
-import { auth } from '@clerk/nextjs/server'
+import { getAuth } from '@clerk/nextjs/server'
 
 export async function POST(request: NextRequest) {
-  const { userId } = auth()
+  const { userId } = getAuth(request)
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const result = await sql`
       INSERT INTO leaderboard_entries 
-      (user_id, difficulty, moves, time, grid, initial_grid, quote, hints, username) 
+      (user_id, difficulty, moves, time, grid, initial_grid, quote, hints, solve_number) 
       VALUES (
         ${userId}, 
         ${gameData.difficulty}, 
@@ -24,10 +25,11 @@ export async function POST(request: NextRequest) {
         ${JSON.stringify(gameData.initialGrid)}, 
         ${gameData.quote}, 
         ${gameData.hints},
-        ${gameData.username}
+        ${gameData.solveNumber}
       ) 
       RETURNING *
     `
+    console.log('Game saved successfully:', result.rows[0])
     return NextResponse.json(result.rows[0])
   } catch (error) {
     console.error('Failed to save game:', error)
