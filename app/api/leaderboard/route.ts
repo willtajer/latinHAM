@@ -47,7 +47,6 @@ export async function GET(request: NextRequest) {
       SELECT * FROM leaderboard_entries 
       WHERE difficulty = ${difficulty} 
       ORDER BY moves ASC 
-      LIMIT 12
     `
 
     const formattedLeaderboard = result.rows.map(entry => {
