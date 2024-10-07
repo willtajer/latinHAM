@@ -197,8 +197,10 @@ export const useGameLogic = () => {
   }, [])
 
   const resetGame = useCallback((newInitialGrid: number[][]) => {
+    console.log("Resetting game with initial grid:", newInitialGrid)
     setGrid(newInitialGrid.map(row => [...row]))
     setInitialGrid(newInitialGrid)
+    setLocked(newInitialGrid.map(row => row.map(cell => cell !== 0)))
     setEdited(Array(6).fill(false).map(() => Array(6).fill(false)))
     setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
     setShowNumbers(false)
