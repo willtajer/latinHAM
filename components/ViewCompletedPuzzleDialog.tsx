@@ -35,9 +35,10 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
 
   const handleResetGame = () => {
     if (entry && entry.initialGrid) {
-      console.log("Initial Grid in ViewCompletedPuzzleDialog:", entry.initialGrid);
       onResetGame(entry.initialGrid)
       onOpenChange(false)
+      // Scroll to the top of the page
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
@@ -57,13 +58,12 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
           />
         </div>
         <DialogFooter className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
-            <Download className="h-5 w-5 mr-2" />
-            Download
-          </Button>
           <Button onClick={handleResetGame} className="inline-flex items-center p-2" aria-label="Reset and play this puzzle">
             <RefreshCw className="h-5 w-5 mr-2" />
             Play This latinHAM
+          </Button>
+          <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
+            <Download className="h-5 w-5" />
           </Button>
         </DialogFooter>
       </DialogContent>
