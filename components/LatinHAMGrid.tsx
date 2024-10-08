@@ -93,8 +93,8 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center">
-        {latinHAMs.map((latinHAM, index) => (
+<div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center">        
+{latinHAMs.map((latinHAM, index) => (
           <div 
             key={`latinHAM-${index}`} 
             className="bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[300px]"
@@ -107,6 +107,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
               <div className="mt-4 text-sm text-gray-300">
                 <p>Difficulty: {latinHAM.difficulty}</p>
                 <p>Best Moves: {latinHAM.bestMoves}</p>
+                <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
                 <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
               </div>
             </div>
