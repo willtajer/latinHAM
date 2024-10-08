@@ -3,7 +3,8 @@ import { Inter } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
-import { ModeToggle } from '@/components/ModeToggle'
+import ThemeBackground from "@/components/ThemeBackground"
+import { LoginHandler } from '@/components/LoginHandler'
 import {
   ClerkProvider,
   SignInButton,
@@ -11,7 +12,6 @@ import {
   SignedOut,
   UserButton
 } from '@clerk/nextjs'
-import { LoginHandler } from '@/components/LoginHandler'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -78,11 +78,11 @@ export default function RootLayout({
                     />
                   </SignedIn>
                 </div>
-                <ModeToggle />
               </div>
             </header>
             <main>
               <LoginHandler />
+              <ThemeBackground />
               {children}
             </main>
             <Analytics />
