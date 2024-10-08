@@ -15,10 +15,10 @@ export default function DiscoveredPage() {
             <Button
               variant="ghost"
               size="icon"
-              className="bg-red-200 hover:bg-red-300 rounded-full p-2 shadow-md transition-colors duration-200"
+              className="bg-yellow-200 hover:bg-yellow-300 rounded-full p-2 shadow-md transition-colors duration-200"
               aria-label="Return to Home"
             >
-              <Home className="h-6 w-6 text-red-600" />
+              <Home className="h-6 w-6 text-yellow-600" />
             </Button>
           </Link>
         </div>

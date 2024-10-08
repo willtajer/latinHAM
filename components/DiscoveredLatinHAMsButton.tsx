@@ -10,10 +10,10 @@ export default function DiscoveredLatinHAMsButton() {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed bottom-4 left-4 bg-red-200 hover:bg-red-300 rounded-full p-2 shadow-md transition-colors duration-200"
+        className="fixed bottom-4 left-4 bg-transparent hover:bg-blue-300 rounded-full p-2 shadow-md transition-colors duration-200"
         aria-label="View Discovered LatinHAMs"
       >
-        <Grid className="h-6 w-6 text-red-600" />
+        <Grid className="h-6 w-6 text-blue-600" />
       </Button>
     </Link>
   )

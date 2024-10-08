@@ -16,6 +16,7 @@ import { DifficultySelector } from './DifficultySelector'
 import { Leaderboard } from './Leaderboard'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
+import DiscoveredLatinHAMsButton from '@/components/DiscoveredLatinHAMsButton'
 
 const LatinHamGame: React.FC = () => {
   const {
@@ -234,6 +235,7 @@ const LatinHamGame: React.FC = () => {
           aria-label="Visit Will Tajer's website"
         >
           Created by Will Tajer
+          <DiscoveredLatinHAMsButton />
         </a>
       </div>
     )
