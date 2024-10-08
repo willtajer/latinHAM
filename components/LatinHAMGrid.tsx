@@ -97,18 +97,18 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 {latinHAMs.map((latinHAM, index) => (
           <div 
             key={`latinHAM-${index}`} 
-            className="bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[300px]"
+            className="bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[300px]"
           >
             <div 
               className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
               onClick={() => handleLatinHAMClick(latinHAM)}
             >
               <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-              <div className="mt-4 text-sm text-gray-300">
+              <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
                 <p>Difficulty: {latinHAM.difficulty}</p>
+                <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
                 <p>Best Moves: {latinHAM.bestMoves}</p>
                 <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
-                <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
               </div>
             </div>
             <Button 
@@ -116,10 +116,10 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
                 e.stopPropagation();
                 handlePlayGame(latinHAM.initialGrid);
               }}
-              className="w-full mt-4 inline-flex items-center justify-center px-4 py-2" 
+              className="bg-gray-400 dark:bg-gray-700 text-gray-200 dark:text-gray-200 hover:bg-blue-800 dark:hover:bg-blue-800 w-full mt-4 inline-flex items-center justify-center px-4 py-2" 
               aria-label="Play this latinHAM puzzle"
             >
-              <RefreshCw className="h-5 w-5 mr-2" />
+              <RefreshCw className="h-5 w-5 mr-2 text-gray-200 dark:text-gray-200" />
               Play
             </Button>
           </div>

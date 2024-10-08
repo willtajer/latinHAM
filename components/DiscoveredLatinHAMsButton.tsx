@@ -14,7 +14,7 @@ export default function DiscoveredLatinHAMsButton() {
         size="icon"
         className={`
           fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200
-          ${theme === 'dark' 
+          ${theme === 'light' 
             ? 'bg-gray-800 hover:bg-gray-700 text-blue-400 hover:text-blue-300' 
             : 'bg-white hover:bg-gray-100 text-blue-600 hover:text-blue-700'}
             `}
