@@ -9,7 +9,7 @@ interface LatinHAMGridProps {
 
 export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ latinHAMs, onLatinHAMClick }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
       {latinHAMs.map((latinHAM, index) => (
         <div key={index} className="cursor-pointer" onClick={() => onLatinHAMClick(latinHAM)}>
           <CompletedPuzzleCard
