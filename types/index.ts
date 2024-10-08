@@ -18,3 +18,14 @@ export interface LeaderboardEntry {
   hints: number;
   timestamp: string;
 }
+
+export interface CompletedPuzzle {
+  id: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  moves: number;
+  time: number;
+  grid: number[][];
+  initialGrid: number[][];
+  hints: number;
+  quote: string;
+}

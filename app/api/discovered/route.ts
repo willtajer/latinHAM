@@ -11,16 +11,23 @@ interface DiscoveredLatinHAM {
 }
 
 interface DatabaseEntry {
-  initial_grid: string;
+  initial_grid: string | number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   solve_count: number | string;
   best_moves: number | string;
   best_time: number | string;
 }
 
-function parseJsonField(field: string): number[][] {
+function parseJsonField(field: string | number[][]): number[][] {
+  if (Array.isArray(field)) {
+    return field;
+  }
   try {
-    return JSON.parse(field);
+    const parsed = JSON.parse(field);
+    if (Array.isArray(parsed) && parsed.every(row => Array.isArray(row))) {
+      return parsed;
+    }
+    throw new Error('Parsed value is not a 2D array');
   } catch (error) {
     console.error('Error parsing JSON field:', error);
     return [];
@@ -57,8 +64,13 @@ export async function GET() {
 
     const formattedLatinHAMs = result.rows.map(entry => {
       try {
+        const initialGrid = parseJsonField(entry.initial_grid);
+        if (initialGrid.length === 0) {
+          console.error('Invalid initial_grid:', entry.initial_grid);
+          return null;
+        }
         return {
-          initialGrid: parseJsonField(entry.initial_grid),
+          initialGrid: initialGrid,
           difficulty: entry.difficulty,
           solveCount: Number(entry.solve_count),
           bestMoves: Number(entry.best_moves),

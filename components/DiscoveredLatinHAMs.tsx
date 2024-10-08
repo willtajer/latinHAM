@@ -2,19 +2,22 @@
 
 import React, { useState, useEffect } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
-import { LatinHAM, LeaderboardEntry } from '../types/'
+import { LatinHAM, CompletedPuzzle, LeaderboardEntry } from '../types/'
 import { useRouter } from 'next/navigation'
+import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
 export const DiscoveredLatinHAMs: React.FC = () => {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedPuzzle, setSelectedPuzzle] = useState<LeaderboardEntry | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     const fetchLatinHAMs = async () => {
       try {
-        const response = await fetch('/api/discovered-latinhams')
+        const response = await fetch('/api/discovered')
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
@@ -35,20 +38,28 @@ export const DiscoveredLatinHAMs: React.FC = () => {
     fetchLatinHAMs()
   }, [])
 
-  const handleLatinHAMClick = (latinHAM: LatinHAM) => {
-    console.log('LatinHAM clicked:', latinHAM)
-  }
-
-  const fetchCompletedPuzzle = async (id: string): Promise<LeaderboardEntry | null> => {
+  const fetchCompletedPuzzle = async (id: string) => {
     try {
       const response = await fetch(`/api/completed-puzzles/${id}`)
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error('HTTP error! status: ' + response.status)
       }
       return await response.json()
     } catch (error) {
       console.error('Error fetching completed puzzle:', error)
       return null
+    }
+  }
+
+  const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
+    console.log('LatinHAM clicked:', latinHAM)
+    const id = `${latinHAM.difficulty}-${latinHAM.bestMoves}-${latinHAM.bestTime}`
+    const completedPuzzle = await fetchCompletedPuzzle(id)
+    if (completedPuzzle) {
+      setSelectedPuzzle(completedPuzzle)
+      setIsDialogOpen(true)
+    } else {
+      console.log('No completed puzzle found for this LatinHAM')
     }
   }
 
@@ -76,6 +87,17 @@ export const DiscoveredLatinHAMs: React.FC = () => {
         fetchCompletedPuzzle={fetchCompletedPuzzle}
         onResetGame={handleResetGame}
       />
+      {selectedPuzzle && (
+        <ViewCompletedPuzzleDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          entry={selectedPuzzle}
+          difficulty={selectedPuzzle.difficulty}
+          onResetGame={handleResetGame}
+        />
+      )}
     </div>
   )
 }
+
+export default DiscoveredLatinHAMs
