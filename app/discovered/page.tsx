@@ -1,9 +1,7 @@
 // app/discovered/page.tsx
 import React from 'react'
 import { DiscoveredLatinHAMs } from '../../components/DiscoveredLatinHAMs'
-import Link from 'next/link'
-import { Home } from 'lucide-react'
-import { Button } from "@/components/ui/button"
+import HomeButton from '../../components/HomeButton'
 
 export default function DiscoveredPage() {
   return (
@@ -11,16 +9,7 @@ export default function DiscoveredPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Discovered latinHAMs</h1>
-          <Link href="/" passHref>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="bg-yellow-200 hover:bg-yellow-300 rounded-full p-2 shadow-md transition-colors duration-200"
-              aria-label="Return to Home"
-            >
-              <Home className="h-6 w-6 text-yellow-600" />
-            </Button>
-          </Link>
+          <HomeButton />
         </div>
         <DiscoveredLatinHAMs />
       </div>
