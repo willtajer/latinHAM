@@ -22,12 +22,13 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
 
   const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
+    console.log('Clicked LatinHAM:', latinHAM);  // Debug log
     if (latinHAM.id) {
       try {
         const completed = await fetchCompletedPuzzle(latinHAM.id)
         if (completed) {
           setCompletedPuzzle(completed)
-          setSelectedDifficulty(latinHAM.difficulty as 'easy' | 'medium' | 'hard')
+          setSelectedDifficulty(latinHAM.difficulty)
           setIsDialogOpen(true)
           onLatinHAMClick(latinHAM)
         } else {
@@ -38,6 +39,21 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
       }
     } else {
       console.error('LatinHAM id is undefined:', latinHAM)
+      // Attempt to use an alternative identifier
+      const alternativeId = `${latinHAM.difficulty}-${latinHAM.solveCount}-${latinHAM.bestMoves}-${latinHAM.bestTime}`
+      try {
+        const completed = await fetchCompletedPuzzle(alternativeId)
+        if (completed) {
+          setCompletedPuzzle(completed)
+          setSelectedDifficulty(latinHAM.difficulty)
+          setIsDialogOpen(true)
+          onLatinHAMClick(latinHAM)
+        } else {
+          console.error('No completed puzzle found for this LatinHAM using alternative id')
+        }
+      } catch (error) {
+        console.error('Error fetching completed puzzle with alternative id:', error)
+      }
     }
   }
 
@@ -59,7 +75,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {latinHAMs.map((latinHAM, index) => (
           <div 
-            key={latinHAM.id || index} 
+            key={latinHAM.id || `latinHAM-${index}`} 
             className="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 transition-colors duration-200"
             onClick={() => handleLatinHAMClick(latinHAM)}
           >
