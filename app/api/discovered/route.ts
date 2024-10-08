@@ -1,4 +1,4 @@
-// app/api/discovered-latinhams/route.ts
+// app/api/discovered/route.ts
 import { NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
 
