@@ -229,5 +229,5 @@ Copyright © 2024 Will Tajer. All rights reserved.
 
 This project is proprietary and confidential. Unauthorized copying, transferring or reproduction of this project, via any medium, is strictly prohibited.
 
-For licensing inquiries or permissions, please contact Will Tajer at https://willtajer.com/contact/. Knaht Uoy 3113
+For licensing inquiries or permissions, please contact Will Tajer at https://willtajer.com/contact/. Knaht Uoy 3113***
 ```
