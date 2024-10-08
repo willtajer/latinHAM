@@ -1,24 +1,15 @@
-// components/DiscoveredLatinHAMs.tsx
 'use client'
 
 import React, { useState, useEffect } from 'react'
 import { LatinHAMGrid } from './LatinHAMGrid'
-import { LatinHAMDetail } from './LatinHAMDetail'
-
-interface LatinHAM {
-  id: string;
-  initialGrid: number[][];
-  difficulty: 'easy' | 'medium' | 'hard';
-  solveCount: number;
-  bestMoves: number;
-  bestTime: number;
-}
+import { LatinHAM, LeaderboardEntry } from '../types/'
+import { useRouter } from 'next/navigation'
 
 export const DiscoveredLatinHAMs: React.FC = () => {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
-  const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchLatinHAMs = async () => {
@@ -45,11 +36,24 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   }, [])
 
   const handleLatinHAMClick = (latinHAM: LatinHAM) => {
-    setSelectedLatinHAM(latinHAM)
+    console.log('LatinHAM clicked:', latinHAM)
   }
 
-  const handleBackClick = () => {
-    setSelectedLatinHAM(null)
+  const fetchCompletedPuzzle = async (id: string): Promise<LeaderboardEntry | null> => {
+    try {
+      const response = await fetch(`/api/completed-puzzles/${id}`)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching completed puzzle:', error)
+      return null
+    }
+  }
+
+  const handleResetGame = (initialGrid: number[][]) => {
+    router.push(`/game?grid=${JSON.stringify(initialGrid)}`)
   }
 
   if (isLoading) {
@@ -65,12 +69,14 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   }
 
   return (
-    <div>
-      {selectedLatinHAM ? (
-        <LatinHAMDetail latinHAM={selectedLatinHAM} onBackClick={handleBackClick} />
-      ) : (
-        <LatinHAMGrid latinHAMs={latinHAMs} onLatinHAMClick={handleLatinHAMClick} />
-      )}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Discovered LatinHAMs</h1>
+      <LatinHAMGrid 
+        latinHAMs={latinHAMs} 
+        onLatinHAMClick={handleLatinHAMClick}
+        fetchCompletedPuzzle={fetchCompletedPuzzle}
+        onResetGame={handleResetGame}
+      />
     </div>
   )
 }
