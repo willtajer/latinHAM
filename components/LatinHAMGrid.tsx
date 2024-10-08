@@ -11,7 +11,7 @@ interface LatinHAMGridProps {
   onResetGame: (initialGrid: number[][]) => void
 }
 
-export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ 
+const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ 
   latinHAMs, 
   onLatinHAMClick, 
   fetchCompletedPuzzle,
@@ -19,13 +19,30 @@ export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 }) => {
   const [completedPuzzle, setCompletedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
-    const completed = await fetchCompletedPuzzle(latinHAM.id)
-    if (completed) {
-      setCompletedPuzzle(completed)
+    if (!latinHAM.id) {
+      console.error('LatinHAM id is undefined:', latinHAM)
+      setError('Unable to fetch completed puzzle: Invalid LatinHAM ID')
       setIsDialogOpen(true)
+      return
     }
+
+    try {
+      const completed = await fetchCompletedPuzzle(latinHAM.id)
+      if (completed) {
+        setCompletedPuzzle(completed)
+        setError(null)
+      } else {
+        setError('No completed puzzle found for this LatinHAM')
+      }
+    } catch (err) {
+      console.error('Error fetching completed puzzle:', err)
+      setError('Failed to fetch completed puzzle. Please try again.')
+    }
+
+    setIsDialogOpen(true)
     onLatinHAMClick(latinHAM)
   }
 
@@ -33,12 +50,8 @@ export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
     setIsDialogOpen(open)
     if (!open) {
       setCompletedPuzzle(null)
+      setError(null)
     }
-  }
-
-  const handleResetGame = (initialGrid: number[][]) => {
-    onResetGame(initialGrid)
-    handleDialogClose(false)
   }
 
   return (
@@ -46,7 +59,7 @@ export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {latinHAMs.map((latinHAM, index) => (
           <div 
-            key={index} 
+            key={latinHAM.id || index} 
             className="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 transition-colors duration-200"
             onClick={() => handleLatinHAMClick(latinHAM)}
           >
@@ -59,15 +72,13 @@ export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
           </div>
         ))}
       </div>
-      {completedPuzzle && (
-        <ViewCompletedPuzzleDialog
-          open={isDialogOpen}
-          onOpenChange={handleDialogClose}
-          entry={completedPuzzle}
-          difficulty={completedPuzzle.difficulty}
-          onResetGame={handleResetGame}
-        />
-      )}
+      <ViewCompletedPuzzleDialog
+        open={isDialogOpen}
+        onOpenChange={handleDialogClose}
+        entry={completedPuzzle}
+        difficulty={completedPuzzle?.difficulty || 'easy'}
+        onResetGame={onResetGame}
+      />
     </>
   )
 }
@@ -77,3 +88,5 @@ const formatTime = (seconds: number) => {
   const remainingSeconds = seconds % 60
   return `${minutes}m ${remainingSeconds}s`
 }
+
+export default LatinHAMGrid

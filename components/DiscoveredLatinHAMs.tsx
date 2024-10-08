@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { LatinHAMGrid } from './LatinHAMGrid'
+import LatinHAMGrid from './LatinHAMGrid'
 import { LatinHAM, LeaderboardEntry } from '../types/'
 import { useRouter } from 'next/navigation'
 
