@@ -17,12 +17,10 @@ export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
   fetchCompletedPuzzle,
   onResetGame 
 }) => {
-  const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
   const [completedPuzzle, setCompletedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
-    setSelectedLatinHAM(latinHAM)
     const completed = await fetchCompletedPuzzle(latinHAM.id)
     if (completed) {
       setCompletedPuzzle(completed)
@@ -34,7 +32,6 @@ export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
   const handleDialogClose = (open: boolean) => {
     setIsDialogOpen(open)
     if (!open) {
-      setSelectedLatinHAM(null)
       setCompletedPuzzle(null)
     }
   }
