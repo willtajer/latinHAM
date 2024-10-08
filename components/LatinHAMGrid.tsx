@@ -8,15 +8,6 @@ interface LatinHAMGridProps {
   onLatinHAMClick: (latinHAM: LatinHAM) => void
 }
 
-const colorClasses = [
-  'bg-red-500',
-  'bg-blue-500',
-  'bg-yellow-500',
-  'bg-green-500',
-  'bg-purple-500',
-  'bg-orange-500',
-]
-
 export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ latinHAMs, onLatinHAMClick }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
