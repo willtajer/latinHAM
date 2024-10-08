@@ -107,7 +107,6 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
               <div className="mt-4 text-sm text-gray-300">
                 <p>Difficulty: {latinHAM.difficulty}</p>
                 <p>Best Moves: {latinHAM.bestMoves}</p>
-                <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
                 <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
               </div>
             </div>
@@ -120,7 +119,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
               aria-label="Play this latinHAM puzzle"
             >
               <RefreshCw className="h-5 w-5 mr-2" />
-              Play This latinHAM
+              Play
             </Button>
           </div>
         ))}
