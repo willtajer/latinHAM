@@ -4,11 +4,11 @@ import { sql } from '@vercel/postgres'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const preset = searchParams.get('preset')
+  const initialGrid = searchParams.get('initialGrid')
   const difficulty = searchParams.get('difficulty')
 
-  if (!preset || !difficulty) {
-    return NextResponse.json({ error: 'Preset and difficulty parameters are required' }, { status: 400 })
+  if (!initialGrid || !difficulty) {
+    return NextResponse.json({ error: 'initialGrid and difficulty parameters are required' }, { status: 400 })
   }
 
   try {
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
             ORDER BY moves ASC, time ASC
           ) as row_num
         FROM leaderboard_entries
-        WHERE initial_grid = ${preset} AND difficulty = ${difficulty}
+        WHERE initial_grid = ${initialGrid} AND difficulty = ${difficulty}
       )
       SELECT *
       FROM ranked_entries
