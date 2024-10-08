@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
 
 interface DiscoveredLatinHAM {
-  preset: number[][];
+  initialGrid: number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   solveCount: number;
   bestMoves: number;
@@ -58,7 +58,7 @@ export async function GET() {
     const formattedLatinHAMs = result.rows.map(entry => {
       try {
         return {
-          preset: parseJsonField(entry.initial_grid),
+          initialGrid: parseJsonField(entry.initial_grid),
           difficulty: entry.difficulty,
           solveCount: Number(entry.solve_count),
           bestMoves: Number(entry.best_moves),
