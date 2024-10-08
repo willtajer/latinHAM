@@ -19,38 +19,20 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 }) => {
   const [completedPuzzle, setCompletedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
-    if (!latinHAM.id) {
-      console.error('LatinHAM id is undefined:', latinHAM)
-      setError('Unable to fetch completed puzzle: Invalid LatinHAM ID')
-      setIsDialogOpen(true)
-      return
-    }
-
-    try {
+    if (latinHAM.id) {
       const completed = await fetchCompletedPuzzle(latinHAM.id)
-      if (completed) {
-        setCompletedPuzzle(completed)
-        setError(null)
-      } else {
-        setError('No completed puzzle found for this LatinHAM')
-      }
-    } catch (err) {
-      console.error('Error fetching completed puzzle:', err)
-      setError('Failed to fetch completed puzzle. Please try again.')
+      setCompletedPuzzle(completed)
+      setIsDialogOpen(true)
+      onLatinHAMClick(latinHAM)
     }
-
-    setIsDialogOpen(true)
-    onLatinHAMClick(latinHAM)
   }
 
   const handleDialogClose = (open: boolean) => {
     setIsDialogOpen(open)
     if (!open) {
       setCompletedPuzzle(null)
-      setError(null)
     }
   }
 
