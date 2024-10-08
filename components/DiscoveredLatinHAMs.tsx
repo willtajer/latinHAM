@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
-import { LatinHAM, CompletedPuzzle, LeaderboardEntry } from '../types/'
+import { LatinHAM, LeaderboardEntry } from '../types/'
 import { useRouter } from 'next/navigation'
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
