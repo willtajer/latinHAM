@@ -17,8 +17,24 @@ import { Leaderboard } from './Leaderboard'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
 import DiscoveredLatinHAMsButton from '@/components/DiscoveredLatinHAMsButton'
+import { useSearchParams } from 'next/navigation'
 
 const LatinHamGame: React.FC = () => {
+  const searchParams = useSearchParams()
+  const [initialGrid, setInitialGrid] = useState<number[][] | null>(null)
+
+  useEffect(() => {
+    const preset = searchParams.get('preset')
+    if (preset) {
+      try {
+        const decodedGrid = JSON.parse(decodeURIComponent(preset))
+        setInitialGrid(decodedGrid)
+      } catch (error) {
+        console.error('Error parsing preset grid:', error)
+      }
+    }
+  }, [searchParams])
+
   const {
     grid,
     locked,
@@ -32,7 +48,6 @@ const LatinHamGame: React.FC = () => {
     elapsedTime,
     hintsActive,
     isTrashMode,
-    initialGrid,
     handleCellClick,
     handleSelectDifficulty,
     handleHint,
@@ -40,7 +55,7 @@ const LatinHamGame: React.FC = () => {
     handleTrashToggle,
     checkWin,
     resetGame,
-  } = useGameLogic()
+  } = useGameLogic(initialGrid)
 
   const {
     leaderboard,
@@ -69,7 +84,6 @@ const LatinHamGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
-  // components/LatinHamGame.tsx or hooks/useGameLogic.ts
   const handleWin = useCallback(async () => {
     if (!hasSubmittedQuote) {
       setShowQuoteDialog(true)
@@ -158,7 +172,7 @@ const LatinHamGame: React.FC = () => {
       moves: moveCount,
       time: elapsedTime,
       grid: grid,
-      initialGrid: initialGrid,
+      initialGrid: initialGrid || [],
       quote: winQuote,
       hints: hintCount,
       timestamp: new Date().toISOString()

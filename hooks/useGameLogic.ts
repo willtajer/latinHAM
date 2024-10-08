@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { createLatinSquare, prefillCells, checkWin } from '../utils/gameLogic'
 
-export const useGameLogic = () => {
+export const useGameLogic = (providedInitialGrid?: number[][] | null) => {
   const [grid, setGrid] = useState<number[][]>(() => {
     const savedGrid = localStorage.getItem('latinHamGrid')
     return savedGrid ? JSON.parse(savedGrid) : []
@@ -32,6 +32,9 @@ export const useGameLogic = () => {
     return savedSolution ? JSON.parse(savedSolution) : []
   })
   const [initialGrid, setInitialGrid] = useState<number[][]>(() => {
+    if (providedInitialGrid) {
+      return providedInitialGrid
+    }
     const savedInitialGrid = localStorage.getItem('latinHamInitialGrid')
     return savedInitialGrid ? JSON.parse(savedInitialGrid) : []
   })
@@ -84,10 +87,9 @@ export const useGameLogic = () => {
         setMoveCount(prevCount => prevCount + 1)
       }
 
-      // Check for win condition after updating the grid
       if (checkWin(newGrid)) {
         setGameState('won')
-        setStartTime(null) // This will stop the timer
+        setStartTime(null)
       }
 
       return newGrid
@@ -156,7 +158,6 @@ export const useGameLogic = () => {
     setGameState('playing')
     setHintsActive(false)
 
-    // Check for win condition after resetting
     if (checkWin(initialGrid)) {
       setGameState('won')
       setStartTime(null)
@@ -168,6 +169,12 @@ export const useGameLogic = () => {
   }, [])
 
   const initializeGame = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
+    if (providedInitialGrid) {
+      resetGame(providedInitialGrid)
+      setDifficulty(selectedDifficulty)
+      return
+    }
+
     const newSolution = createLatinSquare()
     setSolution(newSolution)
     const newGrid = Array(6).fill(0).map(() => Array(6).fill(0))
@@ -189,12 +196,11 @@ export const useGameLogic = () => {
     setHintsActive(false)
     setDifficulty(selectedDifficulty)
 
-    // Check for win condition after initializing
     if (checkWin(newGrid)) {
       setGameState('won')
       setStartTime(null)
     }
-  }, [])
+  }, [providedInitialGrid])
 
   const resetGame = useCallback((newInitialGrid: number[][]) => {
     console.log("Resetting game with initial grid:", newInitialGrid)
@@ -212,7 +218,6 @@ export const useGameLogic = () => {
     setGameState('playing')
     setHintsActive(false)
 
-    // Check for win condition after resetting
     if (checkWin(newInitialGrid)) {
       setGameState('won')
       setStartTime(null)

@@ -1,8 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { LatinHAM, LeaderboardEntry } from '../types/'
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
+import { Button } from "@/components/ui/button"
+import { RefreshCw } from "lucide-react"
 
 interface LatinHAMGridProps {
   latinHAMs: LatinHAM[]
@@ -17,6 +20,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
   fetchCompletedPuzzle,
   onResetGame 
 }) => {
+  const router = useRouter()
   const [completedPuzzle, setCompletedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
@@ -56,6 +60,11 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
     return `${minutes}m ${remainingSeconds}s`
   }
 
+  const handlePlayGame = (initialGrid: number[][]) => {
+    const encodedGrid = encodeURIComponent(JSON.stringify(initialGrid))
+    router.push(`/?preset=${encodedGrid}`)
+  }
+
   const MiniGameBoard: React.FC<{ initialGrid: number[][] }> = ({ initialGrid }) => {
     if (!initialGrid || initialGrid.length === 0) {
       return <div className="text-red-500">Error: Invalid grid data</div>;
@@ -68,15 +77,14 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
             <div
               key={`${rowIndex}-${colIndex}`}
               className={`
-                w-6 h-6 flex items-center justify-center text-xs font-bold 
+                w-6 h-6 flex items-center justify-center
                 relative transition-all duration-150 ease-in-out rounded-sm shadow-sm
                 ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600'}
                 ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
               `}
               role="cell"
-              aria-label={`Cell value ${cell || 'Empty'}${cell !== 0 ? ', locked' : ''}`}
-            >
-            </div>
+              aria-label={`Cell ${cell !== 0 ? 'filled' : 'empty'}`}
+            />
           ))
         )}
       </div>
@@ -89,16 +97,31 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
         {latinHAMs.map((latinHAM, index) => (
           <div 
             key={`latinHAM-${index}`} 
-            className="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 transition-colors duration-200"
-            onClick={() => handleLatinHAMClick(latinHAM)}
+            className="bg-gray-800 p-4 rounded-lg shadow-md"
           >
-            <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-            <div className="mt-4 text-sm text-gray-300">
-              <p>Difficulty: {latinHAM.difficulty}</p>
-              <p>Best Moves: {latinHAM.bestMoves}</p>
-              <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
-              <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
+            <div 
+              className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+              onClick={() => handleLatinHAMClick(latinHAM)}
+            >
+              <MiniGameBoard initialGrid={latinHAM.initialGrid} />
+              <div className="mt-4 text-sm text-gray-300">
+                <p>Difficulty: {latinHAM.difficulty}</p>
+                <p>Best Moves: {latinHAM.bestMoves}</p>
+                <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
+                <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
+              </div>
             </div>
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePlayGame(latinHAM.initialGrid);
+              }}
+              className="w-full mt-4 inline-flex items-center justify-center px-4 py-2" 
+              aria-label="Play this latinHAM puzzle"
+            >
+              <RefreshCw className="h-5 w-5 mr-2" />
+              Play This latinHAM
+            </Button>
           </div>
         ))}
       </div>
