@@ -1,6 +1,5 @@
 // app/api/discovered-latinhams/route.ts
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
 import { sql } from '@/lib/db'
 
 interface DiscoveredLatinHAM {
@@ -28,7 +27,7 @@ function parseJsonField(field: string): number[][] {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const result = await sql<DatabaseEntry>`
       WITH distinct_grids AS (
