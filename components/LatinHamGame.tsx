@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { useGameLogic } from '../hooks/useGameLogic'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { GameBoard } from './GameBoard'
@@ -22,18 +22,6 @@ import { useSearchParams } from 'next/navigation'
 const LatinHamGame: React.FC = () => {
   const searchParams = useSearchParams()
   const [initialGrid, setInitialGrid] = useState<number[][] | null>(null)
-
-  useEffect(() => {
-    const preset = searchParams.get('preset')
-    if (preset) {
-      try {
-        const decodedGrid = JSON.parse(decodeURIComponent(preset))
-        setInitialGrid(decodedGrid)
-      } catch (error) {
-        console.error('Error parsing preset grid:', error)
-      }
-    }
-  }, [searchParams])
 
   const {
     grid,
@@ -57,10 +45,16 @@ const LatinHamGame: React.FC = () => {
     resetGame,
   } = useGameLogic(initialGrid)
 
+  const memoizedDifficulty = useMemo(() => difficulty, [difficulty])
+
   const {
     leaderboard,
     handleQuoteSubmit: leaderboardHandleQuoteSubmit,
-  } = useLeaderboard(difficulty)
+  } = useLeaderboard(memoizedDifficulty)
+
+  useEffect(() => {
+    console.log('Leaderboard fetched for difficulty:', memoizedDifficulty)
+  }, [leaderboard, memoizedDifficulty])
 
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
@@ -84,41 +78,25 @@ const LatinHamGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
-  const handleWin = useCallback(async () => {
+  useEffect(() => {
+    const preset = searchParams.get('preset')
+    if (preset) {
+      try {
+        const decodedGrid = JSON.parse(decodeURIComponent(preset))
+        setInitialGrid(decodedGrid)
+        resetGame(decodedGrid)
+      } catch (error) {
+        console.error('Error parsing preset grid:', error)
+      }
+    }
+  }, [searchParams, resetGame])
+
+  const handleWin = useCallback(() => {
     if (!hasSubmittedQuote) {
       setShowQuoteDialog(true)
       setShowConfetti(true)
-      
-      const gameData = {
-        difficulty,
-        moves: moveCount,
-        time: elapsedTime,
-        grid,
-        initialGrid,
-        quote: winQuote,
-        hints: hintCount
-      }
-  
-      try {
-        const response = await fetch('/api/save-game', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(gameData),
-        })
-  
-        if (!response.ok) {
-          throw new Error('Failed to save game')
-        }
-  
-        const savedGame = await response.json()
-        console.log('Game saved successfully:', savedGame)
-      } catch (error) {
-        console.error('Error saving game:', error)
-      }
     }
-  }, [hasSubmittedQuote, difficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
+  }, [hasSubmittedQuote])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowConfetti(false)
@@ -168,7 +146,7 @@ const LatinHamGame: React.FC = () => {
   const createLeaderboardEntry = useCallback((): LeaderboardEntry => {
     return {
       id: Date.now().toString(),
-      difficulty,
+      difficulty: memoizedDifficulty,
       moves: moveCount,
       time: elapsedTime,
       grid: grid,
@@ -177,7 +155,7 @@ const LatinHamGame: React.FC = () => {
       hints: hintCount,
       timestamp: new Date().toISOString()
     }
-  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
+  }, [memoizedDifficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
 
   const handleQuoteSubmit = useCallback(async (quote: string) => {
     const entry = createLeaderboardEntry()
@@ -217,18 +195,23 @@ const LatinHamGame: React.FC = () => {
 
   const handleResetGame = useCallback((newInitialGrid: number[][]) => {
     console.log("Received Initial Grid in LatinHamGame:", newInitialGrid);
-    resetGame(newInitialGrid)
-    setHasSubmittedQuote(false)
-    setShowQuoteDialog(false)
-    setShowConfetti(false)
-    setShowWinCard(false)
-    setWinQuote("")
-    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
+    setInitialGrid(newInitialGrid);
+    resetGame(newInitialGrid);
+    setHasSubmittedQuote(false);
+    setShowQuoteDialog(false);
+    setShowConfetti(false);
+    setShowWinCard(false);
+    setWinQuote("");
+    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false));
     
     if (checkWin(newInitialGrid)) {
-      handleWin()
+      handleWin();
     }
-  }, [resetGame, checkWin, handleWin])
+  }, [resetGame, checkWin, handleWin]);
+
+  const handleNewGame = useCallback(() => {
+    setShowNewGameConfirmation(true)
+  }, [])
 
   if (showDifficultySelector) {
     return (
@@ -249,8 +232,8 @@ const LatinHamGame: React.FC = () => {
           aria-label="Visit Will Tajer's website"
         >
           Created by Will Tajer
-          <DiscoveredLatinHAMsButton />
         </a>
+        <DiscoveredLatinHAMsButton />
       </div>
     )
   }
@@ -262,7 +245,7 @@ const LatinHamGame: React.FC = () => {
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
         </div>
       )}
-      <GameHeader gameState={gameState} isGameWon={isGameWon} />
+      <GameHeader gameState={gameState} isGameWon={isGameWon} onNewGame={handleNewGame} />
       <div 
         ref={viewedBoardRef}
         className={`transition-all duration-300 ${gameState === 'viewing' ? 'outline outline-4 outline-blue-500 rounded-lg p-2' : ''}`}
@@ -289,7 +272,7 @@ const LatinHamGame: React.FC = () => {
       </div>
       {gameState !== 'viewing' && (
         <GameControls 
-          handleNewGame={() => setShowNewGameConfirmation(true)}
+          handleNewGame={handleNewGame}
           handleHint={handleHint}
           handleReset={handleReset}
           handleTrashToggle={handleTrashToggle}
@@ -300,8 +283,8 @@ const LatinHamGame: React.FC = () => {
       )}
       
       <Leaderboard 
-        entries={leaderboard[difficulty]}
-        difficulty={difficulty}
+        entries={leaderboard[memoizedDifficulty]}
+        difficulty={memoizedDifficulty}
         onViewCompletedBoard={handleViewCompletedBoardWrapper}
       />
       <NewGameDialog 
@@ -320,8 +303,8 @@ const LatinHamGame: React.FC = () => {
         quote={winQuote}
         setQuote={setWinQuote}
         entry={hasSubmittedQuote ? createLeaderboardEntry() : undefined}
-        gameNumber={leaderboard[difficulty].length + 1}
-        difficulty={difficulty}
+        gameNumber={leaderboard[memoizedDifficulty].length + 1}
+        difficulty={memoizedDifficulty}
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}
         onResetGame={handleResetGame}
@@ -330,7 +313,7 @@ const LatinHamGame: React.FC = () => {
         open={showViewPopup}
         onOpenChange={setShowViewPopup}
         entry={viewingEntry}
-        difficulty={difficulty}
+        difficulty={memoizedDifficulty}
         onResetGame={handleResetGame}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
@@ -338,4 +321,4 @@ const LatinHamGame: React.FC = () => {
   )
 }
 
-export default LatinHamGame
+export default React.memo(LatinHamGame)

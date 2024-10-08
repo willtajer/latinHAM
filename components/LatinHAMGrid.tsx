@@ -71,13 +71,13 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
     }
 
     return (
-      <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
+      <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner aspect-square">
         {initialGrid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
               className={`
-                w-6 h-6 flex items-center justify-center
+                aspect-square flex items-center justify-center
                 relative transition-all duration-150 ease-in-out rounded-sm shadow-sm
                 ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600'}
                 ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
@@ -93,11 +93,11 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center">
         {latinHAMs.map((latinHAM, index) => (
           <div 
             key={`latinHAM-${index}`} 
-            className="bg-gray-800 p-4 rounded-lg shadow-md"
+            className="bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[300px]"
           >
             <div 
               className="cursor-pointer hover:opacity-80 transition-opacity duration-200"

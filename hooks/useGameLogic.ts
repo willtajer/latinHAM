@@ -1,7 +1,9 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createLatinSquare, prefillCells, checkWin } from '../utils/gameLogic'
 
 export const useGameLogic = (providedInitialGrid?: number[][] | null) => {
+  const searchParams = useSearchParams()
   const [grid, setGrid] = useState<number[][]>(() => {
     const savedGrid = localStorage.getItem('latinHamGrid')
     return savedGrid ? JSON.parse(savedGrid) : []
@@ -32,9 +34,6 @@ export const useGameLogic = (providedInitialGrid?: number[][] | null) => {
     return savedSolution ? JSON.parse(savedSolution) : []
   })
   const [initialGrid, setInitialGrid] = useState<number[][]>(() => {
-    if (providedInitialGrid) {
-      return providedInitialGrid
-    }
     const savedInitialGrid = localStorage.getItem('latinHamInitialGrid')
     return savedInitialGrid ? JSON.parse(savedInitialGrid) : []
   })
@@ -57,20 +56,64 @@ export const useGameLogic = (providedInitialGrid?: number[][] | null) => {
   })
   const [hintsActive, setHintsActive] = useState<boolean>(false)
 
-  useEffect(() => {
-    localStorage.setItem('latinHamGrid', JSON.stringify(grid))
-    localStorage.setItem('latinHamLocked', JSON.stringify(locked))
-    localStorage.setItem('latinHamEdited', JSON.stringify(edited))
-    localStorage.setItem('latinHamGameState', gameState)
-    localStorage.setItem('latinHamDifficulty', difficulty)
-    localStorage.setItem('latinHamHints', JSON.stringify(hints))
-    localStorage.setItem('latinHamSolution', JSON.stringify(solution))
-    localStorage.setItem('latinHamInitialGrid', JSON.stringify(initialGrid))
-    localStorage.setItem('latinHamMoveCount', moveCount.toString())
-    localStorage.setItem('latinHamHintCount', hintCount.toString())
-    localStorage.setItem('latinHamStartTime', startTime ? startTime.toString() : '')
-    localStorage.setItem('latinHamElapsedTime', elapsedTime.toString())
-  }, [grid, locked, edited, gameState, difficulty, hints, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime])
+  const preset = useMemo(() => searchParams.get('preset'), [searchParams])
+
+  const initializeGame = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard', providedInitialGrid?: number[][]) => {
+    console.log("Initializing game with difficulty:", selectedDifficulty, "and grid:", providedInitialGrid)
+    if (providedInitialGrid) {
+      resetGame(providedInitialGrid)
+      setDifficulty(selectedDifficulty)
+      return
+    }
+
+    const newSolution = createLatinSquare()
+    setSolution(newSolution)
+    const newGrid = Array(6).fill(0).map(() => Array(6).fill(0))
+    const newLocked = Array(6).fill(false).map(() => Array(6).fill(false))
+    const newEdited = Array(6).fill(false).map(() => Array(6).fill(false))
+    prefillCells(newGrid, newLocked, selectedDifficulty)
+    setGrid(newGrid)
+    setInitialGrid(newGrid.map(row => [...row]))
+    setLocked(newLocked)
+    setEdited(newEdited)
+    setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setShowNumbers(false)
+    setIsTrashMode(false)
+    setMoveCount(0)
+    setHintCount(0)
+    setStartTime(Date.now())
+    setElapsedTime(0)
+    setGameState('playing')
+    setHintsActive(false)
+    setDifficulty(selectedDifficulty)
+
+    if (checkWin(newGrid)) {
+      setGameState('won')
+      setStartTime(null)
+    }
+  }, [])
+
+  const resetGame = useCallback((newInitialGrid: number[][]) => {
+    console.log("Resetting game with initial grid:", newInitialGrid)
+    setGrid(newInitialGrid.map(row => [...row]))
+    setInitialGrid(newInitialGrid)
+    setLocked(newInitialGrid.map(row => row.map(cell => cell !== 0)))
+    setEdited(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setShowNumbers(false)
+    setIsTrashMode(false)
+    setMoveCount(0)
+    setHintCount(0)
+    setStartTime(Date.now())
+    setElapsedTime(0)
+    setGameState('playing')
+    setHintsActive(false)
+
+    if (checkWin(newInitialGrid)) {
+      setGameState('won')
+      setStartTime(null)
+    }
+  }, [])
 
   const handleCellClick = useCallback((row: number, col: number) => {
     if (gameState !== 'playing' || locked[row][col]) return
@@ -110,11 +153,11 @@ export const useGameLogic = (providedInitialGrid?: number[][] | null) => {
   const handleSelectDifficulty = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
     setDifficulty(selectedDifficulty)
     initializeGame(selectedDifficulty)
-  }, [])
+  }, [initializeGame])
 
   const handleNewGame = useCallback(() => {
     initializeGame(difficulty)
-  }, [difficulty])
+  }, [difficulty, initializeGame])
 
   const handleHint = useCallback(() => {
     if (checkWin(grid)) {
@@ -168,61 +211,36 @@ export const useGameLogic = (providedInitialGrid?: number[][] | null) => {
     setIsTrashMode(prevMode => !prevMode)
   }, [])
 
-  const initializeGame = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
-    if (providedInitialGrid) {
-      resetGame(providedInitialGrid)
-      setDifficulty(selectedDifficulty)
-      return
+  useEffect(() => {
+    if (preset) {
+      try {
+        const initialGrid = JSON.parse(decodeURIComponent(preset))
+        initializeGame(difficulty, initialGrid)
+      } catch (error) {
+        console.error('Error parsing preset grid:', error)
+        initializeGame(difficulty)
+      }
+    } else if (providedInitialGrid) {
+      initializeGame(difficulty, providedInitialGrid)
+    } else if (grid.length === 0) {
+      initializeGame(difficulty)
     }
+  }, [preset, providedInitialGrid, difficulty, initializeGame, grid.length])
 
-    const newSolution = createLatinSquare()
-    setSolution(newSolution)
-    const newGrid = Array(6).fill(0).map(() => Array(6).fill(0))
-    const newLocked = Array(6).fill(false).map(() => Array(6).fill(false))
-    const newEdited = Array(6).fill(false).map(() => Array(6).fill(false))
-    prefillCells(newGrid, newLocked, selectedDifficulty)
-    setGrid(newGrid)
-    setInitialGrid(newGrid.map(row => [...row]))
-    setLocked(newLocked)
-    setEdited(newEdited)
-    setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
-    setShowNumbers(false)
-    setIsTrashMode(false)
-    setMoveCount(0)
-    setHintCount(0)
-    setStartTime(Date.now())
-    setElapsedTime(0)
-    setGameState('playing')
-    setHintsActive(false)
-    setDifficulty(selectedDifficulty)
-
-    if (checkWin(newGrid)) {
-      setGameState('won')
-      setStartTime(null)
-    }
-  }, [providedInitialGrid])
-
-  const resetGame = useCallback((newInitialGrid: number[][]) => {
-    console.log("Resetting game with initial grid:", newInitialGrid)
-    setGrid(newInitialGrid.map(row => [...row]))
-    setInitialGrid(newInitialGrid)
-    setLocked(newInitialGrid.map(row => row.map(cell => cell !== 0)))
-    setEdited(Array(6).fill(false).map(() => Array(6).fill(false)))
-    setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
-    setShowNumbers(false)
-    setIsTrashMode(false)
-    setMoveCount(0)
-    setHintCount(0)
-    setStartTime(Date.now())
-    setElapsedTime(0)
-    setGameState('playing')
-    setHintsActive(false)
-
-    if (checkWin(newInitialGrid)) {
-      setGameState('won')
-      setStartTime(null)
-    }
-  }, [])
+  useEffect(() => {
+    localStorage.setItem('latinHamGrid', JSON.stringify(grid))
+    localStorage.setItem('latinHamLocked', JSON.stringify(locked))
+    localStorage.setItem('latinHamEdited', JSON.stringify(edited))
+    localStorage.setItem('latinHamGameState', gameState)
+    localStorage.setItem('latinHamDifficulty', difficulty)
+    localStorage.setItem('latinHamHints', JSON.stringify(hints))
+    localStorage.setItem('latinHamSolution', JSON.stringify(solution))
+    localStorage.setItem('latinHamInitialGrid', JSON.stringify(initialGrid))
+    localStorage.setItem('latinHamMoveCount', moveCount.toString())
+    localStorage.setItem('latinHamHintCount', hintCount.toString())
+    localStorage.setItem('latinHamStartTime', startTime ? startTime.toString() : '')
+    localStorage.setItem('latinHamElapsedTime', elapsedTime.toString())
+  }, [grid, locked, edited, gameState, difficulty, hints, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime])
 
   useEffect(() => {
     let timer: NodeJS.Timeout

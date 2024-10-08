@@ -1,6 +1,5 @@
-// components/NewGameDialog.tsx
 import React from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 
 interface NewGameDialogProps {
@@ -19,8 +18,10 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Start a New Game?</DialogTitle>
+          <DialogDescription>
+            Starting a new game will reset your current progress. Are you sure you want to continue?
+          </DialogDescription>
         </DialogHeader>
-        <p>Are you sure you want to start a new game? Your current progress will be lost.</p>
         <DialogFooter>
           <div className="flex justify-center w-full space-x-2">
             <Button onClick={() => onOpenChange(false)} variant="outline">
