@@ -80,7 +80,7 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-2">
       <LatinHAMGrid 
         latinHAMs={latinHAMs} 
         onLatinHAMClick={handleLatinHAMClick}

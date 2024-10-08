@@ -93,11 +93,11 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 
   return (
     <>
-<div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center">        
+<div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">        
 {latinHAMs.map((latinHAM, index) => (
           <div 
             key={`latinHAM-${index}`} 
-            className="bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[300px]"
+            className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px]"
           >
             <div 
               className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
@@ -116,7 +116,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
                 e.stopPropagation();
                 handlePlayGame(latinHAM.initialGrid);
               }}
-              className="bg-gray-500 dark:bg-gray-700 text-gray-200 dark:text-gray-200 hover:bg-blue-800 dark:hover:bg-blue-800 w-full mt-4 inline-flex items-center justify-center px-4 py-2" 
+              className="bg-blue-500 dark:bg-blue-600 text-gray-200 dark:text-gray-200 hover:bg-blue-800 dark:hover:bg-blue-800 w-full mt-4 inline-flex items-center justify-center px-4 py-2" 
               aria-label="Play this latinHAM puzzle"
             >
               <RefreshCw className="h-5 w-5 mr-2 text-gray-200 dark:text-gray-200" />
