@@ -4,7 +4,14 @@
 import React, { useState, useEffect } from 'react'
 import { LatinHAMGrid } from './LatinHAMGrid'
 import { LatinHAMDetail } from './LatinHAMDetail'
-import { LatinHAM } from '../types/'
+
+interface LatinHAM {
+  preset: number[][];
+  difficulty: 'easy' | 'medium' | 'hard';
+  solveCount: number;
+  bestMoves: number;
+  bestTime: number;
+}
 
 export const DiscoveredLatinHAMs: React.FC = () => {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
@@ -20,7 +27,11 @@ export const DiscoveredLatinHAMs: React.FC = () => {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
         const data = await response.json()
-        setLatinHAMs(data)
+        if (Array.isArray(data)) {
+          setLatinHAMs(data)
+        } else {
+          throw new Error('Invalid data format')
+        }
       } catch (error) {
         console.error('Error fetching latinHAMs:', error)
         setError('Failed to load Discovered LatinHAMs. Please try again later.')
