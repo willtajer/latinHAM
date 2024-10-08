@@ -8,7 +8,7 @@ export default function DiscoveredPage() {
     <div className="min-h-screen bg-transparent">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">latinHAMs</h1>
+          <h1 className="text-3xl font-bold">Discovered latinHAMs</h1>
           <HomeButton />
         </div>
         <DiscoveredLatinHAMs />
