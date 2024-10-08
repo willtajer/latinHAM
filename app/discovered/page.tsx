@@ -1,7 +1,7 @@
 // app/discovered/page.tsx
 import React from 'react'
 import { DiscoveredLatinHAMs } from '../../components/DiscoveredLatinHAMs'
-import HomeButton from '../../components/HomeButton'
+import { HomeButton } from '../../components/HomeButton'
 
 export default function DiscoveredPage() {
   return (
