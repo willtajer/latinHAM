@@ -23,9 +23,9 @@ interface CellProps {
 }
 
 const Cell: React.FC<CellProps> = ({ value, locked }) => {
-  const baseClasses = "w-8 h-8 flex items-center justify-center text-sm font-bold relative transition-all duration-150 ease-in-out rounded-md shadow-sm"
-  const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-white dark:bg-gray-600'
-  const borderClass = locked ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'
+  const baseClasses = "w-6 h-6 flex items-center justify-center text-xs font-bold relative transition-all duration-150 ease-in-out rounded-sm shadow-sm"
+  const colorClass = value !== 0 ? colorClasses[value - 1] : 'bg-gray-700'
+  const borderClass = locked ? 'border-2 border-gray-400' : 'border border-gray-600'
 
   return (
     <div
@@ -44,7 +44,7 @@ const Cell: React.FC<CellProps> = ({ value, locked }) => {
 
 const MiniGameBoard: React.FC<{ preset: number[][] }> = ({ preset }) => {
   return (
-    <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
+    <div className="grid grid-cols-6 gap-0.5 bg-gray-800 p-1 rounded-md shadow-inner">
       {preset.map((row, rowIndex) =>
         row.map((cell, colIndex) => (
           <Cell
@@ -60,15 +60,19 @@ const MiniGameBoard: React.FC<{ preset: number[][] }> = ({ preset }) => {
 
 export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ latinHAMs, onLatinHAMClick }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {latinHAMs.map((latinHAM, index) => (
-        <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer" onClick={() => onLatinHAMClick(latinHAM)}>
+        <div 
+          key={index} 
+          className="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 transition-colors duration-200"
+          onClick={() => onLatinHAMClick(latinHAM)}
+        >
           <MiniGameBoard preset={latinHAM.preset} />
-          <div className="mt-4 text-sm">
+          <div className="mt-4 text-sm text-gray-300">
             <p>Difficulty: {latinHAM.difficulty}</p>
             <p>Best Moves: {latinHAM.bestMoves}</p>
             <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
-            <p>Solved: {latinHAM.solveCount} times</p>
+            <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
           </div>
         </div>
       ))}
