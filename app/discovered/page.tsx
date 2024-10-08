@@ -1,4 +1,4 @@
-// app/discovered-latinhams/page.tsx
+// app/discovered/page.tsx
 import React from 'react'
 import { DiscoveredLatinHAMs } from '../../components/DiscoveredLatinHAMs'
 import Link from 'next/link'
