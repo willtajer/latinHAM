@@ -13,7 +13,7 @@ export const LatinHAMDetail: React.FC<LatinHAMDetailProps> = ({ latinHAM, onBack
   useEffect(() => {
     const fetchLeaderboardEntries = async () => {
       try {
-        const response = await fetch(`/api/leaderboard-entries?preset=${JSON.stringify(latinHAM.preset)}&difficulty=${latinHAM.difficulty}`)
+        const response = await fetch(`/api/leaderboard-entries?initialGrid=${JSON.stringify(latinHAM.initialGrid)}&difficulty=${latinHAM.difficulty}`)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
@@ -25,7 +25,7 @@ export const LatinHAMDetail: React.FC<LatinHAMDetailProps> = ({ latinHAM, onBack
     }
 
     fetchLeaderboardEntries()
-  }, [latinHAM.preset, latinHAM.difficulty])
+  }, [latinHAM.initialGrid, latinHAM.difficulty])
 
   return (
     <div>
@@ -40,8 +40,8 @@ export const LatinHAMDetail: React.FC<LatinHAMDetailProps> = ({ latinHAM, onBack
             difficulty: latinHAM.difficulty,
             moves: latinHAM.bestMoves,
             time: latinHAM.bestTime,
-            grid: latinHAM.preset,
-            initialGrid: latinHAM.preset,
+            grid: latinHAM.initialGrid,
+            initialGrid: latinHAM.initialGrid,
             quote: `Solved ${latinHAM.solveCount} times`,
             hints: 0,
             timestamp: new Date().toISOString()

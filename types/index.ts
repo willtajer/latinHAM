@@ -1,5 +1,6 @@
 export interface LatinHAM {
-  preset: number[][]
+  id: string;
+  initialGrid: number[][]
   difficulty: 'easy' | 'medium' | 'hard'
   solveCount: number
   bestMoves: number

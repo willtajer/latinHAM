@@ -42,10 +42,10 @@ const Cell: React.FC<CellProps> = ({ value, locked }) => {
   )
 }
 
-const MiniGameBoard: React.FC<{ preset: number[][] }> = ({ preset }) => {
+const MiniGameBoard: React.FC<{ initialGrid: number[][] }> = ({ initialGrid }) => {
   return (
     <div className="grid grid-cols-6 gap-0.5 bg-gray-800 p-1 rounded-md shadow-inner">
-      {preset.map((row, rowIndex) =>
+      {initialGrid.map((row, rowIndex) =>
         row.map((cell, colIndex) => (
           <Cell
             key={`${rowIndex}-${colIndex}`}
@@ -67,7 +67,7 @@ export const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ latinHAMs, onLatinHA
           className="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 transition-colors duration-200"
           onClick={() => onLatinHAMClick(latinHAM)}
         >
-          <MiniGameBoard preset={latinHAM.preset} />
+          <MiniGameBoard initialGrid={latinHAM.initialGrid} />
           <div className="mt-4 text-sm text-gray-300">
             <p>Difficulty: {latinHAM.difficulty}</p>
             <p>Best Moves: {latinHAM.bestMoves}</p>
