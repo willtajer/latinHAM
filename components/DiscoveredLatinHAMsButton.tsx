@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 export default function DiscoveredLatinHAMsButton() {
   return (
-    <Link href="/discovered-latinhams" passHref>
+    <Link href="/discovered" passHref>
       <Button
         variant="ghost"
         size="icon"

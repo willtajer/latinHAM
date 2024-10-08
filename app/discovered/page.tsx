@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Home } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
-export default function DiscoveredLatinHAMsPage() {
+export default function DiscoveredPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
