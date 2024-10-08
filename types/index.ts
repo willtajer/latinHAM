@@ -1,3 +1,11 @@
+export interface LatinHAM {
+  preset: number[][]
+  difficulty: 'easy' | 'medium' | 'hard'
+  solveCount: number
+  bestMoves: number
+  bestTime: number
+}
+
 export interface LeaderboardEntry {
   id: string;
   difficulty: 'easy' | 'medium' | 'hard';

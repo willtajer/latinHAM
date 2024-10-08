@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from '@/components/ModeToggle'
+import DiscoveredLatinHAMsButton from '@/components/DiscoveredLatinHAMsButton'
 import {
   ClerkProvider,
   SignInButton,
@@ -85,6 +86,7 @@ export default function RootLayout({
               <LoginHandler />
               {children}
             </main>
+            <DiscoveredLatinHAMsButton />
             <Analytics />
             <SpeedInsights />
           </ThemeProvider>
