@@ -19,13 +19,25 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 }) => {
   const [completedPuzzle, setCompletedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
 
   const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
     if (latinHAM.id) {
-      const completed = await fetchCompletedPuzzle(latinHAM.id)
-      setCompletedPuzzle(completed)
-      setIsDialogOpen(true)
-      onLatinHAMClick(latinHAM)
+      try {
+        const completed = await fetchCompletedPuzzle(latinHAM.id)
+        if (completed) {
+          setCompletedPuzzle(completed)
+          setSelectedDifficulty(latinHAM.difficulty as 'easy' | 'medium' | 'hard')
+          setIsDialogOpen(true)
+          onLatinHAMClick(latinHAM)
+        } else {
+          console.error('No completed puzzle found for this LatinHAM')
+        }
+      } catch (error) {
+        console.error('Error fetching completed puzzle:', error)
+      }
+    } else {
+      console.error('LatinHAM id is undefined:', latinHAM)
     }
   }
 
@@ -36,9 +48,15 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
     }
   }
 
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}m ${remainingSeconds}s`
+  }
+
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {latinHAMs.map((latinHAM, index) => (
           <div 
             key={latinHAM.id || index} 
@@ -58,17 +76,11 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
         open={isDialogOpen}
         onOpenChange={handleDialogClose}
         entry={completedPuzzle}
-        difficulty={completedPuzzle?.difficulty || 'easy'}
+        difficulty={selectedDifficulty}
         onResetGame={onResetGame}
       />
     </>
   )
-}
-
-const formatTime = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}m ${remainingSeconds}s`
 }
 
 export default LatinHAMGrid
