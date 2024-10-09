@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,7 +13,6 @@ interface LearningModeGameProps {
 }
 
 export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProps) {
-  const [showNumbers, setShowNumbers] = useState(true)
   const [showColors, setShowColors] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
 
@@ -27,17 +28,13 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
   useEffect(() => {
     if (isComplete && !showConfetti) {
       onComplete()
-      setTimeout(() => {
-        setShowNumbers(false)
-        setShowColors(true)
-        setShowConfetti(true)
-      }, 1000)
+      setShowColors(true)
+      setShowConfetti(true)
     }
   }, [isComplete, onComplete, showConfetti])
 
   const handleRestart = () => {
     resetGame()
-    setShowNumbers(true)
     setShowColors(false)
     setShowConfetti(false)
     onRestart()
@@ -63,7 +60,7 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 disabled={locked[rowIndex][colIndex] || isComplete}
               >
-                {(showNumbers && cell !== 0) && cell}
+                {cell !== 0 && cell}
               </button>
             ))
           ))}
