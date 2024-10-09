@@ -105,7 +105,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.fill()
 
-        if (entry.initialGrid[rowIndex][colIndex] !== 0) {
+        if (Array.isArray(entry.initialGrid) && entry.initialGrid[rowIndex] && entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000'
           ctx.lineWidth = 5
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)

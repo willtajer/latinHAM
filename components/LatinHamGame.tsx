@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useGameLogic } from '../hooks/useGameLogic'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { GameBoard } from './GameBoard'
@@ -16,15 +16,8 @@ import { DifficultySelector } from './DifficultySelector'
 import { Leaderboard } from './Leaderboard'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
-import DiscoveredLatinHAMsButton from '@/components/DiscoveredLatinHAMsButton'
-import { useSearchParams } from 'next/navigation'
-import LearningGameButton from './LearningGameButton'
-import { WillTajerButton } from './WillTajerButton'
 
-const LatinHamGame: React.FC = () => {
-  const searchParams = useSearchParams()
-  const [initialGrid, setInitialGrid] = useState<number[][] | null>(null)
-
+export default function LatinHamGame() {
   const {
     grid,
     locked,
@@ -38,6 +31,7 @@ const LatinHamGame: React.FC = () => {
     elapsedTime,
     hintsActive,
     isTrashMode,
+    initialGrid,
     handleCellClick,
     handleSelectDifficulty,
     handleHint,
@@ -45,55 +39,37 @@ const LatinHamGame: React.FC = () => {
     handleTrashToggle,
     checkWin,
     resetGame,
-  } = useGameLogic(initialGrid)
-
-  const memoizedDifficulty = useMemo(() => difficulty, [difficulty])
+  } = useGameLogic()
 
   const {
     leaderboard,
     handleQuoteSubmit: leaderboardHandleQuoteSubmit,
-  } = useLeaderboard(memoizedDifficulty)
-
-  useEffect(() => {
-    console.log('Leaderboard fetched for difficulty:', memoizedDifficulty)
-  }, [leaderboard, memoizedDifficulty])
+  } = useLeaderboard(difficulty)
 
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
-  const [winQuote, setWinQuote] = useState(() => {
-    const savedWinQuote = localStorage.getItem('latinHamWinQuote')
-    return savedWinQuote || ""
-  })
+  const [winQuote, setWinQuote] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
-  const [showDifficultySelector, setShowDifficultySelector] = useState(() => {
-    const savedGameState = localStorage.getItem('latinHamGameState')
-    return savedGameState ? savedGameState === 'start' : true
-  })
-  const [showWinCard, setShowWinCard] = useState(false)
-  const [hasSubmittedQuote, setHasSubmittedQuote] = useState(() => {
-    const savedHasSubmittedQuote = localStorage.getItem('latinHamHasSubmittedQuote')
-    return savedHasSubmittedQuote ? JSON.parse(savedHasSubmittedQuote) : false
-  })
+  const [showDifficultySelector, setShowDifficultySelector] = useState(true)
+  const [hasSubmittedQuote, setHasSubmittedQuote] = useState(false)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const preset = searchParams.get('preset')
-    if (preset) {
-      try {
-        const decodedGrid = JSON.parse(decodeURIComponent(preset))
-        setInitialGrid(decodedGrid)
-        resetGame(decodedGrid)
-      } catch (error) {
-        console.error('Error parsing preset grid:', error)
-      }
-    }
-  }, [searchParams, resetGame])
+    const savedWinQuote = localStorage.getItem('latinHamWinQuote')
+    if (savedWinQuote) setWinQuote(savedWinQuote)
 
-  const handleWin = useCallback(() => {
+    const savedGameState = localStorage.getItem('latinHamGameState')
+    setShowDifficultySelector(savedGameState ? savedGameState === 'start' : true)
+
+    const savedHasSubmittedQuote = localStorage.getItem('latinHamHasSubmittedQuote')
+    setHasSubmittedQuote(savedHasSubmittedQuote ? JSON.parse(savedHasSubmittedQuote) : false)
+  }, [])
+
+  const handleWin = useCallback(async () => {
     if (!hasSubmittedQuote) {
       setShowQuoteDialog(true)
       setShowConfetti(true)
@@ -102,7 +78,6 @@ const LatinHamGame: React.FC = () => {
 
   const handleCloseWinPopup = useCallback(() => {
     setShowConfetti(false)
-    setShowWinCard(false)
     setShowQuoteDialog(false)
   }, [])
 
@@ -128,7 +103,6 @@ const LatinHamGame: React.FC = () => {
     setShowNewGameConfirmation(false)
     setShowQuoteDialog(false)
     setShowConfetti(false)
-    setShowWinCard(false)
     setHasSubmittedQuote(false)
     setWinQuote("")
     clearGameState()
@@ -140,7 +114,6 @@ const LatinHamGame: React.FC = () => {
     setHasSubmittedQuote(false)
     setShowQuoteDialog(false)
     setShowConfetti(false)
-    setShowWinCard(false)
     setWinQuote("")
     localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
   }, [handleSelectDifficulty])
@@ -148,28 +121,52 @@ const LatinHamGame: React.FC = () => {
   const createLeaderboardEntry = useCallback((): LeaderboardEntry => {
     return {
       id: Date.now().toString(),
-      difficulty: memoizedDifficulty,
+      difficulty,
       moves: moveCount,
       time: elapsedTime,
       grid: grid,
-      initialGrid: initialGrid || [],
+      initialGrid: initialGrid,
       quote: winQuote,
       hints: hintCount,
       timestamp: new Date().toISOString()
     }
-  }, [memoizedDifficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
+  }, [difficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
 
   const handleQuoteSubmit = useCallback(async (quote: string) => {
+    if (hasSubmittedQuote) return
+
     const entry = createLeaderboardEntry()
     const updatedEntry = { ...entry, quote }
-    await leaderboardHandleQuoteSubmit(quote, updatedEntry)
-    setShowQuoteDialog(false)
-    setWinQuote(quote)
-    setShowWinCard(true)
-    setHasSubmittedQuote(true)
-    localStorage.setItem('latinHamWinQuote', quote)
-    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
-  }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit])
+    
+    try {
+      const response = await fetch('/api/save-game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedEntry),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save game')
+      }
+
+      const savedGame = await response.json()
+      console.log('Game saved successfully:', savedGame)
+
+      await leaderboardHandleQuoteSubmit(quote, savedGame)
+      setShowQuoteDialog(false)
+      setWinQuote(quote)
+      setHasSubmittedQuote(true)
+      localStorage.setItem('latinHamWinQuote', quote)
+      localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
+      
+      setViewingEntry(savedGame)
+      setShowViewPopup(true)
+    } catch (error) {
+      console.error('Error saving game:', error)
+    }
+  }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit, hasSubmittedQuote])
 
   const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
 
@@ -185,7 +182,6 @@ const LatinHamGame: React.FC = () => {
   }, [])
 
   const handleStartNewGame = useCallback(() => {
-    setShowWinCard(false)
     setShowConfetti(false)
     setShowDifficultySelector(true)
     setHasSubmittedQuote(false)
@@ -197,19 +193,17 @@ const LatinHamGame: React.FC = () => {
 
   const handleResetGame = useCallback((newInitialGrid: number[][]) => {
     console.log("Received Initial Grid in LatinHamGame:", newInitialGrid);
-    setInitialGrid(newInitialGrid);
-    resetGame(newInitialGrid);
-    setHasSubmittedQuote(false);
-    setShowQuoteDialog(false);
-    setShowConfetti(false);
-    setShowWinCard(false);
-    setWinQuote("");
-    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false));
+    resetGame(newInitialGrid)
+    setHasSubmittedQuote(false)
+    setShowQuoteDialog(false)
+    setShowConfetti(false)
+    setWinQuote("")
+    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
     
     if (checkWin(newInitialGrid)) {
-      handleWin();
+      handleWin()
     }
-  }, [resetGame, checkWin, handleWin]);
+  }, [resetGame, checkWin, handleWin])
 
   const handleNewGame = useCallback(() => {
     setShowNewGameConfirmation(true)
@@ -226,9 +220,15 @@ const LatinHamGame: React.FC = () => {
           </p>
           <DifficultySelector onSelectDifficulty={handleDifficultySelect} />
         </div>
-        <WillTajerButton />
-        <DiscoveredLatinHAMsButton />
-        <LearningGameButton />
+        <a
+          href="https://willtajer.com/projects/latinham/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
+          aria-label="Visit Will Tajer's website"
+        >
+          Created by Will Tajer
+        </a>
       </div>
     )
   }
@@ -240,7 +240,11 @@ const LatinHamGame: React.FC = () => {
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />
         </div>
       )}
-      <GameHeader gameState={gameState} isGameWon={isGameWon} onNewGame={handleNewGame} />
+      <GameHeader 
+        gameState={gameState} 
+        isGameWon={isGameWon} 
+        onNewGame={handleNewGame}
+      />
       <div 
         ref={viewedBoardRef}
         className={`transition-all duration-300 ${gameState === 'viewing' ? 'outline outline-4 outline-blue-500 rounded-lg p-2' : ''}`}
@@ -278,8 +282,8 @@ const LatinHamGame: React.FC = () => {
       )}
       
       <Leaderboard 
-        entries={leaderboard[memoizedDifficulty]}
-        difficulty={memoizedDifficulty}
+        entries={leaderboard[difficulty]}
+        difficulty={difficulty}
         onViewCompletedBoard={handleViewCompletedBoardWrapper}
       />
       <NewGameDialog 
@@ -288,7 +292,7 @@ const LatinHamGame: React.FC = () => {
         onConfirm={confirmNewGame}
       />
       <WinDialog 
-        open={showQuoteDialog || showWinCard}
+        open={showQuoteDialog}
         onOpenChange={(open) => {
           if (!open) {
             handleCloseWinPopup()
@@ -298,8 +302,8 @@ const LatinHamGame: React.FC = () => {
         quote={winQuote}
         setQuote={setWinQuote}
         entry={hasSubmittedQuote ? createLeaderboardEntry() : undefined}
-        gameNumber={leaderboard[memoizedDifficulty].length + 1}
-        difficulty={memoizedDifficulty}
+        gameNumber={leaderboard[difficulty].length + 1}
+        difficulty={difficulty}
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}
         onResetGame={handleResetGame}
@@ -308,12 +312,10 @@ const LatinHamGame: React.FC = () => {
         open={showViewPopup}
         onOpenChange={setShowViewPopup}
         entry={viewingEntry}
-        difficulty={memoizedDifficulty}
+        difficulty={difficulty}
         onResetGame={handleResetGame}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   )
 }
-
-export default React.memo(LatinHamGame)

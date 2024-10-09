@@ -1,7 +1,7 @@
-// pages/api/saveGame.ts or app/api/saveGame/route.ts (depending on your Next.js version)
+// app/api/save-game/route.ts
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { sql } from '@/lib/db'
+import { sql } from '@vercel/postgres'
 import { getAuth } from '@clerk/nextjs/server'
 
 export async function POST(request: NextRequest) {
@@ -11,6 +11,9 @@ export async function POST(request: NextRequest) {
   }
 
   const gameData = await request.json()
+
+  // Log the received gameData for debugging
+  console.log('Received game data:', JSON.stringify(gameData, null, 2))
 
   try {
     const result = await sql`

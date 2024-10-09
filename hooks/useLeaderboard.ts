@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { LeaderboardEntry } from '../types'
 import { useUser } from '@clerk/nextjs'
 
@@ -9,11 +9,8 @@ export function useLeaderboard(difficulty: 'easy' | 'medium' | 'hard') {
     hard: []
   })
   const { user } = useUser()
-  const hasFetchedRef = useRef<Record<string, boolean>>({ easy: false, medium: false, hard: false })
 
   const fetchLeaderboard = useCallback(async () => {
-    if (hasFetchedRef.current[difficulty]) return;
-
     try {
       const response = await fetch(`/api/leaderboard?difficulty=${difficulty}`)
       if (!response.ok) {
@@ -25,7 +22,6 @@ export function useLeaderboard(difficulty: 'easy' | 'medium' | 'hard') {
         ...prevState,
         [difficulty]: data
       }))
-      hasFetchedRef.current[difficulty] = true
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error)
     }
@@ -60,15 +56,19 @@ export function useLeaderboard(difficulty: 'easy' | 'medium' | 'hard') {
       }
       const result = await response.json()
       console.log('Save game result:', result)
-      hasFetchedRef.current[difficulty] = false
       await fetchLeaderboard()
     } catch (error) {
       console.error('Failed to save game:', error)
     }
   }, [difficulty, fetchLeaderboard, user])
 
+  const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
+    console.log('Viewing completed board:', entry)
+  }, [])
+
   return {
     leaderboard,
     handleQuoteSubmit,
+    handleViewCompletedBoard,
   }
 }
