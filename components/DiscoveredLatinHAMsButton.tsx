@@ -13,10 +13,10 @@ export default function DiscoveredLatinHAMsButton() {
         variant="ghost"
         size="icon"
         className={`
-          fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
+          fixed bottom-4 right-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
           ${theme === 'light' 
-            ? 'bg-gray-100 hover:bg-gray-700 text-red-400 hover:text-red-300' 
-            : 'bg-gray-900 hover:bg-gray-100 text-blue-600 hover:text-blue-700'}
+            ? 'bg-blue-700 hover:bg-gray-700 text-white hover:text-white-300' 
+            : 'bg-blue-700 hover:bg-gray-700 text-white hover:text-white-300'}
             `}
             aria-label="View Discovered LatinHAMs"
           >

@@ -1,27 +1,34 @@
+'use client'
+
 import React from 'react'
 import { Button } from "@/components/ui/button"
-import { Home } from "lucide-react"
-import Link from 'next/link'
+import { Play } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useRouter } from 'next/navigation'
 
 export default function HomeButton() {
   const { theme } = useTheme()
+  const router = useRouter()
+
+  const handleNewGame = () => {
+    // Navigate to the difficulty selection page
+    router.push('/')
+  }
 
   return (
-    <Link href="/" passHref>
-      <Button
-        variant="ghost"
-        size="icon"
-        className={`
-          fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
-          ${theme === 'light' 
-            ? 'bg-gray-100 hover:bg-gray-700 text-yellow-400 hover:text-yellow-300' 
-            : 'bg-gray-900 hover:bg-gray-100 text-yellow-600 hover:text-yellow-700'}
-            `}
-            aria-label="View Discovered LatinHAMs"
-          >
-        <Home className="h-6 w-6" />
-      </Button>
-    </Link>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={handleNewGame}
+      className={`
+        fixed bottom-4 right-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
+        ${theme === 'light' 
+          ? 'bg-yellow-400 hover:bg-gray-700 text-white hover:text-white-300' 
+          : 'bg-yellow-400 hover:bg-gray-700 text-white hover:text-white-300'}
+      `}
+      aria-label="Start New Game"
+    >
+      <Play className="h-6 w-6" />
+    </Button>
   )
 }
