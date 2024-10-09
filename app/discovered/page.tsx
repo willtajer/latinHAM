@@ -3,6 +3,7 @@ import React from 'react'
 import { DiscoveredLatinHAMs } from '../../components/DiscoveredLatinHAMs' 
 import { GamePreview } from '@/components/GamePreview'
 import HomeButton from '@/components/HomeButton'
+import LearningModeButton from '@/components/LearningModeButton'
 
 export default function DiscoveredPage() {
   return (
@@ -16,6 +17,7 @@ export default function DiscoveredPage() {
         </p>
       </div>
       <DiscoveredLatinHAMs />
+      <LearningModeButton />
     </div>
   )
 }

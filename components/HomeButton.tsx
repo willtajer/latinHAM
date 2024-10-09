@@ -21,10 +21,10 @@ export default function HomeButton() {
       size="icon"
       onClick={handleNewGame}
       className={`
-        fixed bottom-4 right-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
+        fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
         ${theme === 'light' 
-          ? 'bg-yellow-400 hover:bg-gray-700 text-white hover:text-white-300' 
-          : 'bg-yellow-400 hover:bg-gray-700 text-white hover:text-white-300'}
+          ? 'bg-red-500 hover:bg-gray-700 text-white hover:text-white-300' 
+          : 'bg-red-500 hover:bg-gray-700 text-white hover:text-white-300'}
       `}
       aria-label="Start New Game"
     >
