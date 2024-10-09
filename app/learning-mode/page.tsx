@@ -5,6 +5,7 @@ import { LearningModeGame } from '@/components/LearningModeGame'
 import { LearningGameHeader } from '@/components/LearningGameHeader'
 import { WillTajerButton } from '@/components/WillTajerButton'
 import { Card, CardContent } from '@/components/ui/card'
+import DiscoveredLatinHAMsButton from '@/components/DiscoveredLatinHAMsButton'
 
 export default function LearningModePage() {
   const [isComplete, setIsComplete] = useState(false)
@@ -67,6 +68,7 @@ export default function LearningModePage() {
         </div>
       </div>
       <WillTajerButton />
+      <DiscoveredLatinHAMsButton />
     </div>
   )
 }
