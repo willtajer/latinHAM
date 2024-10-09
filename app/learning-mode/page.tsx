@@ -20,7 +20,7 @@ export default function LearningModePage() {
   }, [])
 
   return (
-    <div className="flex flex-col items-center pt-24 min-h-screen bg-transparent text-foreground p-4">
+    <div className="flex flex-col items-center pt-8 min-h-screen bg-transparent text-foreground p-4">
       <div className="w-full max-w-6xl">
         <LearningGameHeader isComplete={isComplete} />
         
