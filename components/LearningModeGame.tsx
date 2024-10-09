@@ -35,6 +35,14 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
     }
   }, [isComplete, onComplete, showConfetti])
 
+  const handleRestart = () => {
+    resetGame()
+    setShowNumbers(true)
+    setShowColors(false)
+    setShowConfetti(false)
+    onRestart()
+  }
+
   const getColorClass = (value: number) => {
     const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500']
     return colors[value - 1] || 'bg-transparent'
@@ -61,6 +69,12 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
           ))}
         </div>
         <p className="mt-4 text-center">Moves: {moveCount}</p>
+        <button 
+          onClick={handleRestart}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        >
+          Restart Game
+        </button>
       </CardContent>
       {showConfetti && (
         <Confetti
