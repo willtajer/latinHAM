@@ -9,14 +9,14 @@ interface GameHeaderProps {
   onNewGame: () => void
 }
 
-export const GameHeader: React.FC<GameHeaderProps> = ({ gameState, isGameWon, onNewGame }) => {
+export const GameHeader: React.FC<GameHeaderProps> = ({ gameState, isGameWon }) => {
   return (
     <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
       <Link href="/" passHref>
-          <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
-            latinHAM
-          </h1>
-        </Link>
+        <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
+          latinHAM
+        </h1>
+      </Link>
       <p className="text-center mt-4">
         {gameState === 'viewing' 
           ? "Viewing a completed puzzle from the leaderboard." 
