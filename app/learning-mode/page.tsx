@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { LearningModeGame } from '@/components/LearningModeGame'
 import { LearningGameHeader } from '@/components/LearningGameHeader'
 import { WillTajerButton } from '@/components/WillTajerButton'
@@ -9,6 +9,11 @@ import { Card, CardContent } from '@/components/ui/card'
 export default function LearningModePage() {
   const [isComplete, setIsComplete] = useState(false)
   const [key, setKey] = useState(0)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const handleCompletion = useCallback(() => {
     setIsComplete(true)
@@ -19,8 +24,12 @@ export default function LearningModePage() {
     setKey(prevKey => prevKey + 1)
   }, [])
 
+  if (!isClient) {
+    return null // or a loading spinner
+  }
+
   return (
-    <div className="flex flex-col items-center min-h-screen bg-transparent text-foreground p4 pt-4 pb-20">
+    <div className="flex flex-col items-center pt-8 min-h-screen bg-transparent text-foreground p-4">
       <div className="w-full max-w-6xl">
         <LearningGameHeader isComplete={isComplete} />
         
@@ -32,12 +41,12 @@ export default function LearningModePage() {
                 <li>Click on a cell to cycle through numbers 1-3.</li>
                 <li>Each number must appear exactly once in each row and column.</li>
                 <li>Use logic to determine the correct placement of each number.</li>
-                <li>Once you&aposve filled the grid correctly, the numbers will transform into colors.</li>
+                <li>Once you've filled the grid correctly, the numbers will transform into colors.</li>
               </ul>
             </CardContent>
           </Card>
 
-          <div className="md:col-span-1 flex justify-center order-1 md:order-2">
+          <div className="md:col-span-1 flex justify-center order-1 md:order-2 pb-8 md:pb-0">
             <LearningModeGame 
               key={key} 
               onComplete={handleCompletion} 

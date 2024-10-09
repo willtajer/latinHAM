@@ -15,6 +15,7 @@ interface LearningModeGameProps {
 export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProps) {
   const [showColors, setShowColors] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   const {
     grid,
@@ -26,6 +27,7 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
   } = useLearningGameLogic()
 
   useEffect(() => {
+    setIsClient(true)
     if (isComplete && !showConfetti) {
       onComplete()
       setShowColors(true)
@@ -43,6 +45,10 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
   const getColorClass = (value: number) => {
     const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500']
     return colors[value - 1] || 'bg-transparent'
+  }
+
+  if (!isClient) {
+    return null // or a loading spinner
   }
 
   return (
@@ -75,7 +81,7 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
           </Link>
         </div>
       </CardContent>
-      {showConfetti && (
+      {isClient && showConfetti && (
         <Confetti
           width={window.innerWidth}
           height={window.innerHeight}
