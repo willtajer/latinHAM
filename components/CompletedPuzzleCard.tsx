@@ -44,28 +44,32 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const cellSize = 60
-    const cellSpacing = 8
+    const scale = window.devicePixelRatio || 1
+    const cellSize = 40 * scale
+    const cellSpacing = 6 * scale
     const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
-    const padding = 20
-    const dateTimeHeight = 30
-    const infoRowHeight = 40
-    const quoteHeight = entry.quote ? 40 : 0
-    const progressBarHeight = 20
-    const bottomPadding = 5
-    const cornerRadius = 20
-    const cardPadding = 10
-    const cellCornerRadius = 10
-    const spaceBetweenBoardAndInfo = 10
-    const spaceBetweenInfoAndQuote = entry.quote ? 20 : 0
-    const spaceBetweenElements = 10
+    const padding = 15 * scale
+    const dateTimeHeight = 20 * scale
+    const infoRowHeight = 30 * scale
+    const quoteHeight = entry.quote ? 30 * scale : 0
+    const progressBarHeight = 15 * scale
+    const bottomPadding = 5 * scale
+    const cornerRadius = 15 * scale
+    const cardPadding = 10 * scale
+    const cellCornerRadius = 8 * scale
+    const spaceBetweenBoardAndInfo = 10 * scale
+    const spaceBetweenInfoAndQuote = entry.quote ? 15 * scale : 0
+    const spaceBetweenElements = 8 * scale
 
     const contentWidth = boardSize + 2 * padding
     const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndQuote + quoteHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
 
-    canvas.width = contentWidth + 2 * cardPadding
-    canvas.height = contentHeight + 2 * cardPadding
+    canvas.width = (contentWidth + 2 * cardPadding) * scale
+    canvas.height = (contentHeight + 2 * cardPadding) * scale
+    canvas.style.width = `${(contentWidth + 2 * cardPadding) / scale}px`
+    canvas.style.height = `${(contentHeight + 2 * cardPadding) / scale}px`
 
+    ctx.scale(scale, scale)
     ctx.clearRect(0, 0, canvas.width, canvas.height)  
 
     ctx.fillStyle = '#f3f4f6'
@@ -107,20 +111,20 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
 
         if (entry.initialGrid && entry.initialGrid[rowIndex] && entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000'
-          ctx.lineWidth = 5
+          ctx.lineWidth = 3 * scale
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
           ctx.stroke()
 
           ctx.strokeStyle = '#FFFFFF'
-          ctx.lineWidth = 1
-          drawRoundedRect(x + 2.5, y + 2.5, cellSize - 5, cellSize - 5, cellCornerRadius - 2.5)
+          ctx.lineWidth = 1 * scale
+          drawRoundedRect(x + 2, y + 2, cellSize - 4, cellSize - 4, cellCornerRadius - 2)
           ctx.stroke()
         }
 
         ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'
-        ctx.shadowBlur = 4
-        ctx.shadowOffsetX = 2
-        ctx.shadowOffsetY = 2
+        ctx.shadowBlur = 4 * scale
+        ctx.shadowOffsetX = 2 * scale
+        ctx.shadowOffsetY = 2 * scale
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.fill()
 
@@ -130,7 +134,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         ctx.shadowOffsetY = 0
 
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
-        ctx.lineWidth = 1
+        ctx.lineWidth = 1 * scale
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
       })
@@ -140,16 +144,16 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
 
     currentY += spaceBetweenBoardAndInfo
     ctx.fillStyle = '#000000'
-    ctx.font = 'bold 16px Arial'
+    ctx.font = `bold ${12 * scale}px Arial`
     ctx.textAlign = 'center'
-    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${entry.hints}`, canvas.width / 2, currentY + 25)
+    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${entry.hints}`, canvas.width / (2 * scale), currentY + 18 * scale)
     currentY += infoRowHeight + spaceBetweenInfoAndQuote
 
     if (entry.quote) {
       ctx.fillStyle = '#000000'
-      ctx.font = 'bold 18px Arial'
+      ctx.font = `bold ${14 * scale}px Arial`
       ctx.textAlign = 'center'
-      ctx.fillText(`"${entry.quote}"`, canvas.width / 2, currentY + 25)
+      ctx.fillText(`"${entry.quote}"`, canvas.width / (2 * scale), currentY + 18 * scale)
       currentY += quoteHeight + spaceBetweenElements
     }
 
@@ -161,22 +165,22 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     ctx.fillStyle = '#000000'
     ctx.textAlign = 'center'
     
-    ctx.font = 'bold 14px Arial'
+    ctx.font = `bold ${11 * scale}px Arial`
     const latinHAMText = 'latinHAM'
     const latinHAMWidth = ctx.measureText(latinHAMText).width
     
-    ctx.font = '14px Arial'
+    ctx.font = `${11 * scale}px Arial`
     const timestampText = `#${formattedDateTime}${difficultyIndicator}`
     const timestampWidth = ctx.measureText(timestampText).width
     
-    const totalWidth = latinHAMWidth + timestampWidth + 10
-    const startX = (canvas.width - totalWidth) / 2
+    const totalWidth = latinHAMWidth + timestampWidth + 10 * scale
+    const startX = (canvas.width / scale - totalWidth) / 2
     
-    ctx.font = 'bold 14px Arial'
-    ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 25)
+    ctx.font = `bold ${11 * scale}px Arial`
+    ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 18 * scale)
     
-    ctx.font = '14px Arial'
-    ctx.fillText(timestampText, startX + latinHAMWidth + 10 + timestampWidth / 2, currentY + 25)
+    ctx.font = `${11 * scale}px Arial`
+    ctx.fillText(timestampText, startX + latinHAMWidth + 10 * scale + timestampWidth / 2, currentY + 18 * scale)
     
     currentY += dateTimeHeight + spaceBetweenElements
 
@@ -191,7 +195,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
       ctx.fillRect(x, y, progressCellWidth, progressCellHeight)
       
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
-      ctx.lineWidth = 1
+      ctx.lineWidth = 1 * scale
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
 

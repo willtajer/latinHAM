@@ -10,7 +10,7 @@ interface GameHeaderProps {
 
 export const GameHeader: React.FC<GameHeaderProps> = ({ gameState, isGameWon, onNewGame }) => {
   return (
-    <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-6">
+    <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
       <h1 
         className="text-6xl font-bold mb-2 text-center cursor-pointer"
         onClick={onNewGame}

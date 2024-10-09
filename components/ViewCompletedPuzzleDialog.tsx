@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
-import { Download, RefreshCw } from 'lucide-react'
+import { Divide, Download, RefreshCw } from 'lucide-react'
 
 interface ViewCompletedPuzzleDialogProps {
   open: boolean
@@ -47,10 +47,12 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Completed Puzzle</DialogTitle>
-          <DialogDescription>
-            View your completed Latin square puzzle and game statistics.
-          </DialogDescription>
+          <DialogTitle>latinHAM Identified!</DialogTitle>
+          <div className="pt-4">
+            <DialogDescription>
+              View your latinHAM puzzle and game statistics.
+            </DialogDescription>
+          </div>
         </DialogHeader>
         <div className="py-4">
           <CompletedPuzzleCard 
