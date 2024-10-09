@@ -44,7 +44,7 @@ export default function LearningModePage() {
                   <li>Click on a cell to cycle through numbers 1-3.</li>
                   <li>Each number must appear exactly once in each row and column.</li>
                   <li>Use logic to determine the correct placement of each number.</li>
-                  <li>Once you've filled the grid correctly, the numbers will transform into colors.</li>
+                  <li>Once you&apos;ve filled the grid correctly, the numbers will transform into colors.</li>
                 </ul>
               </CardContent>
             </Card>

@@ -35,14 +35,6 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
     }
   }, [isComplete, onComplete, showConfetti])
 
-  const handleRestart = () => {
-    resetGame()
-    setShowNumbers(true)
-    setShowColors(false)
-    setShowConfetti(false)
-    onRestart()
-  }
-
   const getColorClass = (value: number) => {
     const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500']
     return colors[value - 1] || 'bg-transparent'
