@@ -19,6 +19,7 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
   entry,
   difficulty,
   onResetGame
+  
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
 
@@ -58,8 +59,7 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
         </div>
         <DialogFooter className="flex flex-row justify-center items-center gap-4">
           <Button onClick={handleResetGame} className="inline-flex items-center px-4 py-2" aria-label="Reset and play this puzzle">
-            <RefreshCw className="h-5 w-5 mr-2" />
-            Play This latinHAM
+            <RefreshCw className="h-5 w-5" />
           </Button>
           <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
             <Download className="h-5 w-5" />
