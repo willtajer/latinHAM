@@ -18,6 +18,7 @@ import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
 import { WillTajerButton } from './WillTajerButton'
 import DiscoveredLatinHAMsButton from './DiscoveredLatinHAMsButton'
+import LearningGameButton from './LearningGameButton'
 
 export default function LatinHamGame() {
   const {
@@ -221,6 +222,10 @@ export default function LatinHamGame() {
             Fill the grid with colors so that each color appears exactly once in each row and column.
           </p>
           <DifficultySelector onSelectDifficulty={handleDifficultySelect} />
+          <div className="p-6">
+            <LearningGameButton />
+          </div>
+
         </div>
         <WillTajerButton />
         <DiscoveredLatinHAMsButton />
