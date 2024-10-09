@@ -13,7 +13,7 @@ export default function DiscoveredLatinHAMsButton() {
         variant="ghost"
         size="icon"
         className={`
-          fixed bottom-4 right-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
+          fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
           ${theme === 'light' 
             ? 'bg-blue-700 hover:bg-gray-700 text-white hover:text-white-300' 
             : 'bg-blue-700 hover:bg-gray-700 text-white hover:text-white-300'}
