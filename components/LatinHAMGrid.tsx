@@ -106,9 +106,9 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
               <MiniGameBoard initialGrid={latinHAM.initialGrid} />
               <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
                 <p>Difficulty: {latinHAM.difficulty}</p>
-                <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
                 <p>Best Moves: {latinHAM.bestMoves}</p>
                 <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
+                <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
               </div>
             </div>
             <Button 
