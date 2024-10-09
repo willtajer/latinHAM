@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
@@ -19,7 +19,6 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
   entry,
   difficulty,
   onResetGame
-  
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
 
@@ -49,6 +48,9 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Completed Puzzle</DialogTitle>
+          <DialogDescription>
+            View your completed Latin square puzzle and game statistics.
+          </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <CompletedPuzzleCard 
@@ -59,7 +61,8 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
         </div>
         <DialogFooter className="flex flex-row justify-center items-center gap-4">
           <Button onClick={handleResetGame} className="inline-flex items-center px-4 py-2" aria-label="Reset and play this puzzle">
-            <RefreshCw className="h-5 w-5" />
+            <RefreshCw className="h-5 w-5 mr-2" />
+            Play Again
           </Button>
           <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
             <Download className="h-5 w-5" />

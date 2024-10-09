@@ -44,21 +44,21 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const cellSize = 40
-    const cellSpacing = 6
+    const cellSize = 60
+    const cellSpacing = 8
     const boardSize = BOARD_SIZE * cellSize + (BOARD_SIZE - 1) * cellSpacing
-    const padding = 15
-    const dateTimeHeight = 20
-    const infoRowHeight = 30
-    const quoteHeight = entry.quote ? 30 : 0
-    const progressBarHeight = 15
+    const padding = 20
+    const dateTimeHeight = 30
+    const infoRowHeight = 40
+    const quoteHeight = entry.quote ? 40 : 0
+    const progressBarHeight = 20
     const bottomPadding = 5
-    const cornerRadius = 15
+    const cornerRadius = 20
     const cardPadding = 10
-    const cellCornerRadius = 8
+    const cellCornerRadius = 10
     const spaceBetweenBoardAndInfo = 10
-    const spaceBetweenInfoAndQuote = entry.quote ? 15 : 0
-    const spaceBetweenElements = 8
+    const spaceBetweenInfoAndQuote = entry.quote ? 20 : 0
+    const spaceBetweenElements = 10
 
     const contentWidth = boardSize + 2 * padding
     const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndQuote + quoteHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
@@ -107,20 +107,20 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
 
         if (entry.initialGrid[rowIndex][colIndex] !== 0) {
           ctx.strokeStyle = '#000000'
-          ctx.lineWidth = 3
+          ctx.lineWidth = 5
           drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
           ctx.stroke()
 
           ctx.strokeStyle = '#FFFFFF'
           ctx.lineWidth = 1
-          drawRoundedRect(x + 1.5, y + 1.5, cellSize - 3, cellSize - 3, cellCornerRadius - 1.5)
+          drawRoundedRect(x + 2.5, y + 2.5, cellSize - 5, cellSize - 5, cellCornerRadius - 2.5)
           ctx.stroke()
         }
 
         ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'
-        ctx.shadowBlur = 2
-        ctx.shadowOffsetX = 1
-        ctx.shadowOffsetY = 1
+        ctx.shadowBlur = 4
+        ctx.shadowOffsetX = 2
+        ctx.shadowOffsetY = 2
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.fill()
 
@@ -140,16 +140,16 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
 
     currentY += spaceBetweenBoardAndInfo
     ctx.fillStyle = '#000000'
-    ctx.font = 'bold 14px Arial'
+    ctx.font = 'bold 16px Arial'
     ctx.textAlign = 'center'
-    ctx.fillText(`Moves: ${entry.moves}   Time: ${formatTime(entry.time)}   Hints: ${entry.hints}`, canvas.width / 2, currentY + 20)
+    ctx.fillText(`Moves: ${entry.moves}     Time: ${formatTime(entry.time)}     Hints: ${entry.hints}`, canvas.width / 2, currentY + 25)
     currentY += infoRowHeight + spaceBetweenInfoAndQuote
 
     if (entry.quote) {
       ctx.fillStyle = '#000000'
-      ctx.font = 'bold 14px Arial'
+      ctx.font = 'bold 18px Arial'
       ctx.textAlign = 'center'
-      ctx.fillText(`"${entry.quote}"`, canvas.width / 2, currentY + 20)
+      ctx.fillText(`"${entry.quote}"`, canvas.width / 2, currentY + 25)
       currentY += quoteHeight + spaceBetweenElements
     }
 
@@ -161,22 +161,22 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     ctx.fillStyle = '#000000'
     ctx.textAlign = 'center'
     
-    ctx.font = 'bold 12px Arial'
+    ctx.font = 'bold 14px Arial'
     const latinHAMText = 'latinHAM'
     const latinHAMWidth = ctx.measureText(latinHAMText).width
     
-    ctx.font = '12px Arial'
+    ctx.font = '14px Arial'
     const timestampText = `#${formattedDateTime}${difficultyIndicator}`
     const timestampWidth = ctx.measureText(timestampText).width
     
     const totalWidth = latinHAMWidth + timestampWidth + 10
     const startX = (canvas.width - totalWidth) / 2
     
-    ctx.font = 'bold 12px Arial'
-    ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 20)
+    ctx.font = 'bold 14px Arial'
+    ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 25)
     
-    ctx.font = '12px Arial'
-    ctx.fillText(timestampText, startX + latinHAMWidth + 10 + timestampWidth / 2, currentY + 20)
+    ctx.font = '14px Arial'
+    ctx.fillText(timestampText, startX + latinHAMWidth + 10 + timestampWidth / 2, currentY + 25)
     
     currentY += dateTimeHeight + spaceBetweenElements
 
