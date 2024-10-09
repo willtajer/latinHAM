@@ -36,7 +36,7 @@ export function createPartiallyFilledGrid(solution: number[][]): { grid: CellSta
   while (filledCells < cellsToFill) {
     const row = Math.floor(Math.random() * LEARNING_GRID_SIZE)
     const col = Math.floor(Math.random() * LEARNING_GRID_SIZE)
-    if (!locked[row][col]) {
+    if (!locked[row][col] && isValidPlacement(grid, row, col, solution[row][col])) {
       grid[row][col] = solution[row][col] as CellState
       locked[row][col] = true
       filledCells++
@@ -44,6 +44,20 @@ export function createPartiallyFilledGrid(solution: number[][]): { grid: CellSta
   }
 
   return { grid, locked }
+}
+
+function isValidPlacement(grid: CellState[][], row: number, col: number, value: number): boolean {
+  // Check row
+  for (let i = 0; i < LEARNING_GRID_SIZE; i++) {
+    if (grid[row][i] === value) return false
+  }
+
+  // Check column
+  for (let i = 0; i < LEARNING_GRID_SIZE; i++) {
+    if (grid[i][col] === value) return false
+  }
+
+  return true
 }
 
 export function checkWin(grid: CellState[][]): boolean {

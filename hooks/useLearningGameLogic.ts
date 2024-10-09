@@ -29,7 +29,7 @@ export function useLearningGameLogic() {
 
     setGameState(prevState => {
       const newGrid = prevState.grid.map(r => [...r])
-      newGrid[row][col] = ((newGrid[row][col] + 1) % 4) as CellState
+      newGrid[row][col] = ((newGrid[row][col] % 3) + 1) as CellState
       const isComplete = checkWin(newGrid)
       return {
         ...prevState,
