@@ -1,9 +1,9 @@
-'use client'
-
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import Confetti from 'react-confetti'
 import { useLearningGameLogic } from '@/hooks/useLearningGameLogic'
+import Link from 'next/link'
 
 interface LearningModeGameProps {
   onComplete: () => void
@@ -49,14 +49,14 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
   }
 
   return (
-    <Card className="w-auto">
+    <Card className="w-full max-w-[300px]">
       <CardContent className="p-4">
-        <div className="grid grid-cols-3 gap-2 max-w-[300px] mx-auto">
+        <div className="grid grid-cols-3 gap-2">
           {grid.map((row, rowIndex) => (
             row.map((cell, colIndex) => (
               <button
                 key={`${rowIndex}-${colIndex}`}
-                className={`w-24 h-24 rounded-lg flex items-center justify-center text-4xl font-bold transition-all duration-300
+                className={`w-full aspect-square rounded-lg flex items-center justify-center text-4xl font-bold transition-all duration-300
                   ${locked[rowIndex][colIndex] ? 'cursor-not-allowed' : 'cursor-pointer'}
                   ${showColors ? getColorClass(cell) : 'bg-transparent'}
                   border-4 border-gray-700 hover:border-gray-500`}
@@ -69,12 +69,14 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
           ))}
         </div>
         <p className="mt-4 text-center">Moves: {moveCount}</p>
-        <button 
-          onClick={handleRestart}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-        >
-          Restart Game
-        </button>
+        <div className="flex justify-center space-x-2 mt-4">
+          <Button onClick={handleRestart} variant="default" size="sm">
+            {isComplete ? "Play Again" : "Restart"}
+          </Button>
+          <Link href="/" passHref>
+            <Button variant="outline" size="sm">Back to Main Game</Button>
+          </Link>
+        </div>
       </CardContent>
       {showConfetti && (
         <Confetti
