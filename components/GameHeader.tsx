@@ -1,6 +1,7 @@
 import React from 'react'
 import DiscoveredLatinHAMsButton from './DiscoveredLatinHAMsButton'
 import LearningModeButton from './LearningModeButton'
+import Link from 'next/link'
 
 interface GameHeaderProps {
   gameState: 'start' | 'playing' | 'won' | 'viewing'
@@ -11,12 +12,11 @@ interface GameHeaderProps {
 export const GameHeader: React.FC<GameHeaderProps> = ({ gameState, isGameWon, onNewGame }) => {
   return (
     <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
-      <h1 
-        className="text-6xl font-bold mb-2 text-center cursor-pointer"
-        onClick={onNewGame}
-      >
-        latinHAM
-      </h1>
+      <Link href="/" passHref>
+          <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
+            latinHAM
+          </h1>
+        </Link>
       <p className="text-center mt-4">
         {gameState === 'viewing' 
           ? "Viewing a completed puzzle from the leaderboard." 

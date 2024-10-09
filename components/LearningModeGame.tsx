@@ -77,7 +77,7 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
             {isComplete ? "Play Again" : "Restart"}
           </Button>
           <Link href="/" passHref>
-            <Button variant="outline" size="sm">Back to Main Game</Button>
+            <Button variant="destructive" size="sm">Back to Main Game</Button>
           </Link>
         </div>
       </CardContent>

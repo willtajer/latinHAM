@@ -4,7 +4,7 @@ import { LeaderboardEntry } from '../types'
 interface CompletedPuzzleCardProps {
   entry: LeaderboardEntry
   difficulty: 'easy' | 'medium' | 'hard'
-  onImageReady?: (imageDataUrl: string) => void
+  onImageReady?: (imageDataUrl: string, fileName: string) => void
 }
 
 const BOARD_SIZE = 6
@@ -161,6 +161,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
     
     const difficultyIndicator = difficulty.charAt(0).toUpperCase()
+    const fileName = `latinHAM#${formattedDateTime}${difficultyIndicator}.png`
     
     ctx.fillStyle = '#000000'
     ctx.textAlign = 'center'
@@ -200,7 +201,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     })
 
     if (onImageReady) {
-      onImageReady(canvas.toDataURL('image/png'))
+      onImageReady(canvas.toDataURL('image/png'), fileName)
     }
   }, [entry, difficulty, onImageReady])
 

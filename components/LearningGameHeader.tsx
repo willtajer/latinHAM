@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 import { GamePreview } from './GamePreview'
 
 interface LearningGameHeaderProps {
@@ -9,9 +10,15 @@ export const LearningGameHeader: React.FC<LearningGameHeaderProps> = ({ isComple
   return (
     <div className="flex flex-col items-center justify-center w-full mb-8">
       <div className="w-[calc(6*3rem+6*0.75rem)]">
-        <h1 className="text-6xl font-bold mb-6 text-center">latinHAM</h1>
+        <Link href="/" passHref>
+        <Link href="/" passHref>
+          <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
+            latinHAM
+          </h1>
+        </Link>
+        </Link>
         <GamePreview />
-        <h2 className="text-2xl font-semibold text-center sm:mt-8 md:mt-24 mb-4">Learning Mode</h2>
+        <h2 className="text-2xl font-semibold text-center sm:mt-8 md:mt-12 mb-4">Learning Mode</h2>
         <p className="text-center mt-4">
           {isComplete
             ? "Great job! You've mastered the basics of Latin squares."
