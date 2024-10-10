@@ -67,7 +67,7 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
               View your latinHAM puzzle and game statistics.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+          <div className="py-4 flex justify-center">
             <CompletedPuzzleCard 
               entry={entry} 
               difficulty={difficulty} 

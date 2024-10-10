@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { LatinHAM, LeaderboardEntry } from '../types/'
-import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
 interface LatinHAMGridProps {
   latinHAMs: LatinHAM[]
@@ -83,34 +82,23 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
   }
 
   return (
-    <>
-      <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">        
-        {latinHAMs.map((latinHAM, index) => (
-          <div 
-            key={`latinHAM-${index}`} 
-            className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] cursor-pointer hover:opacity-80 transition-opacity duration-200"
-            onClick={() => handleLatinHAMClick(latinHAM)}
-          >
-            <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-            <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
-              <p>Difficulty: {latinHAM.difficulty}</p>
-              <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
-              <p>Best Moves: {latinHAM.bestMoves}</p>
-              <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
-            </div>
+    <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">        
+      {latinHAMs.map((latinHAM, index) => (
+        <div 
+          key={`latinHAM-${index}`} 
+          className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] cursor-pointer hover:opacity-80 transition-opacity duration-200"
+          onClick={() => handleLatinHAMClick(latinHAM)}
+        >
+          <MiniGameBoard initialGrid={latinHAM.initialGrid} />
+          <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
+            <p>Difficulty: {latinHAM.difficulty}</p>
+            <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
+            <p>Best Moves: {latinHAM.bestMoves}</p>
+            <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
           </div>
-        ))}
-      </div>
-      {completedPuzzle && (
-        <ViewCompletedPuzzleDialog
-          open={isDialogOpen}
-          onOpenChange={handleDialogClose}
-          entry={completedPuzzle}
-          difficulty={selectedDifficulty}
-          onResetGame={onResetGame}
-        />
-      )}
-    </>
+        </div>
+      ))}
+    </div>
   )
 }
 
