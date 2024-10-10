@@ -18,6 +18,7 @@ interface WinDialogProps {
   onStartNewGame: () => void
   onResetGame: (initialGrid: number[][]) => void
   showQuoteInput: boolean
+  isSubmitting: boolean
 }
 
 export const WinDialog: React.FC<WinDialogProps> = ({
@@ -31,7 +32,8 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   difficulty,
   onStartNewGame,
   onResetGame,
-  showQuoteInput
+  showQuoteInput,
+  isSubmitting
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
 
@@ -72,7 +74,13 @@ export const WinDialog: React.FC<WinDialogProps> = ({
               />
             </div>
             <DialogFooter className="flex justify-center">
-              <Button onClick={() => onSubmit(quote)} className="w-full sm:w-auto">Submit</Button>
+              <Button 
+                onClick={() => onSubmit(quote)} 
+                className="w-full sm:w-auto"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button>
             </DialogFooter>
           </>
         ) : (

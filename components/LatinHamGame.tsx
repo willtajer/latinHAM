@@ -57,6 +57,8 @@ export default function LatinHamGame() {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showDifficultySelector, setShowDifficultySelector] = useState(true)
   const [hasSubmittedQuote, setHasSubmittedQuote] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const submitTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
@@ -136,40 +138,52 @@ export default function LatinHamGame() {
   }, [difficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
 
   const handleQuoteSubmit = useCallback(async (quote: string) => {
-    if (hasSubmittedQuote) return
+    if (hasSubmittedQuote || isSubmitting) return
 
-    const entry = createLeaderboardEntry()
-    const updatedEntry = { ...entry, quote }
-    
-    try {
-      const response = await fetch('/api/save-game', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedEntry),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to save game')
-      }
-
-      const savedGame = await response.json()
-      console.log('Game saved successfully:', savedGame)
-
-      await leaderboardHandleQuoteSubmit(quote, savedGame)
-      setShowQuoteDialog(false)
-      setWinQuote(quote)
-      setHasSubmittedQuote(true)
-      localStorage.setItem('latinHamWinQuote', quote)
-      localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
-      
-      setViewingEntry(savedGame)
-      setShowViewPopup(true)
-    } catch (error) {
-      console.error('Error saving game:', error)
+    // Clear any existing timeout
+    if (submitTimeoutRef.current) {
+      clearTimeout(submitTimeoutRef.current)
     }
-  }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit, hasSubmittedQuote])
+
+    // Set a new timeout
+    submitTimeoutRef.current = setTimeout(async () => {
+      setIsSubmitting(true)
+
+      const entry = createLeaderboardEntry()
+      const updatedEntry = { ...entry, quote }
+      
+      try {
+        const response = await fetch('/api/save-game', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedEntry),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to save game')
+        }
+
+        const savedGame = await response.json()
+        console.log('Game saved successfully:', savedGame)
+
+        await leaderboardHandleQuoteSubmit(quote, savedGame)
+        setShowQuoteDialog(false)
+        setWinQuote(quote)
+        setHasSubmittedQuote(true)
+        localStorage.setItem('latinHamWinQuote', quote)
+        localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
+        
+        setViewingEntry(savedGame)
+        setShowViewPopup(true)
+      } catch (error) {
+        console.error('Error saving game:', error)
+      } finally {
+        setIsSubmitting(false)
+      }
+    }, 300) // 300ms debounce time
+  }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit, hasSubmittedQuote, isSubmitting])
 
   const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
 
@@ -225,7 +239,6 @@ export default function LatinHamGame() {
           <div className="p-6">
             <LearningGameButton />
           </div>
-
         </div>
         <WillTajerButton />
         <DiscoveredLatinHAMsButton />
@@ -307,6 +320,7 @@ export default function LatinHamGame() {
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}
         onResetGame={handleResetGame}
+        isSubmitting={isSubmitting}
       />
       <ViewCompletedPuzzleDialog 
         open={showViewPopup}
