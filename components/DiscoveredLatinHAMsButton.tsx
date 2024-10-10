@@ -1,27 +1,68 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Grid } from "lucide-react"
-import Link from 'next/link'
-import { useTheme } from "next-themes"
+import { Grid, X } from "lucide-react"
+import { DiscoveredLatinHAMs } from './DiscoveredLatinHAMs'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function DiscoveredLatinHAMsButton() {
-  const { theme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const toggleOverlay = () => setIsOpen(!isOpen)
+
+  const overlayVariants = {
+    hidden: { opacity: 0, y: '100%' },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: '100%' }
+  }
 
   return (
-    <Link href="/discovered" passHref>
+    <>
       <Button
         variant="ghost"
         size="icon"
-        className={`
-          fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10
-          ${theme === 'light' 
-            ? 'bg-blue-700 hover:bg-gray-700 text-white hover:text-white-300' 
-            : 'bg-blue-700 hover:bg-gray-700 text-white hover:text-white-300'}
-            `}
-            aria-label="View Discovered LatinHAMs"
-          >
+        className="fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-yellow-500 text-white hover:bg-yellow-600"
+        onClick={toggleOverlay}
+        aria-label="View Discovered LatinHAMs"
+      >
         <Grid className="h-6 w-6" />
       </Button>
-    </Link>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed inset-0 bg-background z-50 overflow-y-auto"
+          >
+            <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="fixed top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white"
+                onClick={toggleOverlay}
+                aria-label="Close Discovered LatinHAMs"
+              >
+                <X className="h-6 w-6" />
+              </Button>
+
+              <div className="max-w-6xl mx-auto pt-16">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
+                  Discovered LatinHAMs
+                </h1>
+                <p className="text-center mb-8 text-muted-foreground">
+                  Explore player-identified gameboard layouts.
+                </p>
+                <DiscoveredLatinHAMs />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

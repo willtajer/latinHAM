@@ -116,7 +116,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
           ctx.stroke()
 
           ctx.strokeStyle = '#FFFFFF'
-          ctx.lineWidth = 1 * scale
+          ctx.lineWidth = 2 * scale
           drawRoundedRect(x + 2, y + 2, cellSize - 4, cellSize - 4, cellCornerRadius - 2)
           ctx.stroke()
         }
