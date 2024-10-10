@@ -16,7 +16,6 @@ import { DifficultySelector } from './DifficultySelector'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
 import { WillTajerButton } from './WillTajerButton'
-import DiscoveredLatinHAMsButton from './DiscoveredLatinHAMsButton'
 import LearningGameButton from './LearningGameButton'
 
 export default function LatinHamGame() {
