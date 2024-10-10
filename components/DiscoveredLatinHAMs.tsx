@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
-import { LatinHAM, LeaderboardEntry } from '../types/'
+import LatinHAMLeaderboard from './LatinHAMLeaderboard'
+import { LatinHAM, LeaderboardEntry } from '@/types'
 import { useRouter } from 'next/navigation'
-import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
 export const DiscoveredLatinHAMs: React.FC = () => {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedPuzzle, setSelectedPuzzle] = useState<LeaderboardEntry | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -38,38 +37,13 @@ export const DiscoveredLatinHAMs: React.FC = () => {
     fetchLatinHAMs()
   }, [])
 
-  const fetchCompletedPuzzle = async (id: string) => {
-    try {
-      const response = await fetch(`/api/completed-puzzles/${id}`)
-      if (!response.ok) {
-        throw new Error('HTTP error! status: ' + response.status)
-      }
-      return await response.json()
-    } catch (error) {
-      console.error('Error fetching completed puzzle:', error)
-      return null
-    }
+  const handleLatinHAMClick = (latinHAM: LatinHAM) => {
+    setSelectedLatinHAM(latinHAM)
   }
 
-  const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
-    console.log('LatinHAM clicked:', latinHAM)
-    const id = `${latinHAM.difficulty}-${latinHAM.bestMoves}-${latinHAM.bestTime}`
-    const completedPuzzle = await fetchCompletedPuzzle(id)
-    if (completedPuzzle) {
-      setSelectedPuzzle(completedPuzzle)
-      setIsDialogOpen(true)
-    } else {
-      console.log('No completed puzzle found for this LatinHAM')
-    }
+  const handleCloseLeaderboard = () => {
+    setSelectedLatinHAM(null)
   }
-
-  const handleResetGame = useCallback((initialGrid: number[][]) => {
-    router.push(`/game?grid=${JSON.stringify(initialGrid)}`)
-  }, [router])
-
-  const handleStartNewGame = useCallback(() => {
-    router.push('/game')
-  }, [router])
 
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>
@@ -85,19 +59,24 @@ export const DiscoveredLatinHAMs: React.FC = () => {
 
   return (
     <div className="container mx-auto pb-16">
-      <LatinHAMGrid 
-        latinHAMs={latinHAMs} 
-        onLatinHAMClick={handleLatinHAMClick}
-        fetchCompletedPuzzle={fetchCompletedPuzzle}
-      />
-      {selectedPuzzle && (
-        <ViewCompletedPuzzleDialog
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          entry={selectedPuzzle}
-          difficulty={selectedPuzzle.difficulty}
-          onResetGame={handleResetGame}
-          onStartNewGame={handleStartNewGame}
+      <h1 className="text-4xl font-bold text-center mb-8">Discovered LatinHAMs</h1>
+      <p className="text-center mb-8">Explore player-identified gameboard layouts.</p>
+      {selectedLatinHAM ? (
+        <div>
+          <button 
+            onClick={handleCloseLeaderboard}
+            className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            Back to Grid
+          </button>
+          <LatinHAMLeaderboard
+            latinHAM={selectedLatinHAM}
+          />
+        </div>
+      ) : (
+        <LatinHAMGrid 
+          latinHAMs={latinHAMs} 
+          onLatinHAMClick={handleLatinHAMClick}
         />
       )}
     </div>

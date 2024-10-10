@@ -1,38 +1,17 @@
 'use client'
 
 import React from 'react'
-import { LatinHAM, LeaderboardEntry } from '../types/'
+import { LatinHAM } from '@/types'
 
 interface LatinHAMGridProps {
   latinHAMs: LatinHAM[]
   onLatinHAMClick: (latinHAM: LatinHAM) => void
-  fetchCompletedPuzzle: (id: string) => Promise<LeaderboardEntry | null>
 }
 
 const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ 
   latinHAMs, 
-  onLatinHAMClick, 
-  fetchCompletedPuzzle
+  onLatinHAMClick
 }) => {
-  const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
-    console.log('Clicked LatinHAM:', latinHAM);
-    if (!latinHAM.initialGrid || latinHAM.initialGrid.length === 0) {
-      console.error('LatinHAM has no initialGrid:', latinHAM);
-      return;
-    }
-    const id = `${latinHAM.difficulty}-${latinHAM.bestMoves}-${latinHAM.bestTime}-${encodeURIComponent(JSON.stringify(latinHAM.initialGrid))}`
-    try {
-      const completed = await fetchCompletedPuzzle(id)
-      if (completed) {
-        onLatinHAMClick(latinHAM)
-      } else {
-        console.error('No completed puzzle found for this LatinHAM')
-      }
-    } catch (error) {
-      console.error('Error fetching completed puzzle:', error)
-    }
-  }
-
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -71,7 +50,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
         <div 
           key={`latinHAM-${index}`} 
           className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] cursor-pointer hover:opacity-80 transition-opacity duration-200"
-          onClick={() => handleLatinHAMClick(latinHAM)}
+          onClick={() => onLatinHAMClick(latinHAM)}
         >
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
           <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
