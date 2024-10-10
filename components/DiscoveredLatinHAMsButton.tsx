@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Grid, X } from "lucide-react"
 import { DiscoveredLatinHAMs } from './DiscoveredLatinHAMs'
 import { motion, AnimatePresence } from 'framer-motion'
+import { GamePreview } from './GamePreview'
 
 export default function DiscoveredLatinHAMsButton() {
   const [isOpen, setIsOpen] = useState(false)
@@ -54,6 +55,11 @@ export default function DiscoveredLatinHAMsButton() {
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
                   Discovered LatinHAMs
                 </h1>
+                <div className="flex flex-col items-center justify-center">
+                  <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
+                    <GamePreview />
+                  </div>
+                </div>
                 <p className="text-center mb-8 text-muted-foreground">
                   Explore player-identified gameboard layouts.
                 </p>
