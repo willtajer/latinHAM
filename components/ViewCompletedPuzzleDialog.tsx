@@ -89,7 +89,7 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
               aria-label="Start a new game"
             >
               <Plus className="h-5 w-5 mr-2" />
-              Start New Game
+              New Game
             </Button>
             <Button 
               onClick={handleDownload} 
@@ -98,7 +98,6 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
               aria-label="Download completed puzzle"
             >
               <Download className="h-5 w-5 mr-2" />
-              Download
             </Button>
           </DialogFooter>
         </DialogContent>
