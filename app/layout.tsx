@@ -13,6 +13,7 @@ import {
   UserButton
 } from '@clerk/nextjs'
 import './globals.css'
+import LeaderboardButton from '@/components/LeaderboardButton'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -83,6 +84,7 @@ export default function RootLayout({
             <main>
               <LoginHandler />
               <ThemeBackground />
+              <LeaderboardButton />
               {children}
             </main>
             <Analytics />

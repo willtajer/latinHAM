@@ -13,7 +13,6 @@ import { WinDialog } from './WinDialog'
 import { NewGameDialog } from './NewGameDialog'
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 import { DifficultySelector } from './DifficultySelector'
-import { Leaderboard } from './Leaderboard'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
 import { WillTajerButton } from './WillTajerButton'
@@ -140,12 +139,10 @@ export default function LatinHamGame() {
   const handleQuoteSubmit = useCallback(async (quote: string) => {
     if (hasSubmittedQuote || isSubmitting) return
 
-    // Clear any existing timeout
     if (submitTimeoutRef.current) {
       clearTimeout(submitTimeoutRef.current)
     }
 
-    // Set a new timeout
     submitTimeoutRef.current = setTimeout(async () => {
       setIsSubmitting(true)
 
@@ -182,7 +179,7 @@ export default function LatinHamGame() {
       } finally {
         setIsSubmitting(false)
       }
-    }, 300) // 300ms debounce time
+    }, 300)
   }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit, hasSubmittedQuote, isSubmitting])
 
   const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
@@ -293,12 +290,6 @@ export default function LatinHamGame() {
           hintsActive={hintsActive}
         />
       )}
-      
-      <Leaderboard 
-        entries={leaderboard[difficulty]}
-        difficulty={difficulty}
-        onViewCompletedBoard={handleViewCompletedBoardWrapper}
-      />
       <NewGameDialog 
         open={showNewGameConfirmation}
         onOpenChange={setShowNewGameConfirmation}

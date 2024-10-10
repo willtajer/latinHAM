@@ -36,7 +36,7 @@ export default function LearningModeOverlayButton() {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed bottom-4 right-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-blue-500 text-white hover:bg-blue-600"
+        className="fixed bottom-4 left-28 rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-blue-500 text-white hover:bg-blue-600"
         onClick={toggleOverlay}
         aria-label="Go to Learning Mode"
       >
