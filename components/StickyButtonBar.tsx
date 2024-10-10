@@ -108,13 +108,13 @@ export default function StickyButtonBar() {
             animate="visible"
             exit="exit"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-0 bg-background z-50 overflow-y-auto pt-16"
+            className="fixed inset-0 bg-background z-50 overflow-y-auto"
           >
-            <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+            <div className="min-h-screen p-4 sm:p-6 lg:p-8 relative">
               <Button
                 variant="ghost"
                 size="icon"
-                className="fixed top-20 right-4 z-50 bg-red-500 hover:bg-red-600 text-white"
+                className="absolute top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white"
                 onClick={() => setActiveOverlay('none')}
                 aria-label="Close Overlay"
               >

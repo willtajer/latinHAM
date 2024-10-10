@@ -16,7 +16,6 @@ import { DifficultySelector } from './DifficultySelector'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
 import { WillTajerButton } from './WillTajerButton'
-import LearningGameButton from './LearningGameButton'
 
 export default function LatinHamGame() {
   const {
@@ -228,7 +227,6 @@ export default function LatinHamGame() {
           </p>
           <DifficultySelector onSelectDifficulty={handleDifficultySelect} />
           <div className="p-6">
-            <LearningGameButton />
           </div>
         </div>
         <WillTajerButton />

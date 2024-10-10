@@ -5,6 +5,7 @@ import { LatinHAM, LeaderboardEntry } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 import { useRouter } from 'next/navigation'
+import { GamePreview } from './GamePreview'
 
 interface LatinHAMLeaderboardProps {
   latinHAM: LatinHAM;
@@ -108,6 +109,9 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full">
       <h2 className="text-2xl font-bold mb-4">LatinHAM Leaderboard</h2>
+      <div>
+        <GamePreview />
+      </div>
       <div className="flex flex-col md:flex-row gap-4 mb-4">
         <div className="w-full md:w-1/3">
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
