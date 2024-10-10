@@ -328,6 +328,7 @@ export default function LatinHamGame() {
         entry={viewingEntry}
         difficulty={difficulty}
         onResetGame={handleResetGame}
+        onStartNewGame={handleStartNewGame}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
