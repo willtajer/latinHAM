@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 import { LearningModeGame } from './LearningModeGame'
+import { GamePreview } from './GamePreview'
 
 export default function LearningGameButton() {
   const { theme } = useTheme()
@@ -82,6 +83,7 @@ export default function LearningGameButton() {
                         latinHAM
                       </h1>
                     </Link>
+                    <GamePreview />
                     <h2 className="text-2xl font-semibold text-center sm:mt-8 md:mt-12 mb-4">Learning Mode</h2>
                     <p className="text-center mt-4">
                       {isComplete
