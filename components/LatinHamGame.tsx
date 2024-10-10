@@ -233,7 +233,6 @@ export default function LatinHamGame() {
           </div>
         </div>
         <WillTajerButton />
-        <DiscoveredLatinHAMsButton />
       </div>
     )
   }

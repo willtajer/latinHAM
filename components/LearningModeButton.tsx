@@ -36,7 +36,7 @@ export default function LearningModeOverlayButton() {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed bottom-4 left-28 rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-blue-500 text-white hover:bg-blue-600"
+        className="rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-blue-500 text-white hover:bg-gray-700 hover:text-blue-500"
         onClick={toggleOverlay}
         aria-label="Go to Learning Mode"
       >
@@ -51,20 +51,20 @@ export default function LearningModeOverlayButton() {
             animate="visible"
             exit="exit"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-0 bg-background z-50 overflow-y-auto"
+            className="fixed inset-0 bg-background z-50 overflow-y-auto pt-16" // Added pt-16 here
           >
             <div className="min-h-screen p-4 sm:p-6 lg:p-8">
               <Button
                 variant="ghost"
                 size="icon"
-                className="fixed top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white"
+                className="fixed top-20 right-4 z-50 bg-red-500 hover:bg-red-600 text-white" // Changed top-4 to top-20
                 onClick={toggleOverlay}
                 aria-label="Close Learning Mode"
               >
                 <X className="h-6 w-6" />
               </Button>
 
-              <div className="w-full max-w-6xl mx-auto pt-16">
+              <div className="w-full max-w-6xl mx-auto">
                 <div className="flex flex-col items-center justify-center w-full mb-8">
                   <div className="w-[calc(6*3rem+6*0.75rem)]">
                     <Link href="/" passHref>

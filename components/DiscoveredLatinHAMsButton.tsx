@@ -23,7 +23,7 @@ export default function DiscoveredLatinHAMsButton() {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed bottom-4 left-4 rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-yellow-500 text-white hover:bg-yellow-600"
+        className="rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-yellow-500 text-white hover:bg-gray-700 hover:text-yellow-500"
         onClick={toggleOverlay}
         aria-label="View Discovered LatinHAMs"
       >
@@ -38,20 +38,20 @@ export default function DiscoveredLatinHAMsButton() {
             animate="visible"
             exit="exit"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-0 bg-background z-50 overflow-y-auto"
+            className="fixed inset-0 bg-background z-50 overflow-y-auto pt-16" // Added pt-16 here
           >
             <div className="min-h-screen p-4 sm:p-6 lg:p-8">
               <Button
                 variant="ghost"
                 size="icon"
-                className="fixed top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white"
+                className="fixed top-20 right-4 z-50 bg-red-500 hover:bg-red-600 text-white" // Changed top-4 to top-20
                 onClick={toggleOverlay}
                 aria-label="Close Discovered LatinHAMs"
               >
                 <X className="h-6 w-6" />
               </Button>
 
-              <div className="max-w-6xl mx-auto pt-16">
+              <div className="max-w-6xl mx-auto">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
                   Discovered LatinHAMs
                 </h1>

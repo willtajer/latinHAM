@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeBackground from "@/components/ThemeBackground"
 import { LoginHandler } from '@/components/LoginHandler'
+import StickyButtonBar from '@/components/StickyButtonBar'
 import {
   ClerkProvider,
   SignInButton,
@@ -13,7 +14,6 @@ import {
   UserButton
 } from '@clerk/nextjs'
 import './globals.css'
-import LeaderboardButton from '@/components/LeaderboardButton'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -84,7 +84,7 @@ export default function RootLayout({
             <main>
               <LoginHandler />
               <ThemeBackground />
-              <LeaderboardButton />
+              <StickyButtonBar />
               {children}
             </main>
             <Analytics />
