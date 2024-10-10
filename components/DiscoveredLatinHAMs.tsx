@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
 import { LatinHAM, LeaderboardEntry } from '../types/'
 import { useRouter } from 'next/navigation'
@@ -63,9 +63,13 @@ export const DiscoveredLatinHAMs: React.FC = () => {
     }
   }
 
-  const handleResetGame = (initialGrid: number[][]) => {
+  const handleResetGame = useCallback((initialGrid: number[][]) => {
     router.push(`/game?grid=${JSON.stringify(initialGrid)}`)
-  }
+  }, [router])
+
+  const handleStartNewGame = useCallback(() => {
+    router.push('/game')
+  }, [router])
 
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>
@@ -85,7 +89,6 @@ export const DiscoveredLatinHAMs: React.FC = () => {
         latinHAMs={latinHAMs} 
         onLatinHAMClick={handleLatinHAMClick}
         fetchCompletedPuzzle={fetchCompletedPuzzle}
-        onResetGame={handleResetGame}
       />
       {selectedPuzzle && (
         <ViewCompletedPuzzleDialog
@@ -94,6 +97,7 @@ export const DiscoveredLatinHAMs: React.FC = () => {
           entry={selectedPuzzle}
           difficulty={selectedPuzzle.difficulty}
           onResetGame={handleResetGame}
+          onStartNewGame={handleStartNewGame}
         />
       )}
     </div>
