@@ -76,14 +76,6 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
           </div>
           <DialogFooter className="flex flex-col items-center gap-4">
             <Button 
-                onClick={handleStartNewGame}
-                className="w-full bg-green-500 hover:bg-green-600 text-white" 
-                aria-label="Start a new game"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                New Game
-            </Button>
-            <Button 
               onClick={handleResetGame} 
               className="w-full bg-blue-500 hover:bg-blue-600 text-white" 
               aria-label="Reset and play this puzzle"
@@ -92,11 +84,21 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
               Play Again
             </Button>
             <Button 
+              onClick={handleStartNewGame}
+              className="w-full bg-green-500 hover:bg-green-600 text-white" 
+              aria-label="Start a new game"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Start New Game
+            </Button>
+            <Button 
               onClick={handleDownload} 
               variant="outline"
               className="w-full" 
-              aria-label="Download completed puzzle">
-              <Download className="h-5 w-5" />
+              aria-label="Download completed puzzle"
+            >
+              <Download className="h-5 w-5 mr-2" />
+              Download
             </Button>
           </DialogFooter>
         </DialogContent>
