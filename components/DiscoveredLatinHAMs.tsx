@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
 import LatinHAMLeaderboard from './LatinHAMLeaderboard'
-import { LatinHAM, LeaderboardEntry } from '@/types'
+import { LatinHAM } from '@/types'
 import { useRouter } from 'next/navigation'
 
 export const DiscoveredLatinHAMs: React.FC = () => {
@@ -11,7 +11,6 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     const fetchLatinHAMs = async () => {
