@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
 import LatinHAMLeaderboard from './LatinHAMLeaderboard'
 import { LatinHAM } from '@/types'
-import { useRouter } from 'next/navigation'
 
 export const DiscoveredLatinHAMs: React.FC = () => {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
