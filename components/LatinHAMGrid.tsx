@@ -1,25 +1,19 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { LatinHAM, LeaderboardEntry } from '../types/'
 
 interface LatinHAMGridProps {
   latinHAMs: LatinHAM[]
   onLatinHAMClick: (latinHAM: LatinHAM) => void
   fetchCompletedPuzzle: (id: string) => Promise<LeaderboardEntry | null>
-  onResetGame: (initialGrid: number[][]) => void
 }
 
 const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({ 
   latinHAMs, 
   onLatinHAMClick, 
-  fetchCompletedPuzzle,
-  onResetGame 
+  fetchCompletedPuzzle
 }) => {
-  const [completedPuzzle, setCompletedPuzzle] = useState<LeaderboardEntry | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
-
   const handleLatinHAMClick = async (latinHAM: LatinHAM) => {
     console.log('Clicked LatinHAM:', latinHAM);
     if (!latinHAM.initialGrid || latinHAM.initialGrid.length === 0) {
@@ -30,22 +24,12 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
     try {
       const completed = await fetchCompletedPuzzle(id)
       if (completed) {
-        setCompletedPuzzle(completed)
-        setSelectedDifficulty(latinHAM.difficulty)
-        setIsDialogOpen(true)
         onLatinHAMClick(latinHAM)
       } else {
         console.error('No completed puzzle found for this LatinHAM')
       }
     } catch (error) {
       console.error('Error fetching completed puzzle:', error)
-    }
-  }
-
-  const handleDialogClose = (open: boolean) => {
-    setIsDialogOpen(open)
-    if (!open) {
-      setCompletedPuzzle(null)
     }
   }
 
