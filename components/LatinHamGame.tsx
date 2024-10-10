@@ -190,11 +190,6 @@ export default function LatinHamGame() {
     }
   }, [isGameWon, hasSubmittedQuote, showQuoteDialog, handleWin])
 
-  const handleViewCompletedBoardWrapper = useCallback((entry: LeaderboardEntry) => {
-    setViewingEntry(entry)
-    setShowViewPopup(true)
-  }, [])
-
   const handleStartNewGame = useCallback(() => {
     setShowConfetti(false)
     setShowDifficultySelector(true)
