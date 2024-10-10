@@ -46,13 +46,11 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>latinHAM Identified!</DialogTitle>
-          <div className="pt-4">
-            <DialogDescription>
-              View your latinHAM puzzle and game statistics.
-            </DialogDescription>
-          </div>
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-2xl font-bold">latinHAM Identified!</DialogTitle>
+          <DialogDescription className="mt-2">
+            View your latinHAM puzzle and game statistics.
+          </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <CompletedPuzzleCard 
@@ -61,13 +59,23 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
             onImageReady={setImageDataUrl}
           />
         </div>
-        <DialogFooter className="flex flex-row justify-center items-center gap-4">
-          <Button onClick={handleResetGame} className="inline-flex items-center px-4 py-2" aria-label="Reset and play this puzzle">
+        <DialogFooter className="flex flex-col items-center gap-4">
+          <Button 
+            onClick={handleResetGame} 
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white" 
+            aria-label="Reset and play this puzzle"
+          >
             <RefreshCw className="h-5 w-5 mr-2" />
             Play Again
           </Button>
-          <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
-            <Download className="h-5 w-5" />
+          <Button 
+            onClick={handleDownload} 
+            variant="outline"
+            className="w-full" 
+            aria-label="Download completed puzzle"
+          >
+            <Download className="h-5 w-5 mr-2" />
+            Download
           </Button>
         </DialogFooter>
       </DialogContent>
