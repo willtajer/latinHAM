@@ -58,7 +58,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <header className="sticky left-0 right-0 z-50 w-full">
+            <header className="fixed left-0 right-0 z-50 w-full">
               <div className="flex justify-between items-center p-4">
                 <div>
                   <SignedOut>
