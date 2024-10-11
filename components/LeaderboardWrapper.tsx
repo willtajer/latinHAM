@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { LeaderboardEntry } from '../types'
-import { useUser } from '@clerk/nextjs'
 import { Leaderboard } from './Leaderboard'
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
@@ -16,7 +15,6 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
   })
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
-  const { user } = useUser()
 
   const fetchLeaderboard = useCallback(async () => {
     try {
