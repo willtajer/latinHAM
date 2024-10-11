@@ -66,10 +66,6 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
     router.push(`/game?grid=${JSON.stringify(initialGrid)}`)
   }
 
-  const handleStartNewGame = () => {
-    router.push('/game')
-  }
-
   const MiniGameBoard: React.FC<{ initialGrid: number[][] }> = ({ initialGrid }) => {
     if (!initialGrid || initialGrid.length === 0) {
       return <div className="text-red-500">Error: Invalid grid data</div>;

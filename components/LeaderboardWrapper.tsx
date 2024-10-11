@@ -54,12 +54,6 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
     // You might want to navigate to the game page or update the game state here
   }, [])
 
-  const handleStartNewGame = useCallback(() => {
-    // Implement the logic to start a new game
-    console.log('Starting a new game')
-    // You might want to navigate to the game page or update the game state here
-  }, [])
-
   return (
     <>
       <Leaderboard
