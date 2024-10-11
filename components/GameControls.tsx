@@ -23,7 +23,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
   hintsActive
 }) => {
   return (
-    <div className="flex space-x-2 mb-8">
+    <div className="flex space-x-2 mb-8 pb-12">
       <Button onClick={handleNewGame} variant="ghost" className="hover:bg-transparent focus:bg-transparent">New Game</Button>
       <Button onClick={handleHint} variant="ghost" className="hover:bg-transparent focus:bg-transparent" disabled={isGameWon}>
         {hintsActive ? 'Hide Hints' : 'Hint'}
