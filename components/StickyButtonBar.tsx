@@ -20,7 +20,6 @@ interface StickyButtonBarProps {
 
 export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps) {
   const { theme } = useTheme()
-  const router = useRouter()
   const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning'>('none')
   const [leaderboardDifficulty, setLeaderboardDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
   const { leaderboard, handleViewCompletedBoard } = useLeaderboard(leaderboardDifficulty)

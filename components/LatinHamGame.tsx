@@ -234,10 +234,10 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
             Fill the grid with colors so that each color appears exactly once in each row and column.
           </p>
           <DifficultySelector onSelectDifficulty={handleDifficultySelect} />
-          <div className="p-6">
-          </div>
         </div>
-        <WillTajerButton />
+        <div className="fixed bottom-16 items-center p-6">
+            <WillTajerButton />
+          </div>
       </div>
     )
   }
