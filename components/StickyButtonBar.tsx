@@ -9,8 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 import { DiscoveredLatinHAMs } from './DiscoveredLatinHAMs'
 import { GamePreview } from './GamePreview'
-import { Leaderboard } from './Leaderboard'
-import { useLeaderboard } from './LeaderboardWrapper'
+import { LeaderboardWrapper } from './LeaderboardWrapper'
 import { LearningModeGame } from './LearningModeGame'
 
 interface StickyButtonBarProps {
@@ -21,7 +20,6 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
   const { theme } = useTheme()
   const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning'>('none')
   const [leaderboardDifficulty, setLeaderboardDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
-  const { leaderboard, handleViewCompletedBoard } = useLeaderboard(leaderboardDifficulty)
   const [isLearningComplete, setIsLearningComplete] = useState(false)
   const [learningKey, setLearningKey] = useState(0)
 
@@ -170,11 +168,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                       Hard
                     </Button>
                   </div>
-                  <Leaderboard
-                    entries={leaderboard[leaderboardDifficulty]}
-                    difficulty={leaderboardDifficulty}
-                    onViewCompletedBoard={handleViewCompletedBoard}
-                  />
+                  <LeaderboardWrapper difficulty={leaderboardDifficulty} />
                 </div>
               )}
 
@@ -202,6 +196,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                       <CardContent className="p-6">
                         <h2 className="text-3xl font-bold mb-4 text-center text-blue-500">How to Play</h2>
                         <ul className="list-disc pl-5 space-y-2 text-lg">
+                
                           <li>Click on a cell to cycle through numbers 1-3.</li>
                           <li>Each number must appear exactly once in each row and column.</li>
                           <li>Use logic to determine the correct placement of each number.</li>

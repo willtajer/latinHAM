@@ -84,14 +84,6 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
               Play Again
             </Button>
             <Button 
-              onClick={handleStartNewGame}
-              className="w-full bg-green-500 hover:bg-green-600 text-white" 
-              aria-label="Start a new game"
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Start New Game
-            </Button>
-            <Button 
               onClick={handleDownload} 
               variant="outline"
               className="w-full" 

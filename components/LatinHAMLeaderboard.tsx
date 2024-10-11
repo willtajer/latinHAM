@@ -29,7 +29,6 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
         const data: LeaderboardEntry[] = await response.json()
         console.log('Fetched data:', data)
         
-        // Filter entries based on the specific LatinHAM's initialGrid
         const filteredEntries = data.filter((entry: LeaderboardEntry) => {
           const initialGridMatch = JSON.stringify(entry.initialGrid) === JSON.stringify(latinHAM.initialGrid)
           console.log(`Entry ${entry.id || 'unknown'}:`)
@@ -97,6 +96,30 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
     )
   }
 
+  const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ grid, onClick }) => {
+    if (!Array.isArray(grid) || grid.length === 0) {
+      console.error('Invalid grid data:', grid)
+      return null
+    }
+  
+    return (
+      <button onClick={onClick} className="w-full">
+        <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
+          {grid.map((row, rowIndex) => (
+            <div key={rowIndex} className="flex">
+              {row.map((cell, colIndex) => (
+                <div
+                  key={`${rowIndex}-${colIndex}`}
+                  className={`w-6 h-6 ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </button>
+    )
+  }
+
   if (isLoading) {
     return <div className="text-center py-8">Loading leaderboard entries...</div>
   }
@@ -124,27 +147,28 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
               <TableHeader>
                 <TableRow>
                   <TableHead>Rank</TableHead>
+                  <TableHead>Progress</TableHead>
                   <TableHead>Moves</TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Quote</TableHead>
-                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {leaderboardEntries.map((entry, index) => (
-                  <TableRow key={entry.id || index}>
+                  <TableRow 
+                    key={entry.id || index}
+                    className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  >
                     <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                      <MiniProgressBar 
+                        grid={entry.grid} 
+                        onClick={() => handleViewCompletedBoard(entry)}
+                      />
+                    </TableCell>
                     <TableCell>{entry.moves}</TableCell>
                     <TableCell>{formatTime(entry.time)}</TableCell>
                     <TableCell>{entry.quote || 'No quote provided'}</TableCell>
-                    <TableCell>
-                      <button 
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
-                        onClick={() => handleViewCompletedBoard(entry)}
-                      >
-                        View
-                      </button>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
