@@ -5,7 +5,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeBackground from "@/components/ThemeBackground"
 import { LoginHandler } from '@/components/LoginHandler'
-import StickyButtonBar from '@/components/StickyButtonBar'
 import {
   ClerkProvider,
   SignInButton,
@@ -84,7 +83,6 @@ export default function RootLayout({
             <main>
               <LoginHandler />
               <ThemeBackground />
-              <StickyButtonBar />
               {children}
             </main>
             <Analytics />
