@@ -53,7 +53,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
   return (
     <>
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60]">
-        <div className="bg-gray-800 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg">
+        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg">
           <div className="flex space-x-2">
             <Button
               variant="ghost"
