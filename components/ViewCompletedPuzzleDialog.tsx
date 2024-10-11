@@ -73,9 +73,6 @@ export function ViewCompletedPuzzleDialog({
           <Button onClick={handleResetGame} className="flex items-center">
             <RotateCcw className="mr-2 h-4 w-4" /> Reset Game
           </Button>
-          <Button onClick={handleStartNewGame} className="flex items-center">
-            <Play className="mr-2 h-4 w-4" /> New Game
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
