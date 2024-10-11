@@ -14,7 +14,11 @@ import { Leaderboard } from './Leaderboard'
 import { useLeaderboard } from './LeaderboardWrapper'
 import { LearningModeGame } from './LearningModeGame'
 
-export default function StickyButtonBar() {
+interface StickyButtonBarProps {
+  onStartNewGame: () => void
+}
+
+export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps) {
   const { theme } = useTheme()
   const router = useRouter()
   const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning'>('none')
@@ -24,7 +28,7 @@ export default function StickyButtonBar() {
   const [learningKey, setLearningKey] = useState(0)
 
   const handleNewGame = () => {
-    router.push('/')
+    onStartNewGame()
   }
 
   const toggleOverlay = (overlay: 'discovered' | 'leaderboard' | 'learning') => {

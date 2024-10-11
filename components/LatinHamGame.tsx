@@ -17,7 +17,11 @@ import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
 import { WillTajerButton } from './WillTajerButton'
 
-export default function LatinHamGame() {
+interface LatinHamGameProps {
+  onTriggerNewGame: (trigger: () => void) => void
+}
+
+export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
   const {
     grid,
     locked,
@@ -199,7 +203,7 @@ export default function LatinHamGame() {
   }, [clearGameState])
 
   const handleResetGame = useCallback((newInitialGrid: number[][]) => {
-    console.log("Received Initial Grid in LatinHamGame:", newInitialGrid);
+    console.log("Received Initial Grid in LatinHamGame:", newInitialGrid)
     resetGame(newInitialGrid)
     setHasSubmittedQuote(false)
     setShowQuoteDialog(false)
@@ -215,6 +219,10 @@ export default function LatinHamGame() {
   const handleNewGame = useCallback(() => {
     setShowNewGameConfirmation(true)
   }, [])
+
+  useEffect(() => {
+    onTriggerNewGame(handleNewGame)
+  }, [handleNewGame, onTriggerNewGame])
 
   if (showDifficultySelector) {
     return (

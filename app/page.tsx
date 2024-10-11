@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic'
 
-const LatinHamGame = dynamic(() => import('../components/LatinHamGame'), { ssr: false })
+const ParentComponent = dynamic(() => import('../components/ParentComponent'), { ssr: false })
 
 export default function Home() {
-  return <LatinHamGame />
+  return <ParentComponent />
 }
