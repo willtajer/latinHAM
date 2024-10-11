@@ -1,72 +1,64 @@
-import React from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { LeaderboardEntry } from '@/types'
-import { RotateCcw } from 'lucide-react'
+import React, { useState } from 'react'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { CompletedPuzzleCard } from './CompletedPuzzleCard'
+import { LeaderboardEntry } from '../types'
+import { Download } from 'lucide-react'
 
 interface ViewCompletedPuzzleDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   entry: LeaderboardEntry | null
-  difficulty: string
-  onResetGame: (initialGrid: number[][]) => void
+  difficulty: 'easy' | 'medium' | 'hard'
 }
 
-export function ViewCompletedPuzzleDialog({
+export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps> = ({
   open,
   onOpenChange,
   entry,
-  difficulty,
-  onResetGame
-}: ViewCompletedPuzzleDialogProps) {
-  if (!entry) return null
+  difficulty
+}) => {
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}m ${remainingSeconds}s`
-  }
-
-  const handleResetGame = () => {
-    if (entry.initialGrid) {
-      onResetGame(entry.initialGrid)
+  const handleDownload = () => {
+    if (imageDataUrl && entry) {
+      const link = document.createElement('a')
+      link.href = imageDataUrl
+      link.download = `latinHAM_${difficulty}_game${entry.id}.png`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     }
-    onOpenChange(false)
   }
+
+  if (!entry) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Completed Puzzle</DialogTitle>
-          <DialogDescription>
-            Difficulty: {difficulty}
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-2xl font-bold">latinHAM Identified!</DialogTitle>
+          <DialogDescription className="mt-2">
+            View your latinHAM puzzle and game statistics.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
-            {entry.grid.map((row, rowIndex) => (
-              <React.Fragment key={rowIndex}>
-                {row.map((cell, colIndex) => (
-                  <div
-                    key={`${rowIndex}-${colIndex}`}
-                    className={`w-8 h-8 ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600'} border border-gray-300 dark:border-gray-500`}
-                  />
-                ))}
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="text-sm">
-            <p>Moves: {entry.moves}</p>
-            <p>Time: {formatTime(entry.time)}</p>
-            <p>Quote: {entry.quote || 'No quote provided'}</p>
-          </div>
+        <div className="py-4 flex justify-center">
+          <CompletedPuzzleCard 
+            entry={entry} 
+            difficulty={difficulty} 
+            onImageReady={setImageDataUrl}
+          />
         </div>
-        <div className="flex justify-center">
-          <Button onClick={handleResetGame} className="flex items-center">
-            <RotateCcw className="mr-2 h-4 w-4" /> Reset Game
+        <DialogFooter className="flex flex-col items-center gap-4">
+          <Button 
+            onClick={handleDownload} 
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white" 
+            aria-label="Download completed puzzle"
+          >
+            <Download className="h-5 w-5 mr-2" />
+            Download
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

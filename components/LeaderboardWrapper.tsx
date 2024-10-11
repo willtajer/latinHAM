@@ -66,7 +66,6 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
         onOpenChange={handleCloseViewDialog}
         entry={viewingEntry}
         difficulty={difficulty}
-        onResetGame={handleResetGame}
       />
     </>
   )

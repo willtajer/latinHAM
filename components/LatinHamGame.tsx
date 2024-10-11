@@ -317,7 +317,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         onOpenChange={setShowViewPopup}
         entry={viewingEntry}
         difficulty={difficulty}
-        onResetGame={handleResetGame}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
