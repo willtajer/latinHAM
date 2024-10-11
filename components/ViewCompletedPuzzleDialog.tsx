@@ -1,105 +1,83 @@
-import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { CompletedPuzzleCard } from './CompletedPuzzleCard'
-import { LeaderboardEntry } from '../types'
-import { Download, RefreshCw, Plus } from 'lucide-react'
-import { NewGameDialog } from './NewGameDialog'
+import React from 'react'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { LeaderboardEntry } from '@/types'
+import { Play, RotateCcw } from 'lucide-react'
 
 interface ViewCompletedPuzzleDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   entry: LeaderboardEntry | null
-  difficulty: 'easy' | 'medium' | 'hard'
+  difficulty: string
   onResetGame: (initialGrid: number[][]) => void
   onStartNewGame: () => void
 }
 
-export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps> = ({
+export function ViewCompletedPuzzleDialog({
   open,
   onOpenChange,
   entry,
   difficulty,
   onResetGame,
   onStartNewGame
-}) => {
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
-  const [isNewGameDialogOpen, setIsNewGameDialogOpen] = useState(false)
+}: ViewCompletedPuzzleDialogProps) {
+  if (!entry) return null
 
-  const handleDownload = () => {
-    if (imageDataUrl && entry) {
-      const link = document.createElement('a')
-      link.href = imageDataUrl
-      link.download = `latinHAM_${difficulty}_game${entry.id}.png`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}m ${remainingSeconds}s`
   }
 
   const handleResetGame = () => {
-    if (entry && entry.initialGrid) {
+    if (entry.initialGrid) {
       onResetGame(entry.initialGrid)
-      onOpenChange(false)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
+    onOpenChange(false)
   }
 
   const handleStartNewGame = () => {
-    setIsNewGameDialogOpen(true)
-  }
-
-  const handleConfirmNewGame = () => {
-    setIsNewGameDialogOpen(false)
     onStartNewGame()
     onOpenChange(false)
   }
 
-  if (!entry) return null
-
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="text-center">
-            <DialogTitle className="text-2xl font-bold">latinHAM Identified!</DialogTitle>
-            <DialogDescription className="mt-2">
-              View your latinHAM puzzle and game statistics.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4 flex justify-center">
-            <CompletedPuzzleCard 
-              entry={entry} 
-              difficulty={difficulty} 
-              onImageReady={setImageDataUrl}
-            />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Completed Puzzle</DialogTitle>
+          <DialogDescription>
+            Difficulty: {difficulty}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
+            {entry.grid.map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                {row.map((cell, colIndex) => (
+                  <div
+                    key={`${rowIndex}-${colIndex}`}
+                    className={`w-8 h-8 ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600'} border border-gray-300 dark:border-gray-500`}
+                  />
+                ))}
+              </React.Fragment>
+            ))}
           </div>
-          <DialogFooter className="flex flex-col items-center gap-4">
-            <Button 
-              onClick={handleResetGame} 
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white" 
-              aria-label="Reset and play this puzzle"
-            >
-              <RefreshCw className="h-5 w-5 mr-2" />
-              Play Again
-            </Button>
-            <Button 
-              onClick={handleDownload} 
-              variant="outline"
-              className="w-full" 
-              aria-label="Download completed puzzle"
-            >
-              <Download className="h-5 w-5 mr-2" />
-              Download
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <NewGameDialog
-        open={isNewGameDialogOpen}
-        onOpenChange={setIsNewGameDialogOpen}
-        onConfirm={handleConfirmNewGame}
-      />
-    </>
+          <div className="text-sm">
+            <p>Moves: {entry.moves}</p>
+            <p>Time: {formatTime(entry.time)}</p>
+            <p>Quote: {entry.quote || 'No quote provided'}</p>
+          </div>
+        </div>
+        <div className="flex justify-between">
+          <Button onClick={handleResetGame} className="flex items-center">
+            <RotateCcw className="mr-2 h-4 w-4" /> Reset Game
+          </Button>
+          <Button onClick={handleStartNewGame} className="flex items-center">
+            <Play className="mr-2 h-4 w-4" /> New Game
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

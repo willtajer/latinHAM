@@ -39,37 +39,6 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
     fetchLeaderboard()
   }, [fetchLeaderboard])
 
-  const handleQuoteSubmit = useCallback(async (quote: string, entry: LeaderboardEntry) => {
-    if (!user) {
-      console.log('User not logged in, skipping leaderboard submission')
-      return
-    }
-
-    try {
-      const response = await fetch('/api/save-game', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...entry,
-          difficulty,
-          quote,
-          userId: user.id,
-          username: user.username || user.firstName || 'Anonymous'
-        }),
-      })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const result = await response.json()
-      console.log('Save game result:', result)
-      await fetchLeaderboard()
-    } catch (error) {
-      console.error('Failed to save game:', error)
-    }
-  }, [difficulty, fetchLeaderboard, user])
-
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     console.log('Viewing completed board:', entry)
     setViewingEntry(entry)
