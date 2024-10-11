@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
-import { Download, RefreshCw } from 'lucide-react'
+import { Download, RefreshCw, X } from 'lucide-react'
 
 interface WinDialogProps {
   open: boolean
@@ -18,7 +18,7 @@ interface WinDialogProps {
   onStartNewGame: () => void
   onResetGame: (initialGrid: number[][]) => void
   showQuoteInput: boolean
-  isSubmitting?: boolean // Made optional
+  isSubmitting?: boolean
 }
 
 export const WinDialog: React.FC<WinDialogProps> = ({
@@ -33,7 +33,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   onStartNewGame,
   onResetGame,
   showQuoteInput,
-  isSubmitting = false // Provide a default value
+  isSubmitting = false
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
 
@@ -57,9 +57,18 @@ export const WinDialog: React.FC<WinDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto relative">
+        <Button
+          className="absolute right-2 top-2 rounded-full p-2 text-red-500 hover:bg-red-100 transition-colors"
+          onClick={() => onOpenChange(false)}
+          aria-label="Close dialog"
+        >
+          <X className="h-4 w-4" />
+        </Button>
         <DialogHeader>
-          <DialogTitle>{showQuoteInput ? "Enter Your Victory Quote" : "Congratulations!"}</DialogTitle>
+          <DialogTitle className={`text-center ${showQuoteInput ? "" : "text-2xl font-bold"}`}>
+            {showQuoteInput ? "Enter Your Victory Quote" : "Congratulations!"}
+          </DialogTitle>
         </DialogHeader>
         {showQuoteInput ? (
           <>
