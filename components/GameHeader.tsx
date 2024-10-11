@@ -9,7 +9,7 @@ interface GameHeaderProps {
 
 export const GameHeader: React.FC<GameHeaderProps> = ({ gameState, isGameWon }) => {
   return (
-    <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
+    <div className="w-[calc(6*3rem+6*0.75rem)] xs:mt-20 sm:mt-2 mb-6">
       <Link href="/" passHref>
         <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
           latinHAM
