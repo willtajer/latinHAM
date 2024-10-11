@@ -52,7 +52,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
   return (
     <>
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60]">
         <div className="bg-gray-800 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg">
           <div className="flex space-x-2">
             <Button
@@ -60,7 +60,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               size="icon"
               onClick={handleNewGame}
               className={`
-                rounded-full p-2 shadow-md transition-colors duration-200 z-10
+                rounded-full p-2 shadow-md transition-colors duration-200
                 ${theme === 'light' 
                   ? 'bg-red-500 hover:bg-gray-700 text-white hover:text-red-500' 
                   : 'bg-red-500 hover:bg-gray-700 text-white hover:text-red-500'}
@@ -72,7 +72,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-yellow-500 text-white hover:bg-gray-700 hover:text-yellow-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 text-white hover:bg-gray-700 hover:text-yellow-500"
               onClick={() => toggleOverlay('discovered')}
               aria-label="View Discovered LatinHAMs"
             >
@@ -81,7 +81,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-green-500 text-white hover:bg-gray-700 hover:text-green-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-green-500 text-white hover:bg-gray-700 hover:text-green-500"
               onClick={() => toggleOverlay('leaderboard')}
               aria-label="View Leaderboard"
             >
@@ -90,7 +90,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 z-10 bg-blue-500 text-white hover:bg-gray-700 hover:text-blue-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-blue-500 text-white hover:bg-gray-700 hover:text-blue-500"
               onClick={() => toggleOverlay('learning')}
               aria-label="Go to Learning Mode"
             >
@@ -108,7 +108,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             animate="visible"
             exit="exit"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-0 bg-background z-50 overflow-y-auto"
+            className="fixed inset-0 bg-background z-50 overflow-y-auto pt-16"
           >
             <div className="min-h-screen p-4 sm:p-6 lg:p-8 relative">
               <Button
@@ -123,17 +123,6 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
               {activeOverlay === 'discovered' && (
                 <div className="max-w-6xl mx-auto">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
-                    Discovered LatinHAMs
-                  </h1>
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
-                      <GamePreview />
-                    </div>
-                  </div>
-                  <p className="text-center mb-8 text-muted-foreground">
-                    Explore player-identified gameboard layouts.
-                  </p>
                   <DiscoveredLatinHAMs />
                 </div>
               )}
@@ -196,7 +185,6 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                       <CardContent className="p-6">
                         <h2 className="text-3xl font-bold mb-4 text-center text-blue-500">How to Play</h2>
                         <ul className="list-disc pl-5 space-y-2 text-lg">
-                
                           <li>Click on a cell to cycle through numbers 1-3.</li>
                           <li>Each number must appear exactly once in each row and column.</li>
                           <li>Use logic to determine the correct placement of each number.</li>

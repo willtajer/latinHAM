@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
 import LatinHAMLeaderboard from './LatinHAMLeaderboard'
 import { LatinHAM } from '@/types'
+import { GamePreview } from './GamePreview'
 
 export const DiscoveredLatinHAMs: React.FC = () => {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
@@ -58,6 +59,11 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   return (
     <div className="container mx-auto pb-16">
       <h1 className="text-4xl font-bold text-center mb-8">Discovered LatinHAMs</h1>
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
+          <GamePreview />
+      </div>
+      </div>
       <p className="text-center mb-8">Explore player-identified gameboard layouts.</p>
       {selectedLatinHAM ? (
         <div>
