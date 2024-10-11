@@ -146,6 +146,11 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
                     LatinHAM Leaderboard
                   </h1>
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-[calc(6*3rem+6*0.75rem)] mt-4 mb-4">
+                      <GamePreview />
+                    </div>
+                  </div>
                   <div className="flex justify-center space-x-4 mb-6">
                     <Button
                       onClick={() => handleLeaderboardDifficultyChange('easy')}
