@@ -48,12 +48,6 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
     setViewingEntry(null)
   }, [])
 
-  const handleResetGame = useCallback((initialGrid: number[][]) => {
-    // Implement the logic to reset the game with the given initialGrid
-    console.log('Resetting game with initial grid:', initialGrid)
-    // You might want to navigate to the game page or update the game state here
-  }, [])
-
   return (
     <>
       <Leaderboard
