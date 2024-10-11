@@ -18,7 +18,7 @@ interface WinDialogProps {
   onStartNewGame: () => void
   onResetGame: (initialGrid: number[][]) => void
   showQuoteInput: boolean
-  isSubmitting: boolean
+  isSubmitting?: boolean // Made optional
 }
 
 export const WinDialog: React.FC<WinDialogProps> = ({
@@ -33,7 +33,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   onStartNewGame,
   onResetGame,
   showQuoteInput,
-  isSubmitting
+  isSubmitting = false // Provide a default value
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { useGameLogic } from '../hooks/useGameLogic'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { GameBoard } from './GameBoard'
@@ -45,21 +45,28 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     resetGame,
   } = useGameLogic()
 
+  const memoizedDifficulty = useMemo(() => difficulty, [difficulty])
+
   const {
     leaderboard,
     handleQuoteSubmit: leaderboardHandleQuoteSubmit,
-  } = useLeaderboard(difficulty)
+  } = useLeaderboard(memoizedDifficulty)
 
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
-  const [winQuote, setWinQuote] = useState("")
+  const [winQuote, setWinQuote] = useState(() => {
+    const savedWinQuote = localStorage.getItem('latinHamWinQuote')
+    return savedWinQuote || ""
+  })
   const [showConfetti, setShowConfetti] = useState(false)
   const [showDifficultySelector, setShowDifficultySelector] = useState(true)
-  const [hasSubmittedQuote, setHasSubmittedQuote] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const submitTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [showWinCard, setShowWinCard] = useState(false)
+  const [hasSubmittedQuote, setHasSubmittedQuote] = useState(() => {
+    const savedHasSubmittedQuote = localStorage.getItem('latinHamHasSubmittedQuote')
+    return savedHasSubmittedQuote ? JSON.parse(savedHasSubmittedQuote) : false
+  })
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const viewedBoardRef = useRef<HTMLDivElement>(null)
@@ -81,6 +88,12 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
       setShowConfetti(true)
     }
   }, [hasSubmittedQuote])
+
+  useEffect(() => {
+    if (gameState === 'won' || (gameState === 'playing' && checkWin(grid))) {
+      handleWin()
+    }
+  }, [gameState, grid, checkWin, handleWin])
 
   const handleCloseWinPopup = useCallback(() => {
     setShowConfetti(false)
@@ -109,6 +122,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     setShowNewGameConfirmation(false)
     setShowQuoteDialog(false)
     setShowConfetti(false)
+    setShowWinCard(false)
     setHasSubmittedQuote(false)
     setWinQuote("")
     clearGameState()
@@ -120,6 +134,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     setHasSubmittedQuote(false)
     setShowQuoteDialog(false)
     setShowConfetti(false)
+    setShowWinCard(false)
     setWinQuote("")
     localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
   }, [handleSelectDifficulty])
@@ -138,67 +153,24 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     }
   }, [difficulty, moveCount, elapsedTime, grid, initialGrid, winQuote, hintCount])
 
-  const handleQuoteSubmit = useCallback(async (quote: string) => {
-    if (hasSubmittedQuote || isSubmitting) return
-
-    if (submitTimeoutRef.current) {
-      clearTimeout(submitTimeoutRef.current)
-    }
-
-    submitTimeoutRef.current = setTimeout(async () => {
-      setIsSubmitting(true)
-
-      const entry = createLeaderboardEntry()
-      const updatedEntry = { ...entry, quote }
-      
-      try {
-        const response = await fetch('/api/save-game', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedEntry),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.message || 'Failed to save game')
-        }
-
-        const savedGame = await response.json()
-        console.log('Game saved successfully:', savedGame)
-
-        await leaderboardHandleQuoteSubmit(quote, savedGame)
-        setShowQuoteDialog(false)
-        setWinQuote(quote)
-        setHasSubmittedQuote(true)
-        localStorage.setItem('latinHamWinQuote', quote)
-        localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
-        
-        setViewingEntry(savedGame)
-        setShowViewPopup(true)
-      } catch (error: unknown) {
-        console.error('Error saving game:', error)
-        let errorMessage = 'An unknown error occurred'
-        if (error instanceof Error) {
-          errorMessage = error.message
-        }
-        alert(`Failed to save game: ${errorMessage}. Please try again or check your connection.`)
-      } finally {
-        setIsSubmitting(false)
-      }
-    }, 300)
-  }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit, hasSubmittedQuote, isSubmitting])
-
   const isGameWon = gameState === 'won' || (gameState === 'playing' && checkWin(grid))
 
-  useEffect(() => {
-    if (isGameWon && !hasSubmittedQuote && !showQuoteDialog) {
-      handleWin()
-    }
-  }, [isGameWon, hasSubmittedQuote, showQuoteDialog, handleWin])
+  const handleQuoteSubmit = useCallback(async (quote: string) => {
+    const entry = createLeaderboardEntry()
+    const updatedEntry = { ...entry, quote }
+    await leaderboardHandleQuoteSubmit(quote, updatedEntry)
+    setShowQuoteDialog(false)
+    setWinQuote(quote)
+    setShowWinCard(true)
+    setHasSubmittedQuote(true)
+    localStorage.setItem('latinHamWinQuote', quote)
+    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
+    setViewingEntry(updatedEntry)
+    setShowViewPopup(true)
+  }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit])
 
   const handleStartNewGame = useCallback(() => {
+    setShowWinCard(false)
     setShowConfetti(false)
     setShowDifficultySelector(true)
     setHasSubmittedQuote(false)
@@ -214,6 +186,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     setHasSubmittedQuote(false)
     setShowQuoteDialog(false)
     setShowConfetti(false)
+    setShowWinCard(false)
     setWinQuote("")
     localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
     
@@ -301,7 +274,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         onConfirm={confirmNewGame}
       />
       <WinDialog 
-        open={showQuoteDialog}
+        open={showQuoteDialog || showWinCard}
         onOpenChange={(open) => {
           if (!open) {
             handleCloseWinPopup()
@@ -310,13 +283,12 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         onSubmit={handleQuoteSubmit}
         quote={winQuote}
         setQuote={setWinQuote}
-        entry={createLeaderboardEntry()}
-        gameNumber={leaderboard[difficulty].length + 1}
-        difficulty={difficulty}
+        entry={hasSubmittedQuote ? createLeaderboardEntry() : undefined}
+        gameNumber={leaderboard[memoizedDifficulty].length + 1}
+        difficulty={memoizedDifficulty}
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}
         onResetGame={handleResetGame}
-        isSubmitting={isSubmitting}
       />
       <ViewCompletedPuzzleDialog 
         open={showViewPopup}
