@@ -2,7 +2,7 @@ import React from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { LeaderboardEntry } from '@/types'
-import { Play, RotateCcw } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 
 interface ViewCompletedPuzzleDialogProps {
   open: boolean
@@ -10,7 +10,6 @@ interface ViewCompletedPuzzleDialogProps {
   entry: LeaderboardEntry | null
   difficulty: string
   onResetGame: (initialGrid: number[][]) => void
-  onStartNewGame: () => void
 }
 
 export function ViewCompletedPuzzleDialog({
@@ -18,8 +17,7 @@ export function ViewCompletedPuzzleDialog({
   onOpenChange,
   entry,
   difficulty,
-  onResetGame,
-  onStartNewGame
+  onResetGame
 }: ViewCompletedPuzzleDialogProps) {
   if (!entry) return null
 
@@ -33,11 +31,6 @@ export function ViewCompletedPuzzleDialog({
     if (entry.initialGrid) {
       onResetGame(entry.initialGrid)
     }
-    onOpenChange(false)
-  }
-
-  const handleStartNewGame = () => {
-    onStartNewGame()
     onOpenChange(false)
   }
 
@@ -69,7 +62,7 @@ export function ViewCompletedPuzzleDialog({
             <p>Quote: {entry.quote || 'No quote provided'}</p>
           </div>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-center">
           <Button onClick={handleResetGame} className="flex items-center">
             <RotateCcw className="mr-2 h-4 w-4" /> Reset Game
           </Button>

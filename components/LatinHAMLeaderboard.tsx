@@ -185,7 +185,6 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
           entry={selectedPuzzle}
           difficulty={latinHAM.difficulty}
           onResetGame={handleResetGame}
-          onStartNewGame={handleStartNewGame}
         />
       )}
     </div>
