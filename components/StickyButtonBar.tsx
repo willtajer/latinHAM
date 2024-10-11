@@ -4,7 +4,6 @@ import React, { useState, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Play, Grid, Trophy, HelpCircle, X } from "lucide-react"
 import { useTheme } from "next-themes"
-import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
