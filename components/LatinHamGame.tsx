@@ -161,7 +161,8 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         })
 
         if (!response.ok) {
-          throw new Error('Failed to save game')
+          const errorData = await response.json()
+          throw new Error(errorData.message || 'Failed to save game')
         }
 
         const savedGame = await response.json()
@@ -176,8 +177,13 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         
         setViewingEntry(savedGame)
         setShowViewPopup(true)
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error saving game:', error)
+        let errorMessage = 'An unknown error occurred'
+        if (error instanceof Error) {
+          errorMessage = error.message
+        }
+        alert(`Failed to save game: ${errorMessage}. Please try again or check your connection.`)
       } finally {
         setIsSubmitting(false)
       }
@@ -236,8 +242,8 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
           <DifficultySelector onSelectDifficulty={handleDifficultySelect} />
         </div>
         <div className="fixed bottom-16 items-center p-6">
-            <WillTajerButton />
-          </div>
+          <WillTajerButton />
+        </div>
       </div>
     )
   }
@@ -304,7 +310,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         onSubmit={handleQuoteSubmit}
         quote={winQuote}
         setQuote={setWinQuote}
-        entry={hasSubmittedQuote ? createLeaderboardEntry() : undefined}
+        entry={createLeaderboardEntry()}
         gameNumber={leaderboard[difficulty].length + 1}
         difficulty={difficulty}
         onStartNewGame={handleStartNewGame}
