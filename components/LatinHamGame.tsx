@@ -11,7 +11,6 @@ import { GameControls } from './GameControls'
 import { GameStats } from './GameStats'
 import { WinDialog } from './WinDialog'
 import { NewGameDialog } from './NewGameDialog'
-import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 import { DifficultySelector } from './DifficultySelector'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
@@ -54,8 +53,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
 
   const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
   const [showQuoteDialog, setShowQuoteDialog] = useState(false)
-  const [showViewPopup, setShowViewPopup] = useState(false)
-  const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
   const [winQuote, setWinQuote] = useState(() => {
     const savedWinQuote = localStorage.getItem('latinHamWinQuote')
     return savedWinQuote || ""
@@ -165,8 +162,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     setHasSubmittedQuote(true)
     localStorage.setItem('latinHamWinQuote', quote)
     localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(true))
-    setViewingEntry(updatedEntry)
-    setShowViewPopup(true)
   }, [createLeaderboardEntry, leaderboardHandleQuoteSubmit])
 
   const handleStartNewGame = useCallback(() => {
@@ -249,7 +244,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
       </div>
       <GameStats 
         gameState={gameState}
-        viewingEntry={viewingEntry}
+        viewingEntry={null}
         moveCount={moveCount}
         elapsedTime={elapsedTime}
         hintCount={hintCount}
@@ -289,12 +284,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}
         onResetGame={handleResetGame}
-      />
-      <ViewCompletedPuzzleDialog 
-        open={showViewPopup}
-        onOpenChange={setShowViewPopup}
-        entry={viewingEntry}
-        difficulty={difficulty}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
