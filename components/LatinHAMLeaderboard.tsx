@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import { LatinHAM, LeaderboardEntry } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
-import { useRouter } from 'next/navigation'
 
 interface LatinHAMLeaderboardProps {
   latinHAM: LatinHAM;
@@ -16,7 +15,6 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
   const [error, setError] = useState<string | null>(null)
   const [selectedPuzzle, setSelectedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     const fetchLeaderboardEntries = async () => {
