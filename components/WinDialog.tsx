@@ -57,65 +57,69 @@ export const WinDialog: React.FC<WinDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto relative">
-        <Button
-          className="absolute right-2 top-2 rounded-full p-2 text-red-500 hover:bg-red-100 transition-colors"
-          onClick={() => onOpenChange(false)}
-          aria-label="Close dialog"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-        <DialogHeader>
-          <DialogTitle className={`text-center ${showQuoteInput ? "" : "text-2xl font-bold"}`}>
-            {showQuoteInput ? "Enter Your Victory Quote" : "Congratulations!"}
-          </DialogTitle>
-        </DialogHeader>
-        {showQuoteInput ? (
-          <>
-            <div className="py-4">
-              <p className="text-center mb-4">Enter a quote to commemorate your victory:</p>
-              <Input
-                placeholder="Enter your quote here"
-                value={quote}
-                onChange={(e) => setQuote(e.target.value)}
-                aria-label="Victory quote"
-                className="w-full"
-              />
-            </div>
-            <DialogFooter className="flex justify-center">
-              <Button 
-                onClick={() => onSubmit(quote)} 
-                className="w-full sm:w-auto"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </DialogFooter>
-          </>
-        ) : (
-          <>
-            <div className="py-4">
-              <CompletedPuzzleCard 
-                entry={entry!} 
-                difficulty={difficulty} 
-                onImageReady={setImageDataUrl}
-              />
-            </div>
-            <DialogFooter className="flex flex-col items-center gap-4 justify-center">
-              <div className="flex justify-center w-full gap-4">
-                <Button onClick={onStartNewGame} className="inline-flex items-center px-4 py-2">
-                  Start New Game
-                </Button> 
-                <Button onClick={handleResetGame} className="inline-flex items-center p-2" aria-label="Reset and play this puzzle">
-                  <RefreshCw className="h-5 w-5" />
-                </Button>
-                <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
-                  <Download className="h-5 w-5" />
-                </Button>
-              </div>
-            </DialogFooter>
-          </>
-        )}
+      <DialogContent className="fixed inset-0 flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-lg sm:max-w-[425px] bg-background rounded-lg shadow-lg overflow-hidden">
+          <div className="relative p-6">
+            <Button
+              className="absolute right-2 top-2 rounded-full p-2 text-red-500 hover:bg-red-100 transition-colors"
+              onClick={() => onOpenChange(false)}
+              aria-label="Close dialog"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <DialogHeader>
+              <DialogTitle className={`text-center ${showQuoteInput ? "" : "text-2xl font-bold"}`}>
+                {showQuoteInput ? "Enter Your Victory Quote" : "Congratulations!"}
+              </DialogTitle>
+            </DialogHeader>
+            {showQuoteInput ? (
+              <>
+                <div className="py-4">
+                  <p className="text-center mb-4">Enter a quote to commemorate your victory:</p>
+                  <Input
+                    placeholder="Enter your quote here"
+                    value={quote}
+                    onChange={(e) => setQuote(e.target.value)}
+                    aria-label="Victory quote"
+                    className="w-full"
+                  />
+                </div>
+                <DialogFooter className="flex justify-center">
+                  <Button 
+                    onClick={() => onSubmit(quote)} 
+                    className="w-full sm:w-auto"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                  </Button>
+                </DialogFooter>
+              </>
+            ) : (
+              <>
+                <div className="py-4">
+                  <CompletedPuzzleCard 
+                    entry={entry!} 
+                    difficulty={difficulty} 
+                    onImageReady={setImageDataUrl}
+                  />
+                </div>
+                <DialogFooter className="flex flex-col items-center gap-4 justify-center">
+                  <div className="flex justify-center w-full gap-4">
+                    <Button onClick={onStartNewGame} className="inline-flex items-center px-4 py-2">
+                      Start New Game
+                    </Button> 
+                    <Button onClick={handleResetGame} className="inline-flex items-center p-2" aria-label="Reset and play this puzzle">
+                      <RefreshCw className="h-5 w-5" />
+                    </Button>
+                    <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
+                      <Download className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </>
+            )}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )
