@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
-import { Download, RefreshCw, X } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 
 interface WinDialogProps {
   open: boolean
