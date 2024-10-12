@@ -60,7 +60,7 @@ export const DiscoveredLatinHAMs: React.FC = () => {
     <div className="container mx-auto pb-16">
       <h1 className="text-4xl font-bold text-center mb-8">Discovered LatinHAMs</h1>
       <div className="flex flex-col items-center justify-center">
-        <div className="w-[calc(6*3rem+6*0.75rem)] mb-6">
+        <div className="w-[calc(6*3rem+6*0.75rem)]">
           <GamePreview />
       </div>
       </div>

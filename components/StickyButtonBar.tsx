@@ -56,21 +56,21 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
   const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning') => {
     const colors = {
-      discovered: { light: 'bg-yellow-500', dark: 'bg-slate-900' },
-      leaderboard: { light: 'bg-green-500', dark: 'bg-slate-900' },
-      learning: { light: 'bg-blue-500', dark: 'bg-slate-900' },
+      discovered: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
+      leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
+      learning: { light: 'bg-blue-500', dark: 'bg-slate-950' },
     }
 
     const color = colors[overlayType]
     const bgColor = theme === 'dark' ? color.dark : color.light
 
-    return `${bgColor} bg-[radial-gradient(#00000033_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff33_1px,transparent_1px)] bg-[size:20px_20px]`
+    return `${bgColor} bg-[radial-gradient(#ffffff33_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff33_1px,transparent_1px)] bg-[size:20px_20px]`
   }
 
   return (
     <>
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60]">
-        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg ">
+        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg">
           <div className="flex space-x-2">
             <Button
               variant="ghost"
@@ -148,7 +148,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                     LatinHAM Leaderboard
                   </h1>
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-[calc(6*3rem+6*0.75rem)] mt-4 mb-4">
+                    <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-2">
                       <GamePreview />
                     </div>
                   </div>
