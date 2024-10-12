@@ -115,8 +115,8 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
   }, [])
 
   const confirmNewGame = useCallback(() => {
-    setShowDifficultySelector(true)
     setShowNewGameConfirmation(false)
+    setShowDifficultySelector(true)
     setShowQuoteDialog(false)
     setShowConfetti(false)
     setShowWinCard(false)
@@ -191,8 +191,12 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
   }, [resetGame, checkWin, handleWin])
 
   const handleNewGame = useCallback(() => {
-    setShowNewGameConfirmation(true)
-  }, [])
+    if (gameState === 'playing' && !showDifficultySelector) {
+      setShowNewGameConfirmation(true)
+    } else {
+      confirmNewGame()
+    }
+  }, [gameState, showDifficultySelector, confirmNewGame])
 
   useEffect(() => {
     onTriggerNewGame(handleNewGame)
