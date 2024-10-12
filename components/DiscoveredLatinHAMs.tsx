@@ -53,18 +53,18 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   }
 
   if (latinHAMs.length === 0) {
-    return <div className="text-center py-8">No Discovered LatinHAMs found. Start playing to create some!</div>
+    return <div className="text-center py-8 text-white">No Discovered LatinHAMs found. Start playing to create some!</div>
   }
 
   return (
     <div className="container mx-auto pb-16">
-      <h1 className="text-4xl font-bold text-center mb-8">Discovered LatinHAMs</h1>
+      <h1 className="text-4xl font-bold text-center mb-8 text-white">Discovered LatinHAMs</h1>
       <div className="flex flex-col items-center justify-center">
         <div className="w-[calc(6*3rem+6*0.75rem)]">
           <GamePreview />
       </div>
       </div>
-      <p className="text-center mb-8">Explore player-identified gameboard layouts.</p>
+      <p className="text-center mb-8 text-white">Explore player-identified gameboard layouts.</p>
       {selectedLatinHAM ? (
         <div>
           <button 

@@ -144,7 +144,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
               {activeOverlay === 'leaderboard' && (
                 <div className="max-w-6xl mx-auto pt-16">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
                     LatinHAM Leaderboard
                   </h1>
                   <div className="flex flex-col items-center justify-center">
@@ -181,13 +181,13 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                   <div className="flex flex-col items-center justify-center w-full mb-8">
                     <div className="w-[calc(6*3rem+6*0.75rem)]">
                       <Link href="/" passHref>
-                        <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
+                        <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors text-white duration-200">
                           latinHAM
                         </h1>
                       </Link>
                       <GamePreview />
-                      <h2 className="text-2xl font-semibold text-center sm:mt-8 md:mt-12 mb-4">Learning Mode</h2>
-                      <p className="text-center mt-4">
+                      <h2 className="text-2xl font-semibold text-center text-white sm:mt-8 md:mt-12 mb-4">Learning Mode</h2>
+                      <p className="text-center mt-4 text-white">
                         {isLearningComplete
                           ? "Great job! You've mastered the basics of Latin squares."
                           : "Fill the grid so that each number (1-3) appears exactly once in each row and column."}
