@@ -12,7 +12,7 @@ export default function ThemeBackground() {
     <>
       <div className="fixed inset-0 -z-10">
         {/* Light mode background */}
-        <div className="absolute inset-0 h-full w-full bg-gray-150 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:opacity-0 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 h-full w-full bg-gray-100 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:opacity-0 transition-opacity duration-300"></div>
         
         {/* Dark mode background */}
         <div className="absolute inset-0 h-full w-full bg-[#000000] bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] bg-[size:20px_20px] opacity-0 dark:opacity-100 transition-opacity duration-300"></div>

@@ -31,6 +31,10 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     setActiveOverlay(prev => prev === overlay ? 'none' : overlay)
   }
 
+  const closeOverlays = useCallback(() => {
+    setActiveOverlay('none')
+  }, [])
+
   const handleLeaderboardDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
     setLeaderboardDifficulty(newDifficulty)
   }
@@ -50,21 +54,32 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     exit: { opacity: 0, y: '100%' }
   }
 
+  const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning') => {
+    const colors = {
+      discovered: { light: 'bg-yellow-500', dark: 'bg-slate-900' },
+      leaderboard: { light: 'bg-green-500', dark: 'bg-slate-900' },
+      learning: { light: 'bg-blue-500', dark: 'bg-slate-900' },
+    }
+
+    const color = colors[overlayType]
+    const bgColor = theme === 'dark' ? color.dark : color.light
+
+    return `${bgColor} bg-[radial-gradient(#00000033_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff33_1px,transparent_1px)] bg-[size:20px_20px]`
+  }
+
   return (
     <>
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60]">
-        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg">
+        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg ">
           <div className="flex space-x-2">
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleNewGame}
-              className={`
-                rounded-full p-2 shadow-md transition-colors duration-200
-                ${theme === 'light' 
-                  ? 'bg-red-500 hover:bg-gray-700 text-white hover:text-red-500' 
-                  : 'bg-red-500 hover:bg-gray-700 text-white hover:text-red-500'}
-              `}
+              onClick={() => {
+                closeOverlays()
+                handleNewGame()
+              }}
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-red-500 hover:bg-gray-700 text-white hover:text-red-500"
               aria-label="Start New Game"
             >
               <Play className="h-6 w-6" />
@@ -72,7 +87,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 text-white hover:bg-gray-700 hover:text-yellow-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 hover:bg-gray-700 text-white hover:text-yellow-500"
               onClick={() => toggleOverlay('discovered')}
               aria-label="View Discovered LatinHAMs"
             >
@@ -81,7 +96,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-green-500 text-white hover:bg-gray-700 hover:text-green-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-green-500 hover:bg-gray-700 text-white hover:text-green-500"
               onClick={() => toggleOverlay('leaderboard')}
               aria-label="View Leaderboard"
             >
@@ -90,7 +105,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-blue-500 text-white hover:bg-gray-700 hover:text-blue-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-blue-500 hover:bg-gray-700 text-white hover:text-blue-500"
               onClick={() => toggleOverlay('learning')}
               aria-label="Go to Learning Mode"
             >
@@ -108,27 +123,27 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             animate="visible"
             exit="exit"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-0 bg-background z-50 overflow-y-auto pt-16"
+            className={`fixed inset-0 z-50 overflow-y-auto ${getOverlayStyle(activeOverlay)}`}
           >
             <div className="min-h-screen p-4 sm:p-6 lg:p-8 relative">
               <Button
                 variant="ghost"
                 size="icon"
                 className="absolute top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white"
-                onClick={() => setActiveOverlay('none')}
+                onClick={closeOverlays}
                 aria-label="Close Overlay"
               >
                 <X className="h-6 w-6" />
               </Button>
 
               {activeOverlay === 'discovered' && (
-                <div className="max-w-6xl mx-auto">
+                <div className="max-w-6xl mx-auto pt-16">
                   <DiscoveredLatinHAMs />
                 </div>
               )}
 
               {activeOverlay === 'leaderboard' && (
-                <div className="max-w-6xl mx-auto">
+                <div className="max-w-6xl mx-auto pt-16">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
                     LatinHAM Leaderboard
                   </h1>
@@ -162,7 +177,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               )}
 
               {activeOverlay === 'learning' && (
-                <div className="w-full max-w-6xl mx-auto">
+                <div className="w-full max-w-6xl mx-auto pt-16 pb-16">
                   <div className="flex flex-col items-center justify-center w-full mb-8">
                     <div className="w-[calc(6*3rem+6*0.75rem)]">
                       <Link href="/" passHref>
