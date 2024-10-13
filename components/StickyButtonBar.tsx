@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
-import { Play, Grid, Trophy, HelpCircle, X } from "lucide-react"
+import { Play, Grid, Trophy, HelpCircle, User, X } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import { DiscoveredLatinHAMs } from './DiscoveredLatinHAMs'
 import { GamePreview } from './GamePreview'
 import { LeaderboardWrapper } from './LeaderboardWrapper'
 import { LearningModeGame } from './LearningModeGame'
+import { UserProfile } from './UserProfile'
 
 interface StickyButtonBarProps {
   onStartNewGame: () => void
@@ -18,7 +19,7 @@ interface StickyButtonBarProps {
 
 export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps) {
   const { theme } = useTheme()
-  const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning'>('none')
+  const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning' | 'profile'>('none')
   const [leaderboardDifficulty, setLeaderboardDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
   const [isLearningComplete, setIsLearningComplete] = useState(false)
   const [learningKey, setLearningKey] = useState(0)
@@ -27,7 +28,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     onStartNewGame()
   }
 
-  const toggleOverlay = (overlay: 'discovered' | 'leaderboard' | 'learning') => {
+  const toggleOverlay = (overlay: 'discovered' | 'leaderboard' | 'learning' | 'profile') => {
     setActiveOverlay(prev => prev === overlay ? 'none' : overlay)
   }
 
@@ -54,11 +55,12 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     exit: { opacity: 0, y: '100%' }
   }
 
-  const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning') => {
+  const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning' | 'profile') => {
     const colors = {
       discovered: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
       leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
       learning: { light: 'bg-blue-500', dark: 'bg-slate-950' },
+      profile: { light: 'bg-purple-500', dark: 'bg-slate-950' },
     }
 
     const color = colors[overlayType]
@@ -110,6 +112,15 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               aria-label="Go to Learning Mode"
             >
               <HelpCircle className="h-6 w-6" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-purple-500 hover:bg-gray-700 text-white hover:text-purple-500"
+              onClick={() => toggleOverlay('profile')}
+              aria-label="View User Profile"
+            >
+              <User className="h-6 w-6" />
             </Button>
           </div>
         </div>
@@ -227,6 +238,12 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                       </CardContent>
                     </Card>
                   </div>
+                </div>
+              )}
+
+              {activeOverlay === 'profile' && (
+                <div className="max-w-6xl mx-auto pt-16">
+                  <UserProfile />
                 </div>
               )}
             </div>
