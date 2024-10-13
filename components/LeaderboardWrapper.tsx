@@ -22,7 +22,7 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const data = await response.json()
+      const data: LeaderboardEntry[] = await response.json()
       console.log('Fetched leaderboard data:', data)
       setLeaderboard(prevState => ({
         ...prevState,
@@ -78,7 +78,7 @@ export const useLeaderboard = (difficulty: 'easy' | 'medium' | 'hard') => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const data = await response.json()
+      const data: LeaderboardEntry[] = await response.json()
       console.log('Fetched leaderboard data:', data)
       setLeaderboard(prevState => ({
         ...prevState,

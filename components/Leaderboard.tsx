@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronUp, ChevronDown } from 'lucide-react'
@@ -51,7 +53,7 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 }
 
 export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: LeaderboardProps) {
-  const [sortColumn, setSortColumn] = useState<'moves' | 'time'>('moves')
+  const [sortColumn, setSortColumn] = useState<'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration'>('rank')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
   const entriesPerPage = 10
@@ -62,7 +64,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const handleSort = (column: 'moves' | 'time') => {
+  const handleSort = (column: 'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -72,7 +74,27 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
   }
 
   const sortedEntries = [...entries].sort((a, b) => {
-    const compareValue = sortColumn === 'moves' ? a.moves - b.moves : a.time - b.time
+    let compareValue: number;
+    switch (sortColumn) {
+      case 'rank':
+      case 'moves':
+        compareValue = a.moves - b.moves;
+        break;
+      case 'user':
+        compareValue = (a.username || '').localeCompare(b.username || '');
+        break;
+      case 'time':
+        compareValue = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+        break;
+      case 'hints':
+        compareValue = (a.hints || 0) - (b.hints || 0);
+        break;
+      case 'duration':
+        compareValue = a.time - b.time;
+        break;
+      default:
+        compareValue = 0;
+    }
     return sortDirection === 'asc' ? compareValue : -compareValue
   })
 
@@ -100,7 +122,24 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">Rank</TableHead>
+              <TableHead 
+                className="w-16 text-center cursor-pointer"
+                onClick={() => handleSort('rank')}
+              >
+                Rank
+                {sortColumn === 'rank' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-32 text-center cursor-pointer"
+                onClick={() => handleSort('user')}
+              >
+                User
+                {sortColumn === 'user' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">latinHAM</TableHead>
               <TableHead 
                 className="w-24 text-center cursor-pointer"
@@ -112,11 +151,29 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                 )}
               </TableHead>
               <TableHead 
-                className="w-32 text-center cursor-pointer"
+                className="w-24 text-center cursor-pointer"
                 onClick={() => handleSort('time')}
               >
-                Duration
+                Time
                 {sortColumn === 'time' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-24 text-center cursor-pointer"
+                onClick={() => handleSort('hints')}
+              >
+                Hints
+                {sortColumn === 'hints' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-32 text-center cursor-pointer"
+                onClick={() => handleSort('duration')}
+              >
+                Duration
+                {sortColumn === 'duration' && (
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
@@ -126,8 +183,9 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
             {paginatedEntries.map((entry, index) => {
               const entryNumber = (currentPage - 1) * entriesPerPage + index + 1
               return (
-                <TableRow key={entry.id || index}>
+                <TableRow key={entry.id}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
+                  <TableCell className="text-center align-middle">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="text-center py-2">
                     {entry.grid ? (
                       <MiniProgressBar 
@@ -138,8 +196,12 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                       <div>No grid data</div>
                     )}
                   </TableCell>
-                  <TableCell className="font-medium text-center align-middle">{entry.moves || 'N/A'}</TableCell>
-                  <TableCell className="text-center align-middle">{entry.time ? formatDuration(entry.time) : 'N/A'}</TableCell>
+                  <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
+                  <TableCell className="text-center align-middle">
+                    {new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </TableCell>
+                  <TableCell className="text-center align-middle">{entry.hints || 0}</TableCell>
+                  <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
                 </TableRow>
               )
             })}

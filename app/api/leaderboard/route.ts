@@ -3,6 +3,9 @@ import type { NextRequest } from 'next/server'
 import { sql } from '@/lib/db'
 
 interface LeaderboardEntry {
+  id: string;
+  username: string;
+  difficulty: 'easy' | 'medium' | 'hard';
   timestamp: string;
   moves: number;
   time: number;
@@ -13,6 +16,9 @@ interface LeaderboardEntry {
 }
 
 interface DatabaseEntry {
+  id: string;
+  username: string;
+  difficulty: 'easy' | 'medium' | 'hard';
   timestamp: Date;
   moves: number | string;
   time: number | string;
@@ -44,14 +50,26 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await sql<DatabaseEntry>`
-      SELECT * FROM leaderboard_entries 
-      WHERE difficulty = ${difficulty} 
-      ORDER BY moves ASC 
+      SELECT 
+        le.id, le.difficulty, le.moves, le.time, le.grid, le.initial_grid, le.quote, le.hints, le.timestamp,
+        COALESCE(up.username, 'Anonymous') as username
+      FROM 
+        leaderboard_entries le
+      LEFT JOIN 
+        user_profiles up ON le.user_id = up.clerk_user_id
+      WHERE 
+        le.difficulty = ${difficulty}
+      ORDER BY 
+        le.moves ASC, le.time ASC
+      LIMIT 100
     `
 
     const formattedLeaderboard = result.rows.map(entry => {
       try {
         return {
+          id: entry.id,
+          username: entry.username,
+          difficulty: entry.difficulty,
           timestamp: new Date(entry.timestamp).toISOString(),
           moves: Number(entry.moves),
           time: Number(entry.time),
