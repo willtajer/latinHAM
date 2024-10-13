@@ -40,8 +40,8 @@ export async function GET(request: Request) {
         time: row.time,
         hints: row.hints,
         created_at: row.timestamp,
-        grid: row.grid.split(',').map(Number),
-        initialGrid: row.initial_grid.split(',').map(Number),
+        grid: Array.isArray(row.grid) ? row.grid : JSON.parse(row.grid),
+        initialGrid: Array.isArray(row.initial_grid) ? row.initial_grid : JSON.parse(row.initial_grid),
         quote: row.quote
       }))
     }
