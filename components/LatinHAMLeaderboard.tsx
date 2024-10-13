@@ -3,11 +3,14 @@
 import React, { useState, useEffect } from 'react'
 import { LatinHAM, LeaderboardEntry } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
 interface LatinHAMLeaderboardProps {
   latinHAM: LatinHAM;
 }
+
+const ENTRIES_PER_PAGE = 10;
 
 const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) => {
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([])
@@ -15,6 +18,7 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
   const [error, setError] = useState<string | null>(null)
   const [selectedPuzzle, setSelectedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     const fetchLeaderboardEntries = async () => {
@@ -65,21 +69,36 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
       return <div className="text-red-500">Error: Invalid grid data</div>;
     }
 
+    const colorClasses = [
+      'bg-red-500',
+      'bg-blue-500',
+      'bg-yellow-500',
+      'bg-green-500',
+      'bg-purple-500',
+      'bg-orange-500',
+    ]
+
     return (
-      <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner aspect-square">
+      <div className="grid grid-cols-6 gap-3 bg-gray-200 dark:bg-gray-700 p-3 rounded-lg shadow-inner">
         {initialGrid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
               className={`
-                aspect-square flex items-center justify-center
-                relative transition-all duration-150 ease-in-out rounded-sm shadow-sm
-                ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600'}
+                w-12 h-12 flex items-center justify-center text-lg font-bold
+                relative transition-all duration-150 ease-in-out rounded-md shadow-sm
+                ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600'}
                 ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
               `}
               role="cell"
-              aria-label={`Cell ${cell !== 0 ? 'filled' : 'empty'}`}
-            />
+              aria-label={`Cell value ${cell || 'Empty'}`}
+            >
+              {cell !== 0 && (
+                <span className="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                  {cell}
+                </span>
+              )}
+            </div>
           ))
         )}
       </div>
@@ -110,6 +129,16 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
     )
   }
 
+  const totalPages = Math.ceil(leaderboardEntries.length / ENTRIES_PER_PAGE)
+  const paginatedEntries = leaderboardEntries.slice(
+    (currentPage - 1) * ENTRIES_PER_PAGE,
+    currentPage * ENTRIES_PER_PAGE
+  )
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+  }
+
   if (isLoading) {
     return <div className="text-center py-8">Loading leaderboard entries...</div>
   }
@@ -132,39 +161,56 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
           </div>
         </div>
         <div className="w-full md:w-2/3">
-          {leaderboardEntries.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Rank</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Moves</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Quote</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leaderboardEntries.map((entry, index) => (
-                  <TableRow 
-                    key={entry.id || index}
-                    className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{entry.username || 'Anonymous'}</TableCell>
-                    <TableCell>
-                      <MiniProgressBar 
-                        grid={entry.grid} 
-                        onClick={() => handleViewCompletedBoard(entry)}
-                      />
-                    </TableCell>
-                    <TableCell>{entry.moves}</TableCell>
-                    <TableCell>{formatTime(entry.time)}</TableCell>
-                    <TableCell>{entry.quote || 'No quote provided'}</TableCell>
+          {paginatedEntries.length > 0 ? (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Rank</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Progress</TableHead>
+                    <TableHead>Moves</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Quote</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {paginatedEntries.map((entry, index) => (
+                    <TableRow 
+                      key={entry.id || index}
+                      className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <TableCell>{(currentPage - 1) * ENTRIES_PER_PAGE + index + 1}</TableCell>
+                      <TableCell>{entry.username || 'Anonymous'}</TableCell>
+                      <TableCell>
+                        <MiniProgressBar 
+                          grid={entry.grid} 
+                          onClick={() => handleViewCompletedBoard(entry)}
+                        />
+                      </TableCell>
+                      <TableCell>{entry.moves}</TableCell>
+                      <TableCell>{formatTime(entry.time)}</TableCell>
+                      <TableCell>{entry.quote || 'No quote provided'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="flex justify-between items-center mt-4">
+                <Button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <Button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
           ) : (
             <div className="text-center py-8">No leaderboard entries found for this LatinHAM.</div>
           )}
