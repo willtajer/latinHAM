@@ -59,7 +59,7 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 
   return (
     <button onClick={onClick} className="w-full">
-      <div className="grid grid-cols-6 gap-0.5 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1' }}>
+      <div className="grid grid-cols-6 gap-0.5 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '50%' }}>
         {grid.flat().map((cell, index) => (
           <div
             key={index}
@@ -209,7 +209,7 @@ export function UserProfile() {
                   )}
                 </TableHead>
                 <TableHead>Difficulty</TableHead>
-                <TableHead className="w-[calc(6*3rem+7*0.125rem)]">latinHAM</TableHead>
+                <TableHead className="w-[calc(3rem+7*0.0625rem)]">latinHAM</TableHead>
                 <TableHead 
                   className="w-24 cursor-pointer"
                   onClick={() => handleSort('moves')}
