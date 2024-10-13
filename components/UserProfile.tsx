@@ -59,11 +59,11 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 
   return (
     <button onClick={onClick} className="w-full">
-      <div className="grid grid-cols-6 gap-0 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
+      <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
         {grid.flat().map((cell, index) => (
           <div
             key={index}
-            className={`w-5 h-5 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
+            className={`w-full h-full ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
           />
         ))}
       </div>
