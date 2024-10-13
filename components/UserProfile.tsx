@@ -8,6 +8,13 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -15,6 +22,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 
 interface GameEntry {
   id: string
@@ -43,21 +51,23 @@ const colorClasses = [
   'bg-orange-500',
 ]
 
-const MiniProgressBar: React.FC<{ grid: number[] }> = ({ grid }) => {
+const MiniProgressBar: React.FC<{ grid: number[], onClick: () => void }> = ({ grid, onClick }) => {
   if (!Array.isArray(grid) || grid.length === 0) {
     console.error('Invalid grid data:', grid)
     return null
   }
 
   return (
-    <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
-      {grid.map((cell, index) => (
-        <div
-          key={index}
-          className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
-        />
-      ))}
-    </div>
+    <button onClick={onClick} className="w-full">
+      <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
+        {grid.map((cell, index) => (
+          <div
+            key={index}
+            className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
+          />
+        ))}
+      </div>
+    </button>
   )
 }
 
@@ -69,6 +79,7 @@ export function UserProfile() {
   const [sortColumn, setSortColumn] = useState<'date' | 'moves' | 'time'>('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
+  const [selectedGame, setSelectedGame] = useState<GameEntry | null>(null)
   const entriesPerPage = 10
 
   useEffect(() => {
@@ -106,6 +117,10 @@ export function UserProfile() {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}m ${remainingSeconds}s`
+  }
+
+  const handleViewCompletedBoard = (game: GameEntry) => {
+    setSelectedGame(game)
   }
 
   if (isLoading) {
@@ -147,101 +162,134 @@ export function UserProfile() {
   )
 
   return (
-    <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
-      <CardHeader>
-        <CardTitle>User Profile: {profileData.username}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-6">
-          <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-          <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead 
-                className="w-32 cursor-pointer"
-                onClick={() => handleSort('date')}
-              >
-                Date
-                {sortColumn === 'date' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead>Difficulty</TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)]">latinHAM</TableHead>
-              <TableHead 
-                className="w-24 cursor-pointer"
-                onClick={() => handleSort('moves')}
-              >
-                Moves
-                {sortColumn === 'moves' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead 
-                className="w-32 cursor-pointer"
-                onClick={() => handleSort('time')}
-              >
-                Duration
-                {sortColumn === 'time' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead>Hints</TableHead>
-              <TableHead>Quote</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedGames.map((game) => (
-              <TableRow key={game.id}>
-                <TableCell>{new Date(game.created_at).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <Badge variant={game.difficulty === 'easy' ? 'default' : game.difficulty === 'medium' ? 'secondary' : 'destructive'}>
-                    {game.difficulty}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <MiniProgressBar grid={game.grid} />
-                </TableCell>
-                <TableCell>{game.moves}</TableCell>
-                <TableCell>{formatDuration(game.time)}</TableCell>
-                <TableCell>{game.hints}</TableCell>
-                <TableCell>{game.quote}</TableCell>
+    <>
+      <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
+        <CardHeader>
+          <CardTitle>User Profile: {profileData.username}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-6">
+            <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
+            <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead 
+                  className="w-32 cursor-pointer"
+                  onClick={() => handleSort('date')}
+                >
+                  Date
+                  {sortColumn === 'date' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead>Difficulty</TableHead>
+                <TableHead className="w-[calc(6*3rem+5*0.75rem)]">latinHAM</TableHead>
+                <TableHead 
+                  className="w-24 cursor-pointer"
+                  onClick={() => handleSort('moves')}
+                >
+                  Moves
+                  {sortColumn === 'moves' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="w-32 cursor-pointer"
+                  onClick={() => handleSort('time')}
+                >
+                  Duration
+                  {sortColumn === 'time' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead>Hints</TableHead>
+                <TableHead>Quote</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        {totalPages > 1 && (
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
-              {[...Array(totalPages)].map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    onClick={() => setCurrentPage(i + 1)}
-                    isActive={currentPage === i + 1}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
+            </TableHeader>
+            <TableBody>
+              {paginatedGames.map((game) => (
+                <TableRow key={game.id}>
+                  <TableCell>{new Date(game.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <Badge variant={game.difficulty === 'easy' ? 'default' : game.difficulty === 'medium' ? 'secondary' : 'destructive'}>
+                      {game.difficulty}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <MiniProgressBar grid={game.grid} onClick={() => handleViewCompletedBoard(game)} />
+                  </TableCell>
+                  <TableCell>{game.moves}</TableCell>
+                  <TableCell>{formatDuration(game.time)}</TableCell>
+                  <TableCell>{game.hints}</TableCell>
+                  <TableCell>{game.quote}</TableCell>
+                </TableRow>
               ))}
-              <PaginationItem>
-                <PaginationNext 
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
-      </CardContent>
-    </Card>
+            </TableBody>
+          </Table>
+          {totalPages > 1 && (
+            <Pagination className="mt-4">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+                {[...Array(totalPages)].map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(i + 1)}
+                      isActive={currentPage === i + 1}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </CardContent>
+      </Card>
+      <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Completed latinHAM</DialogTitle>
+            <DialogDescription>
+              Details of the completed game
+            </DialogDescription>
+          </DialogHeader>
+          {selectedGame && (
+            <CompletedPuzzleCard
+              entry={{
+                ...selectedGame,
+                grid: selectedGame.grid.reduce((acc, val, i) => {
+                  const row = Math.floor(i / 6);
+                  if (!acc[row]) acc[row] = [];
+                  acc[row].push(val);
+                  return acc;
+                }, [] as number[][]),
+                initialGrid: selectedGame.initialGrid.reduce((acc, val, i) => {
+                  const row = Math.floor(i / 6);
+                  if (!acc[row]) acc[row] = [];
+                  acc[row].push(val);
+                  return acc;
+                }, [] as number[][]),
+                timestamp: selectedGame.created_at
+              }}
+              difficulty={selectedGame.difficulty}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
