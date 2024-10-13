@@ -68,7 +68,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
   return (
     <>
       <div className="fixed bottom-0 left-0 w-full sm:bottom-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:w-auto z-[60]">
-        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-4 px-4 sm:py-2 sm:px-4 sm:rounded-full shadow-lg flex justify-center items-center w-full sm:w-auto">
+        <div className="bg-gray-200 dark:bg-gray-900 bg-opacity-70 backdrop-blur-md text-white py-4 px-4 sm:py-2 sm:px-4 sm:rounded-full shadow-lg flex justify-center items-center w-full sm:w-auto">
           <div className="flex justify-center space-x-2">
             <Button
               variant="ghost"
