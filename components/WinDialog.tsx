@@ -59,22 +59,22 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   const handleSubmitQuote = () => {
     onSubmit(quote)
     setQuoteSubmitted(true)
-    onOpenChange(false) // Close the dialog after submitting
+    onOpenChange(false)
+  }
+
+  const handleDialogClose = (newOpen: boolean) => {
+    if (!newOpen) {
+      if (showQuoteInput && !quoteSubmitted) {
+        // If closing without submitting a quote, submit an empty quote
+        onSubmit("")
+        setQuoteSubmitted(true)
+      }
+      onOpenChange(false)
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      if (!newOpen) {
-        if (showQuoteInput && !quoteSubmitted) {
-          // If closing without submitting a quote, submit an empty quote
-          onSubmit("")
-          setQuoteSubmitted(true)
-        }
-        onOpenChange(false)
-      } else {
-        onOpenChange(true)
-      }
-    }}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className={`text-center ${showQuoteInput && !quoteSubmitted ? "" : "text-2xl font-bold"}`}>
@@ -95,10 +95,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
             </div>
             <DialogFooter className="flex justify-center">
               <Button 
-                onClick={() => {
-                  handleSubmitQuote()
-                  onOpenChange(false)
-                }} 
+                onClick={handleSubmitQuote}
                 className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
                 disabled={isSubmitting}
               >
@@ -109,7 +106,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
         ) : (
           <>
             <div className="py-4">
-              {(quoteSubmitted || !showQuoteInput) && entry && (
+              {entry && (
                 <CompletedPuzzleCard 
                   entry={{
                     ...entry,
@@ -124,7 +121,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
             </div>
             <DialogFooter className="flex flex-col items-center gap-4 justify-center">
               <div className="flex justify-center w-full gap-4">
-                <Button onClick={onStartNewGame} className="inline-flex items-center px-4 py-2">
+                <Button onClick={() => { onStartNewGame(); onOpenChange(false); }} className="inline-flex items-center px-4 py-2">
                   Start New Game
                 </Button> 
                 <Button onClick={handleResetGame} className="inline-flex items-center p-2" aria-label="Reset and play this puzzle">

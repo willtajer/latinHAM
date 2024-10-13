@@ -59,7 +59,7 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 
   return (
     <button onClick={onClick} className="w-full">
-      <div className="grid grid-cols-6 gap-0.5 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '54px' }}>
+      <div className="grid grid-cols-6 gap-px bg-gray-200 dark:bg-gray-700 p-0.5 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '48px' }}>
         {grid.flat().map((cell, index) => (
           <div
             key={index}
@@ -198,12 +198,12 @@ export function UserProfile() {
             <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
             <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
-          <Table>
+          <Table className="w-full table-fixed">
             <TableHead>
               <TableRow>
                 <TableHead className="w-16">latinHAM</TableHead>
                 <TableHead 
-                  className="w-32 cursor-pointer"
+                  className="w-28 cursor-pointer"
                   onClick={() => handleSort('date')}
                 >
                   Date
@@ -211,9 +211,9 @@ export function UserProfile() {
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead>Difficulty</TableHead>
+                <TableHead className="w-24">Difficulty</TableHead>
                 <TableHead 
-                  className="w-24 cursor-pointer"
+                  className="w-20 cursor-pointer"
                   onClick={() => handleSort('moves')}
                 >
                   Moves
@@ -222,7 +222,7 @@ export function UserProfile() {
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-32 cursor-pointer"
+                  className="w-24 cursor-pointer"
                   onClick={() => handleSort('time')}
                 >
                   Duration
@@ -230,26 +230,26 @@ export function UserProfile() {
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead>Hints</TableHead>
-                <TableHead>Quote</TableHead>
+                <TableHead className="w-16">Hints</TableHead>
+                <TableHead className="w-40">Quote</TableHead>
               </TableRow>
             </TableHead>
             <TableBody>
               {paginatedGames.map((game) => (
                 <TableRow key={game.id}>
-                  <TableCell>
+                  <TableCell className="p-2">
                     <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
                   </TableCell>
-                  <TableCell>{new Date(game.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
+                  <TableCell className="p-2 text-sm">{new Date(game.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="p-2">
                     <Badge variant={game.difficulty === 'easy' ? 'default' : game.difficulty === 'medium' ? 'secondary' : 'destructive'}>
                       {game.difficulty}
                     </Badge>
                   </TableCell>
-                  <TableCell>{game.moves}</TableCell>
-                  <TableCell>{formatDuration(game.time)}</TableCell>
-                  <TableCell>{game.hints}</TableCell>
-                  <TableCell>{game.quote}</TableCell>
+                  <TableCell className="p-2 text-center">{game.moves}</TableCell>
+                  <TableCell className="p-2 text-sm">{formatDuration(game.time)}</TableCell>
+                  <TableCell className="p-2 text-center">{game.hints}</TableCell>
+                  <TableCell className="p-2 text-sm truncate">{game.quote}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
