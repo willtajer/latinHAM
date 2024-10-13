@@ -232,8 +232,8 @@ export function UserProfile() {
 
           {averages && (
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-400 text-center">Overall Averages</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-gray-400">Overall Averages</h3>
+              <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
                 <div>
                   <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
                   <p className="text-lg font-bold text-gray-900 dark:text-gray-400">{averages.moves.toFixed(2)}</p>
