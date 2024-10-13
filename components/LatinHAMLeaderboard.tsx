@@ -162,10 +162,10 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
       <Button variant="secondary" className="mb-8 mx-auto block">Back to Grid</Button>
       <div className="flex flex-col items-center gap-8 mb-8">
         <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-[400px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-[288px]">
           <div className="bg-gray-800 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-2 text-center">Initial Grid Info</h3>
-            <div className="grid grid-cols-1 gap-2 text-center text-sm">
+            <div className="grid grid-cols-1 gap-2 text-sm">
               <p>Difficulty: {latinHAM.difficulty}</p>
               <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
               <p>Best Moves: {latinHAM.bestMoves}</p>
@@ -176,21 +176,74 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
             <h3 className="text-lg font-semibold mb-2 text-center">Overall Averages</h3>
             <div className="grid grid-cols-1 gap-2">
               <div>
-                <p className="text-sm text-center text-gray-400">Avg. Moves</p>
-                <p className="text-2xl text-center font-bold">{averages.moves.toFixed(2)}</p>
+                <p className="text-sm text-gray-400">Avg. Moves</p>
+                <p className="text-2xl font-bold">{averages.moves.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-center text-gray-400">Avg. Duration</p>
-                <p className="text-2xl text-center font-bold">{formatTime(Math.round(averages.duration))}</p>
+                <p className="text-sm text-gray-400">Avg. Duration</p>
+                <p className="text-2xl font-bold">{formatTime(Math.round(averages.duration))}</p>
               </div>
               <div>
-                <p className="text-sm text-center text-gray-400">Avg. Hints</p>
-                <p className="text-2xl text-center font-bold">{averages.hints.toFixed(2)}</p>
+                <p className="text-sm text-gray-400">Avg. Hints</p>
+                <p className="text-2xl font-bold">{averages.hints.toFixed(2)}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {paginatedEntries.length > 0 ? (
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Rank</TableHead>
+                <TableHead>User</TableHead>
+                <TableHead>Progress</TableHead>
+                <TableHead>Moves</TableHead>
+                <TableHead>Time</TableHead>
+                <TableHead>Quote</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedEntries.map((entry, index) => (
+                <TableRow 
+                  key={entry.id || index}
+                  className="cursor-pointer hover:bg-gray-700 transition-colors"
+                >
+                  <TableCell>{(currentPage - 1) * ENTRIES_PER_PAGE + index + 1}</TableCell>
+                  <TableCell>{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell>
+                    <MiniProgressBar 
+                      grid={entry.grid} 
+                      onClick={() => handleViewCompletedBoard(entry)}
+                    />
+                  </TableCell>
+                  <TableCell>{entry.moves}</TableCell>
+                  <TableCell>{formatTime(entry.time)}</TableCell>
+                  <TableCell>{entry.quote || 'No quote provided'}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="flex justify-between items-center mt-4">
+            <Button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span>Page {currentPage} of {totalPages}</span>
+            <Button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-8">No leaderboard entries found for this LatinHAM.</div>
+      )}
       <div className="flex justify-center space-x-4 mt-8">
         <Button variant="ghost" className="rounded-full p-2 bg-red-500"><Play className="h-6 w-6" /></Button>
         <Button variant="ghost" className="rounded-full p-2 bg-yellow-500"><LayoutGrid className="h-6 w-6" /></Button>
