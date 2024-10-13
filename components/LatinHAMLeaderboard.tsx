@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { LatinHAM, LeaderboardEntry } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
 interface LatinHAMLeaderboardProps {
@@ -12,13 +13,14 @@ interface LatinHAMLeaderboardProps {
 
 const ENTRIES_PER_PAGE = 10;
 
-const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) => {
+export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardProps) {
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedPuzzle, setSelectedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [uniqueFilter, setUniqueFilter] = useState(false)
 
   useEffect(() => {
     const fetchLeaderboardEntries = async () => {
@@ -29,19 +31,9 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
           throw new Error(`HTTP error! status: ${response.status}`)
         }
         const data: LeaderboardEntry[] = await response.json()
-        console.log('Fetched data:', data)
-        
-        const filteredEntries = data.filter((entry: LeaderboardEntry) => {
-          const initialGridMatch = JSON.stringify(entry.initialGrid) === JSON.stringify(latinHAM.initialGrid)
-          console.log(`Entry ${entry.id || 'unknown'}:`)
-          console.log(`  Initial Grid match: ${initialGridMatch}`)
-          console.log(`  Entry initialGrid: ${JSON.stringify(entry.initialGrid)}`)
-          return initialGridMatch
-        })
-        
-        console.log('LatinHAM initialGrid:', JSON.stringify(latinHAM.initialGrid))
-        console.log('Filtered entries:', filteredEntries)
-        setLeaderboardEntries(filteredEntries)
+        setLeaderboardEntries(data.filter((entry: LeaderboardEntry) => 
+          JSON.stringify(entry.initialGrid) === JSON.stringify(latinHAM.initialGrid)
+        ))
       } catch (error) {
         console.error('Error fetching leaderboard entries:', error)
         setError('Failed to load leaderboard entries. Please try again later.')
@@ -86,20 +78,14 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={`
-                  w-11 h-11 flex items-center justify-center text-base font-bold
+                  w-11 h-11 flex items-center justify-center
                   relative transition-all duration-150 ease-in-out rounded-md shadow-sm
                   ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600'}
                   ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
                 `}
                 role="cell"
                 aria-label={`Cell value ${cell || 'Empty'}`}
-              >
-                {cell !== 0 && (
-                  <span className="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
-                    {cell}
-                  </span>
-                )}
-              </div>
+              />
             ))
           )}
         </div>
@@ -144,8 +130,27 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
     }
   }, [leaderboardEntries])
 
-  const totalPages = Math.ceil(leaderboardEntries.length / ENTRIES_PER_PAGE)
-  const paginatedEntries = leaderboardEntries.slice(
+  const filteredEntries = useMemo(() => {
+    if (!uniqueFilter) return leaderboardEntries;
+
+    const uniqueSolutions = new Map();
+    return leaderboardEntries.filter(entry => {
+      const solutionKey = JSON.stringify(entry.grid);
+      if (!uniqueSolutions.has(solutionKey)) {
+        uniqueSolutions.set(solutionKey, entry);
+        return true;
+      }
+      const existingEntry = uniqueSolutions.get(solutionKey);
+      if (entry.timestamp < existingEntry.timestamp) {
+        uniqueSolutions.set(solutionKey, entry);
+        return true;
+      }
+      return false;
+    });
+  }, [leaderboardEntries, uniqueFilter]);
+
+  const totalPages = Math.ceil(filteredEntries.length / ENTRIES_PER_PAGE)
+  const paginatedEntries = filteredEntries.slice(
     (currentPage - 1) * ENTRIES_PER_PAGE,
     currentPage * ENTRIES_PER_PAGE
   )
@@ -164,11 +169,11 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full">
-      <h2 className="text-2xl font-bold mb-4">LatinHAM Leaderboard</h2>
-      <div className="flex flex-col md:flex-row gap-4 mb-4">
-        <div className="w-full md:w-[288px]">
+      <h2 className="text-2xl text-center font-bold mb-4">LatinHAM Leaderboard</h2>
+      <div className="flex flex-col items-center md:items-start md:flex-row gap-4 mb-4">
+        <div className="w-full md:w-[288px] flex flex-col items-center md:items-start">
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-[288px]">
+          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-full max-w-[288px]">
             <h3 className="text-lg font-semibold mb-2">Initial Grid Info</h3>
             <div className="grid grid-cols-1 gap-4 p-4 text-sm text-gray-800 dark:text-gray-300">
               <p>Difficulty: {latinHAM.difficulty}</p>
@@ -177,7 +182,7 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
               <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
             </div>
           </div>
-          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-[288px]">
+          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-full max-w-[288px]">
             <h3 className="text-lg font-semibold mb-2">Overall Averages</h3>
             <div className="grid grid-cols-1 gap-4 p-4">
               <div>
@@ -196,40 +201,55 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
           </div>
         </div>
         <div className="w-full md:flex-1">
+          <div className="flex items-center justify-end mb-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="unique-filter"
+                checked={uniqueFilter}
+                onCheckedChange={(checked) => setUniqueFilter(checked as boolean)}
+              />
+              <label
+                htmlFor="unique-filter"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Show only unique solutions
+              </label>
+            </div>
+          </div>
           {paginatedEntries.length > 0 ? (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Rank</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead>Moves</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Quote</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedEntries.map((entry, index) => (
-                    <TableRow 
-                      key={entry.id || index}
-                      className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <TableCell>{(currentPage - 1) * ENTRIES_PER_PAGE + index + 1}</TableCell>
-                      <TableCell>{entry.username || 'Anonymous'}</TableCell>
-                      <TableCell>
-                        <MiniProgressBar 
-                          grid={entry.grid} 
-                          onClick={() => handleViewCompletedBoard(entry)}
-                        />
-                      </TableCell>
-                      <TableCell>{entry.moves}</TableCell>
-                      <TableCell>{formatTime(entry.time)}</TableCell>
-                      <TableCell>{entry.quote || 'No quote provided'}</TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>LatinHAM</TableHead>
+                      <TableHead>User</TableHead>
+                      <TableHead>Moves</TableHead>
+                      <TableHead>Time</TableHead>
+                      <TableHead>Quote</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedEntries.map((entry, index) => (
+                      <TableRow 
+                        key={entry.id || index}
+                        className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        <TableCell className="min-w-[120px]">
+                          <MiniProgressBar 
+                            grid={entry.grid} 
+                            onClick={() => handleViewCompletedBoard(entry)}
+                          />
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">{entry.username || 'Anonymous'}</TableCell>
+                        <TableCell>{entry.moves}</TableCell>
+                        <TableCell>{formatTime(entry.time)}</TableCell>
+                        <TableCell className="max-w-xs truncate">{entry.quote || 'No quote provided'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               <div className="flex justify-between items-center mt-4">
                 <Button
                   onClick={() => handlePageChange(currentPage - 1)}
@@ -262,5 +282,3 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
     </div>
   )
 }
-
-export default LatinHAMLeaderboard
