@@ -132,20 +132,20 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
       <h2 className="text-2xl font-bold mb-4 text-center text-white">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAM Leaderboard</h2>
       <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
       
-      <div className="bg-gray-800 p-4 rounded-lg mb-6">
-        <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-gray-400">Overall Averages</h3>
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+        <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">Overall Averages</h3>
         <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
           <div>
             <p className="text-sm text-gray-400">Avg. Moves</p>
-            <p className="text-lg font-bold text-white">{averages.moves.toFixed(2)}</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{averages.moves.toFixed(2)}</p>
           </div>
           <div>
             <p className="text-sm text-gray-400">Avg. Duration</p>
-            <p className="text-lg font-bold text-white">{formatDuration(Math.round(averages.duration))}</p>
+            <p className="text-lg font-bold text-white dark:text-gray-100">{formatDuration(Math.round(averages.duration))}</p>
           </div>
           <div>
             <p className="text-sm text-gray-400">Avg. Hints</p>
-            <p className="text-lg font-bold text-white">{averages.hints.toFixed(2)}</p>
+            <p className="text-lg font-bold text-white dark:text-gray-100">{averages.hints.toFixed(2)}</p>
           </div>
         </div>
       </div>

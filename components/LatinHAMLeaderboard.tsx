@@ -5,7 +5,6 @@ import { LatinHAM, LeaderboardEntry } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
-import { Play, LayoutGrid, Trophy, HelpCircle, User } from 'lucide-react'
 
 interface LatinHAMLeaderboardProps {
   latinHAM: LatinHAM;
@@ -72,26 +71,34 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
 
     const colorClasses = [
       'bg-red-500',
-      'bg-purple-500',
       'bg-blue-500',
-      'bg-green-500',
       'bg-yellow-500',
+      'bg-green-500',
+      'bg-purple-500',
       'bg-orange-500',
     ]
 
     return (
-      <div className="w-[288px] h-[288px]">
-        <div className="grid grid-cols-6 gap-1 bg-gray-800 p-1 rounded-lg shadow-inner w-full h-full">
+      <div className="w-[288px] h-[288px] mx-auto">
+        <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner w-full h-full">
           {initialGrid.map((row, rowIndex) =>
             row.map((cell, colIndex) => (
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={`
-                  w-11 h-11 flex items-center justify-center text-xl font-bold
-                  rounded-md ${cell !== 0 ? colorClasses[cell - 1] : 'bg-gray-700'}
+                  w-11 h-11 flex items-center justify-center text-base font-bold
+                  relative transition-all duration-150 ease-in-out rounded-md shadow-sm
+                  ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600'}
+                  ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
                 `}
+                role="cell"
+                aria-label={`Cell value ${cell || 'Empty'}`}
               >
-                {cell !== 0 && cell}
+                {cell !== 0 && (
+                  <span className="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                    {cell}
+                  </span>
+                )}
               </div>
             ))
           )}
@@ -105,7 +112,7 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
       console.error('Invalid grid data:', grid)
       return null
     }
-
+  
     return (
       <button onClick={onClick} className="w-full">
         <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner">
@@ -156,100 +163,93 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
   }
 
   return (
-    <div className="bg-gray-900 text-white p-4 rounded-lg shadow-md w-full max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8 text-center">LatinHAMs</h1>
-      <p className="text-center mb-4">Explore player-identified gameboard layouts.</p>
-      <Button variant="secondary" className="mb-8 mx-auto block">Back to Grid</Button>
-      <div className="flex flex-col items-center gap-8 mb-8">
-        <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-[288px]">
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2 text-center">Initial Grid Info</h3>
-            <div className="grid grid-cols-1 gap-2 text-sm">
+    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full">
+      <h2 className="text-2xl font-bold mb-4">LatinHAM Leaderboard</h2>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <div className="w-full md:w-[288px]">
+          <MiniGameBoard initialGrid={latinHAM.initialGrid} />
+          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-[288px]">
+            <h3 className="text-lg font-semibold mb-2">Initial Grid Info</h3>
+            <div className="grid grid-cols-1 gap-4 p-4 text-sm text-gray-800 dark:text-gray-300">
               <p>Difficulty: {latinHAM.difficulty}</p>
               <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
               <p>Best Moves: {latinHAM.bestMoves}</p>
               <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
             </div>
           </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2 text-center">Overall Averages</h3>
-            <div className="grid grid-cols-1 gap-2">
+          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-[288px]">
+            <h3 className="text-lg font-semibold mb-2">Overall Averages</h3>
+            <div className="grid grid-cols-1 gap-4 p-4">
               <div>
-                <p className="text-sm text-gray-400">Avg. Moves</p>
-                <p className="text-2xl font-bold">{averages.moves.toFixed(2)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Moves</p>
+                <p className="text-lg font-bold">{averages.moves.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-400">Avg. Duration</p>
-                <p className="text-2xl font-bold">{formatTime(Math.round(averages.duration))}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
+                <p className="text-lg font-bold">{formatTime(Math.round(averages.duration))}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-400">Avg. Hints</p>
-                <p className="text-2xl font-bold">{averages.hints.toFixed(2)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Hints</p>
+                <p className="text-lg font-bold">{averages.hints.toFixed(2)}</p>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      {paginatedEntries.length > 0 ? (
-        <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Rank</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Moves</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Quote</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedEntries.map((entry, index) => (
-                <TableRow 
-                  key={entry.id || index}
-                  className="cursor-pointer hover:bg-gray-700 transition-colors"
+        <div className="w-full md:flex-1">
+          {paginatedEntries.length > 0 ? (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Rank</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Progress</TableHead>
+                    <TableHead>Moves</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Quote</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedEntries.map((entry, index) => (
+                    <TableRow 
+                      key={entry.id || index}
+                      className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <TableCell>{(currentPage - 1) * ENTRIES_PER_PAGE + index + 1}</TableCell>
+                      <TableCell>{entry.username || 'Anonymous'}</TableCell>
+                      <TableCell>
+                        <MiniProgressBar 
+                          grid={entry.grid} 
+                          onClick={() => handleViewCompletedBoard(entry)}
+                        />
+                      </TableCell>
+                      <TableCell>{entry.moves}</TableCell>
+                      <TableCell>{formatTime(entry.time)}</TableCell>
+                      <TableCell>{entry.quote || 'No quote provided'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="flex justify-between items-center mt-4">
+                <Button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
                 >
-                  <TableCell>{(currentPage - 1) * ENTRIES_PER_PAGE + index + 1}</TableCell>
-                  <TableCell>{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell>
-                    <MiniProgressBar 
-                      grid={entry.grid} 
-                      onClick={() => handleViewCompletedBoard(entry)}
-                    />
-                  </TableCell>
-                  <TableCell>{entry.moves}</TableCell>
-                  <TableCell>{formatTime(entry.time)}</TableCell>
-                  <TableCell>{entry.quote || 'No quote provided'}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="flex justify-between items-center mt-4">
-            <Button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <span>Page {currentPage} of {totalPages}</span>
-            <Button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        </>
-      ) : (
-        <div className="text-center py-8">No leaderboard entries found for this LatinHAM.</div>
-      )}
-      <div className="flex justify-center space-x-4 mt-8">
-        <Button variant="ghost" className="rounded-full p-2 bg-red-500"><Play className="h-6 w-6" /></Button>
-        <Button variant="ghost" className="rounded-full p-2 bg-yellow-500"><LayoutGrid className="h-6 w-6" /></Button>
-        <Button variant="ghost" className="rounded-full p-2 bg-green-500"><Trophy className="h-6 w-6" /></Button>
-        <Button variant="ghost" className="rounded-full p-2 bg-blue-500"><HelpCircle className="h-6 w-6" /></Button>
-        <Button variant="ghost" className="rounded-full p-2 bg-purple-500"><User className="h-6 w-6" /></Button>
+                  Previous
+                </Button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <Button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-8">No leaderboard entries found for this LatinHAM.</div>
+          )}
+        </div>
       </div>
       {selectedPuzzle && (
         <ViewCompletedPuzzleDialog
