@@ -135,7 +135,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 mb-20">
-      <h2 className="text-2xl font-bold mb-4 text-center text-white">
+      <h2 className="text-2xl font-bold mb-4 text-center text-white mx-auto">
         {difficulty === 'all' ? 'All Difficulties' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} latinHAM Leaderboard
       </h2>
       <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
@@ -168,7 +168,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
       </div>
 
       <div className="bg-gray-800 p-4 rounded-lg mb-6">
-        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-400">
+        <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-gray-100">
           {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
         </h3>
         <div className="grid grid-cols-3 gap-4 justify-items-center text-center">

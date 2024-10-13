@@ -20,7 +20,6 @@ interface StickyButtonBarProps {
 export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps) {
   const { theme } = useTheme()
   const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning' | 'profile'>('none')
-  const [leaderboardDifficulty, setLeaderboardDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
   const [isLearningComplete, setIsLearningComplete] = useState(false)
   const [learningKey, setLearningKey] = useState(0)
 
@@ -35,10 +34,6 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
   const closeOverlays = useCallback(() => {
     setActiveOverlay('none')
   }, [])
-
-  const handleLeaderboardDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
-    setLeaderboardDifficulty(newDifficulty)
-  }
 
   const handleLearningCompletion = useCallback(() => {
     setIsLearningComplete(true)
@@ -71,9 +66,9 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
   return (
     <>
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[60]">
-        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-2 px-4 rounded-full shadow-lg">
-          <div className="flex space-x-2">
+      <div className="fixed bottom-0 left-0 w-full sm:bottom-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:w-auto z-[60]">
+        <div className="bg-gray-200 dark:bg-gray-900 bg-opacity-70 backdrop-blur-md text-white py-4 px-4 sm:py-2 sm:px-4 sm:rounded-full shadow-lg flex justify-center items-center w-full sm:w-auto">
+          <div className="flex justify-center space-x-2">
             <Button
               variant="ghost"
               size="icon"
@@ -163,27 +158,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                       <GamePreview />
                     </div>
                   </div>
-                  <div className="flex justify-center space-x-4 mb-6">
-                    <Button
-                      onClick={() => handleLeaderboardDifficultyChange('easy')}
-                      variant={leaderboardDifficulty === 'easy' ? 'default' : 'outline'}
-                    >
-                      Easy
-                    </Button>
-                    <Button
-                      onClick={() => handleLeaderboardDifficultyChange('medium')}
-                      variant={leaderboardDifficulty === 'medium' ? 'default' : 'outline'}
-                    >
-                      Medium
-                    </Button>
-                    <Button
-                      onClick={() => handleLeaderboardDifficultyChange('hard')}
-                      variant={leaderboardDifficulty === 'hard' ? 'default' : 'outline'}
-                    >
-                      Hard
-                    </Button>
-                  </div>
-                  <LeaderboardWrapper difficulty={leaderboardDifficulty} />
+                  <LeaderboardWrapper difficulty="easy" />
                 </div>
               )}
 
