@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
@@ -36,7 +36,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   isSubmitting = false
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
-  const [isImageLoading, setIsImageLoading] = useState(true)
 
   const handleDownload = () => {
     if (imageDataUrl) {
@@ -103,7 +102,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                 difficulty={difficulty} 
                 onImageReady={(dataUrl) => {
                   setImageDataUrl(dataUrl)
-                  setIsImageLoading(false)
                 }}
               />
             </div>
