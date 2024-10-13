@@ -52,11 +52,14 @@ export async function POST(req: Request) {
   if (eventType === 'user.created' || eventType === 'user.updated') {
     const { id, username, created_at } = evt.data;
 
+    // Convert the Unix timestamp to an ISO 8601 string
+    const createdAtDate = new Date(created_at).toISOString();
+
     try {
       // Upsert the user data into the user_profiles table
       await sql`
         INSERT INTO user_profiles (clerk_user_id, username, created_at)
-        VALUES (${id}, ${username}, ${created_at})
+        VALUES (${id}, ${username}, ${createdAtDate})
         ON CONFLICT (clerk_user_id)
         DO UPDATE SET
           username = EXCLUDED.username,
