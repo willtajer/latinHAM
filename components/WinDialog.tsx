@@ -37,6 +37,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
   const [quoteSubmitted, setQuoteSubmitted] = useState(false)
+  const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(entry || null)
 
   const handleDownload = () => {
     if (imageDataUrl) {
@@ -68,10 +69,22 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   const handleSubmitQuote = () => {
     onSubmit(quote)
     setQuoteSubmitted(true)
+    // Ensure entry is defined before accessing its properties
+    if (entry) {
+      setSelectedGame({
+        ...entry,
+        quote: quote
+      })
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      if (!newOpen && showQuoteInput && !quoteSubmitted) {
+        handleSubmitQuote()
+      }
+      onOpenChange(newOpen)
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className={`text-center ${showQuoteInput && !quoteSubmitted ? "" : "text-2xl font-bold"}`}>
@@ -103,13 +116,18 @@ export const WinDialog: React.FC<WinDialogProps> = ({
         ) : (
           <>
             <div className="py-4">
-              <CompletedPuzzleCard 
-                entry={entry!} 
-                difficulty={difficulty} 
-                onImageReady={(dataUrl) => {
-                  setImageDataUrl(dataUrl)
-                }}
-              />
+              {(quoteSubmitted || !showQuoteInput) && entry && (
+                <CompletedPuzzleCard 
+                  entry={{
+                    ...entry,
+                    quote: quoteSubmitted ? quote : entry.quote
+                  }}
+                  difficulty={difficulty} 
+                  onImageReady={(dataUrl) => {
+                    setImageDataUrl(dataUrl)
+                  }}
+                />
+              )}
             </div>
             <DialogFooter className="flex flex-col items-center gap-4 justify-center">
               <div className="flex justify-center w-full gap-4">

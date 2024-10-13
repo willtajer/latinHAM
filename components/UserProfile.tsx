@@ -59,7 +59,7 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 
   return (
     <button onClick={onClick} className="w-full">
-      <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '60%' }}>
+      <div className="grid grid-cols-6 gap-0.5 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '64px' }}>
         {grid.flat().map((cell, index) => (
           <div
             key={index}
@@ -80,6 +80,7 @@ export function UserProfile() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<GameEntry | null>(null)
+  const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const entriesPerPage = 10
 
   useEffect(() => {
@@ -112,6 +113,12 @@ export function UserProfile() {
 
     fetchUserProfile()
   }, [user])
+
+  useEffect(() => {
+    if (selectedGame) {
+      setQuoteSubmitted(false);
+    }
+  }, [selectedGame]);
 
   const ensureGrid2D = (grid: number[] | number[][]): number[][] => {
     if (Array.isArray(grid[0])) {
@@ -146,6 +153,11 @@ export function UserProfile() {
   const handleViewCompletedBoard = (game: GameEntry) => {
     setSelectedGame(game)
   }
+
+  const handleQuoteSubmit = (quote: string) => {
+    // Existing quote submission logic
+    setQuoteSubmitted(true);
+  };
 
   if (isLoading) {
     return <LoadingSkeleton />
@@ -282,7 +294,11 @@ export function UserProfile() {
           )}
         </CardContent>
       </Card>
-      <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
+      <Dialog open={!!selectedGame} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedGame(null);
+        }
+      }}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Completed latinHAM</DialogTitle>
@@ -296,7 +312,8 @@ export function UserProfile() {
                 ...selectedGame,
                 grid: selectedGame.grid as number[][],
                 initialGrid: selectedGame.initialGrid as number[][],
-                timestamp: selectedGame.created_at
+                timestamp: selectedGame.created_at,
+                quote: quoteSubmitted ? selectedGame.quote : ""
               }}
               difficulty={selectedGame.difficulty}
             />
