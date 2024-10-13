@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronUp, ChevronDown } from 'lucide-react'
@@ -59,7 +59,7 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 
   return (
     <button onClick={onClick} className="w-full">
-      <div className="grid grid-cols-6 gap-0.5 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '50%' }}>
+      <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '60%' }}>
         {grid.flat().map((cell, index) => (
           <div
             key={index}
@@ -197,8 +197,9 @@ export function UserProfile() {
             <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
           <Table>
-            <TableHeader>
+            <TableHead>
               <TableRow>
+                <TableHead className="w-16">latinHAM</TableHead>
                 <TableHead 
                   className="w-32 cursor-pointer"
                   onClick={() => handleSort('date')}
@@ -209,7 +210,6 @@ export function UserProfile() {
                   )}
                 </TableHead>
                 <TableHead>Difficulty</TableHead>
-                <TableHead className="w-[calc(3rem+7*0.0625rem)]">latinHAM</TableHead>
                 <TableHead 
                   className="w-24 cursor-pointer"
                   onClick={() => handleSort('moves')}
@@ -231,18 +231,18 @@ export function UserProfile() {
                 <TableHead>Hints</TableHead>
                 <TableHead>Quote</TableHead>
               </TableRow>
-            </TableHeader>
+            </TableHead>
             <TableBody>
               {paginatedGames.map((game) => (
                 <TableRow key={game.id}>
+                  <TableCell>
+                    <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
+                  </TableCell>
                   <TableCell>{new Date(game.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Badge variant={game.difficulty === 'easy' ? 'default' : game.difficulty === 'medium' ? 'secondary' : 'destructive'}>
                       {game.difficulty}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
                   </TableCell>
                   <TableCell>{game.moves}</TableCell>
                   <TableCell>{formatDuration(game.time)}</TableCell>

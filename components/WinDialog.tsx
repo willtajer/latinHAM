@@ -36,6 +36,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   isSubmitting = false
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
+  const [quoteSubmitted, setQuoteSubmitted] = useState(false)
 
   const handleDownload = () => {
     if (imageDataUrl) {
@@ -56,22 +57,28 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   }
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && showQuoteInput) {
-      // Prevent closing if quote input is shown
-      return;
+    if (!newOpen && showQuoteInput && !quoteSubmitted) {
+      // If closing without submitting a quote, submit an empty quote
+      onSubmit("")
+      setQuoteSubmitted(true)
     }
-    onOpenChange(newOpen);
-  };
+    onOpenChange(newOpen)
+  }
+
+  const handleSubmitQuote = () => {
+    onSubmit(quote)
+    setQuoteSubmitted(true)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className={`text-center ${showQuoteInput ? "" : "text-2xl font-bold"}`}>
-            {showQuoteInput ? "Enter Your Victory Quote" : "Congratulations!"}
+          <DialogTitle className={`text-center ${showQuoteInput && !quoteSubmitted ? "" : "text-2xl font-bold"}`}>
+            {showQuoteInput && !quoteSubmitted ? "Enter Your Victory Quote" : "Congratulations!"}
           </DialogTitle>
         </DialogHeader>
-        {showQuoteInput ? (
+        {showQuoteInput && !quoteSubmitted ? (
           <>
             <div className="py-4">
               <p className="text-center mb-4">Enter a quote to commemorate your victory:</p>
@@ -85,7 +92,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
             </div>
             <DialogFooter className="flex justify-center">
               <Button 
-                onClick={() => onSubmit(quote)} 
+                onClick={handleSubmitQuote} 
                 className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
                 disabled={isSubmitting}
               >
