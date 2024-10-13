@@ -87,14 +87,14 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
     ]
 
     return (
-      <div className="w-[288px] h-[288px] mx-auto">
-        <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg shadow-inner w-full h-full">
+      <div className="max-w-[350px] max-h-[350px] w-full h-full aspect-square mx-auto">
+        <div className="grid grid-cols-6 gap-2 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner w-full h-full">
           {initialGrid.map((row, rowIndex) =>
             row.map((cell, colIndex) => (
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={`
-                  w-11 h-11 flex items-center justify-center
+                  aspect-square flex items-center justify-center
                   relative transition-all duration-150 ease-in-out rounded-md shadow-sm
                   ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600'}
                   ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
@@ -202,26 +202,22 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
         <div className="w-full md:w-[288px] flex flex-col items-center md:items-start">
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
           <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-left w-full max-w-[288px]">
-            <h3 className="text-lg font-semibold mb-2 text-center">Grid Info & Averages</h3>
+            <h3 className="text-lg font-semibold mb-2 text-center">latinHAM Info & Averages</h3>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-800 dark:text-gray-300">
               <div>
-                <h4 className="font-semibold mb-2">Initial Grid Info</h4>
                 <p>Difficulty: {latinHAM.difficulty}</p>
                 <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
                 <p>Best Moves: {latinHAM.bestMoves}</p>
                 <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Overall Averages</h4>
                 <p>Avg. Moves: {averages.moves.toFixed(2)}</p>
                 <p>Avg. Duration: {formatTime(Math.round(averages.duration))}</p>
                 <p>Avg. Hints: {averages.hints.toFixed(2)}</p>
               </div>
             </div>
           </div>
-        </div>
-        <div className="w-full md:flex-1">
-          <div className="flex items-center justify-end mb-4">
+          <div className="mt-4 flex justify-center items-center w-full">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="unique-filter"
@@ -236,6 +232,8 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
               </label>
             </div>
           </div>
+        </div>
+        <div className="w-full md:flex-1">
           {paginatedEntries.length > 0 ? (
             <>
               <div className="overflow-x-auto">
