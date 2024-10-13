@@ -1,14 +1,14 @@
 export interface LeaderboardEntry {
   id: string;
-  username: string; // Make sure this line is present
+  username?: string; // Make username optional
   difficulty: 'easy' | 'medium' | 'hard';
-  timestamp: string;
   moves: number;
   time: number;
   grid: number[][];
   initialGrid: number[][];
   quote: string;
   hints: number;
+  timestamp: string;
 }
 
 // Keep other interfaces unchanged
