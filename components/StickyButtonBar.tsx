@@ -56,15 +56,15 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
   const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning') => {
     const colors = {
-      discovered: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
-      leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
-      learning: { light: 'bg-blue-500', dark: 'bg-slate-950' },
+      discovered: { light: 'bg-yellow-100', dark: 'bg-yellow-900' },
+      leaderboard: { light: 'bg-green-100', dark: 'bg-green-900' },
+      learning: { light: 'bg-blue-100', dark: 'bg-blue-900' },
     }
 
     const color = colors[overlayType]
     const bgColor = theme === 'dark' ? color.dark : color.light
 
-    return `${bgColor} bg-[radial-gradient(#ffffff33_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff33_1px,transparent_1px)] bg-[size:20px_20px]`
+    return `${bgColor} bg-[radial-gradient(#ffffff33_5px,transparent_2px)] dark:bg-[radial-gradient(#ffffff33_2px,transparent_2px)] bg-[size:40px_40px]`
   }
 
   return (
@@ -144,11 +144,11 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
               {activeOverlay === 'leaderboard' && (
                 <div className="max-w-6xl mx-auto pt-16">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center">
                     LatinHAM Leaderboard
                   </h1>
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-[calc(6*3rem+6*0.75rem)] mt-2 mb-2">
+                    <div className="w-[calc(6*3rem+6*0.75rem)] mt-4 mb-4">
                       <GamePreview />
                     </div>
                   </div>
@@ -181,13 +181,13 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                   <div className="flex flex-col items-center justify-center w-full mb-8">
                     <div className="w-[calc(6*3rem+6*0.75rem)]">
                       <Link href="/" passHref>
-                        <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors text-white duration-200">
+                        <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
                           latinHAM
                         </h1>
                       </Link>
                       <GamePreview />
-                      <h2 className="text-2xl font-semibold text-center text-white sm:mt-8 md:mt-12 mb-4">Learning Mode</h2>
-                      <p className="text-center mt-4 text-white">
+                      <h2 className="text-2xl font-semibold text-center sm:mt-8 md:mt-12 mb-4">Learning Mode</h2>
+                      <p className="text-center mt-4">
                         {isLearningComplete
                           ? "Great job! You've mastered the basics of Latin squares."
                           : "Fill the grid so that each number (1-3) appears exactly once in each row and column."}

@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
-import { Download, RefreshCw } from 'lucide-react'
+import { Download, RefreshCw, X } from 'lucide-react'
 
 interface WinDialogProps {
   open: boolean
@@ -36,6 +36,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   isSubmitting = false
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
+  const [isImageLoading, setIsImageLoading] = useState(true)
 
   const handleDownload = () => {
     if (imageDataUrl) {
@@ -62,6 +63,10 @@ export const WinDialog: React.FC<WinDialogProps> = ({
           <DialogTitle className={`text-center ${showQuoteInput ? "" : "text-2xl font-bold"}`}>
             {showQuoteInput ? "Enter Your Victory Quote" : "Congratulations!"}
           </DialogTitle>
+          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
         </DialogHeader>
         {showQuoteInput ? (
           <>
@@ -79,9 +84,9 @@ export const WinDialog: React.FC<WinDialogProps> = ({
               <Button 
                 onClick={() => onSubmit(quote)} 
                 className="w-full sm:w-auto"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isImageLoading}
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isSubmitting || isImageLoading ? "Loading..." : "Submit"}
               </Button>
             </DialogFooter>
           </>
@@ -91,7 +96,10 @@ export const WinDialog: React.FC<WinDialogProps> = ({
               <CompletedPuzzleCard 
                 entry={entry!} 
                 difficulty={difficulty} 
-                onImageReady={setImageDataUrl}
+                onImageReady={(dataUrl) => {
+                  setImageDataUrl(dataUrl)
+                  setIsImageLoading(false)
+                }}
               />
             </div>
             <DialogFooter className="flex flex-col items-center gap-4 justify-center">
