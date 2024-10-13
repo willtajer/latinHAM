@@ -1,4 +1,3 @@
-// app/api/discovered/route.ts
 import { NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
 
@@ -8,6 +7,8 @@ interface DiscoveredLatinHAM {
   solveCount: number;
   bestMoves: number;
   bestTime: number;
+  bestMovesPlayer: string | null;
+  bestTimePlayer: string | null;
 }
 
 interface DatabaseEntry {
@@ -16,6 +17,8 @@ interface DatabaseEntry {
   solve_count: number | string;
   best_moves: number | string;
   best_time: number | string;
+  best_moves_player: string | null;
+  best_time_player: string | null;
 }
 
 function parseJsonField(field: string | number[][]): number[][] {
@@ -47,7 +50,14 @@ export async function GET() {
           difficulty,
           COUNT(*) as solve_count,
           MIN(moves) as best_moves,
-          MIN(time) as best_time
+          MIN(time) as best_time,
+          -- Fetch usernames for best moves and best time
+          (SELECT up.username FROM leaderboard_entries le
+           LEFT JOIN user_profiles up ON le.user_id = up.clerk_user_id 
+           WHERE le.moves = MIN(leaderboard_entries.moves) LIMIT 1) AS best_moves_player,
+          (SELECT up.username FROM leaderboard_entries le
+           LEFT JOIN user_profiles up ON le.user_id = up.clerk_user_id 
+           WHERE le.time = MIN(leaderboard_entries.time) LIMIT 1) AS best_time_player
         FROM leaderboard_entries
         GROUP BY initial_grid, difficulty
       )
@@ -56,7 +66,9 @@ export async function GET() {
         dg.difficulty,
         gs.solve_count,
         gs.best_moves,
-        gs.best_time
+        gs.best_time,
+        gs.best_moves_player,
+        gs.best_time_player
       FROM distinct_grids dg
       JOIN grid_stats gs ON dg.initial_grid = gs.initial_grid AND dg.difficulty = gs.difficulty
       ORDER BY gs.solve_count DESC, gs.best_moves ASC, gs.best_time ASC
@@ -74,7 +86,9 @@ export async function GET() {
           difficulty: entry.difficulty,
           solveCount: Number(entry.solve_count),
           bestMoves: Number(entry.best_moves),
-          bestTime: Number(entry.best_time)
+          bestTime: Number(entry.best_time),
+          bestMovesPlayer: entry.best_moves_player,
+          bestTimePlayer: entry.best_time_player
         } as DiscoveredLatinHAM
       } catch (parseError) {
         console.error('Error parsing entry:', entry, parseError)
