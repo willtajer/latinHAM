@@ -30,8 +30,8 @@ interface GameEntry {
   moves: number
   time: number
   hints: number
-  grid: number[][]
-  initialGrid: number[][]
+  grid: number[] | number[][]
+  initialGrid: number[] | number[][]
   quote: string
   created_at: string
 }
@@ -91,14 +91,14 @@ export function UserProfile() {
         if (!response.ok) {
           throw new Error('Failed to fetch user profile')
         }
-        const data = await response.json()
+        const data: UserProfileData = await response.json()
         // Ensure grid and initialGrid are 2D arrays
-        const processedData = {
+        const processedData: UserProfileData = {
           ...data,
-          games: data.games.map((game: any) => ({
+          games: data.games.map((game: GameEntry) => ({
             ...game,
-            grid: Array.isArray(game.grid[0]) ? game.grid : convertTo2DArray(game.grid),
-            initialGrid: Array.isArray(game.initialGrid[0]) ? game.initialGrid : convertTo2DArray(game.initialGrid),
+            grid: ensureGrid2D(game.grid),
+            initialGrid: ensureGrid2D(game.initialGrid),
           }))
         }
         setProfileData(processedData)
@@ -113,8 +113,15 @@ export function UserProfile() {
     fetchUserProfile()
   }, [user])
 
-  const convertTo2DArray = (arr: number[]) => {
-    const result = []
+  const ensureGrid2D = (grid: number[] | number[][]): number[][] => {
+    if (Array.isArray(grid[0])) {
+      return grid as number[][]
+    }
+    return convertTo2DArray(grid as number[])
+  }
+
+  const convertTo2DArray = (arr: number[]): number[][] => {
+    const result: number[][] = []
     for (let i = 0; i < arr.length; i += 6) {
       result.push(arr.slice(i, i + 6))
     }
@@ -235,7 +242,7 @@ export function UserProfile() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <MiniProgressBar grid={game.grid} onClick={() => handleViewCompletedBoard(game)} />
+                    <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
                   </TableCell>
                   <TableCell>{game.moves}</TableCell>
                   <TableCell>{formatDuration(game.time)}</TableCell>
@@ -287,6 +294,8 @@ export function UserProfile() {
             <CompletedPuzzleCard
               entry={{
                 ...selectedGame,
+                grid: selectedGame.grid as number[][],
+                initialGrid: selectedGame.initialGrid as number[][],
                 timestamp: selectedGame.created_at
               }}
               difficulty={selectedGame.difficulty}
