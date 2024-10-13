@@ -51,6 +51,16 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
     return `${minutes}m ${remainingSeconds}s`
   }
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString()
+  }
+
+  const formatTimeOfDay = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleTimeString()
+  }
+
   const handleViewCompletedBoard = (entry: LeaderboardEntry) => {
     setSelectedPuzzle(entry)
     setIsDialogOpen(true)
@@ -169,28 +179,27 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
         <div className="w-full md:w-[288px] flex flex-col items-center md:items-start">
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
           <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-full max-w-[288px]">
-            <h3 className="text-lg font-semibold mb-2">Initial Grid Info</h3>
-            <div className="grid grid-cols-1 gap-4 p-4 text-sm text-gray-800 dark:text-gray-300">
-              <p>Difficulty: {latinHAM.difficulty}</p>
-              <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
-              <p>Best Moves: {latinHAM.bestMoves}</p>
-              <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
-            </div>
-          </div>
-          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-full max-w-[288px]">
-            <h3 className="text-lg font-semibold mb-2">Overall Averages</h3>
-            <div className="grid grid-cols-1 gap-4 p-4">
+            <h3 className="text-lg font-semibold mb-2">Grid Info & Averages</h3>
+            <div className="grid grid-cols-2 gap-4 p-4 text-sm text-gray-800 dark:text-gray-300">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Moves</p>
-                <p className="text-lg font-bold">{averages.moves.toFixed(2)}</p>
+                <p>Difficulty: {latinHAM.difficulty}</p>
+                <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
+                <p>Best Moves: {latinHAM.bestMoves}</p>
+                <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold">{formatTime(Math.round(averages.duration))}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Hints</p>
-                <p className="text-lg font-bold">{averages.hints.toFixed(2)}</p>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Moves</p>
+                  <p className="text-lg font-bold">{averages.moves.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
+                  <p className="text-lg font-bold">{formatTime(Math.round(averages.duration))}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Hints</p>
+                  <p className="text-lg font-bold">{averages.hints.toFixed(2)}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -222,6 +231,8 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
                       <TableHead>Moves</TableHead>
                       <TableHead>Time</TableHead>
                       <TableHead>Quote</TableHead>
+                      <TableHead>Time of Day</TableHead>
+                      <TableHead>Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -240,6 +251,8 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
                         <TableCell>{entry.moves}</TableCell>
                         <TableCell>{formatTime(entry.time)}</TableCell>
                         <TableCell className="max-w-xs truncate">{entry.quote || 'No quote provided'}</TableCell>
+                        <TableCell>{formatTimeOfDay(entry.timestamp)}</TableCell>
+                        <TableCell>{formatDate(entry.timestamp)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
