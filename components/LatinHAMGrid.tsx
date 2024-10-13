@@ -46,7 +46,12 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
     )
   }
 
-  if (latinHAMs.length === 0) {
+  // Apply filtering logic here based on difficultyFilter
+  const filteredLatinHAMs = latinHAMs.filter(
+    latinHAM => difficultyFilter === 'all' || latinHAM.difficulty === difficultyFilter
+  );
+
+  if (filteredLatinHAMs.length === 0) {
     return (
       <div className="text-center py-8 text-white">
         No {difficultyFilter !== 'all' ? `${difficultyFilter} ` : ''}LatinHAMs found.
@@ -56,7 +61,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
 
   return (
     <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">        
-      {latinHAMs.map((latinHAM, index) => (
+      {filteredLatinHAMs.map((latinHAM, index) => (
         <div 
           key={`latinHAM-${index}`} 
           className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] cursor-pointer hover:opacity-80 transition-opacity duration-200"
