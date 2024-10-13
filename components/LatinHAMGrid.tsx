@@ -17,7 +17,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
-    return `${minutes}m ${remainingSeconds}s`
+    return `${minutes}m${remainingSeconds}s`
   }
 
   const MiniGameBoard: React.FC<{ initialGrid: number[][] }> = ({ initialGrid }) => {
@@ -69,10 +69,9 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
         >
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
           <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
-            <p>Difficulty: {latinHAM.difficulty}</p>
-            <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
-            <p>Best Moves: {latinHAM.bestMoves} by {latinHAM.bestMovesPlayer || 'Anonymous'}</p>
-            <p>Best Time: {formatTime(latinHAM.bestTime)} by {latinHAM.bestTimePlayer || 'Anonymous'}</p>
+            <p><strong>{`${latinHAM.difficulty.charAt(0).toUpperCase() + latinHAM.difficulty.slice(1)}`}</strong> x {latinHAM.solveCount} {latinHAM.solveCount === 1 ? 'time' : 'times'}</p>
+            <p><strong>{latinHAM.bestMoves} moves</strong> by {latinHAM.bestMovesPlayer || 'Anonymous'}</p>
+            <p><strong>{formatTime(latinHAM.bestTime)} </strong> by {latinHAM.bestTimePlayer || 'Anonymous'}</p>
           </div>
         </div>
       ))}

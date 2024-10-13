@@ -233,10 +233,12 @@ export function UserProfile() {
     <>
       <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
         <CardHeader>
-          <CardTitle>User Profile: {profileData.username}</CardTitle>
+          <div className="text-center">
+            <CardTitle>User Profile: {profileData.username}</CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-6">
+          <div className="text-center mb-6">
             <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
             <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
