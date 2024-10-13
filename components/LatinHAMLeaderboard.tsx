@@ -6,10 +6,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 
 interface LatinHAMLeaderboardProps {
   latinHAM: LatinHAM;
 }
+
+type SortField = 'username' | 'moves' | 'time' | 'quote' | 'timestamp';
+type SortOrder = 'asc' | 'desc';
 
 const ENTRIES_PER_PAGE = 10;
 
@@ -21,6 +25,8 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [uniqueFilter, setUniqueFilter] = useState(false)
+  const [sortField, setSortField] = useState<SortField>('timestamp')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
 
   useEffect(() => {
     const fetchLeaderboardEntries = async () => {
@@ -140,28 +146,45 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
     }
   }, [leaderboardEntries])
 
-  const filteredEntries = useMemo(() => {
-    if (!uniqueFilter) return leaderboardEntries;
+  const sortedAndFilteredEntries = useMemo(() => {
+    let entries = uniqueFilter
+      ? leaderboardEntries.filter((entry, index, self) =>
+          index === self.findIndex((t) => JSON.stringify(t.grid) === JSON.stringify(entry.grid))
+        )
+      : [...leaderboardEntries];
 
-    const uniqueSolutions = new Map();
-    return leaderboardEntries.filter(entry => {
-      const solutionKey = JSON.stringify(entry.grid);
-      if (!uniqueSolutions.has(solutionKey)) {
-        uniqueSolutions.set(solutionKey, entry);
-        return true;
+    return entries.sort((a, b) => {
+      if (sortField === 'timestamp') {
+        return sortOrder === 'asc'
+          ? new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          : new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
       }
-      return false;
+      if (sortField === 'username' || sortField === 'quote') {
+        return sortOrder === 'asc'
+          ? (a[sortField] || '').localeCompare(b[sortField] || '')
+          : (b[sortField] || '').localeCompare(a[sortField] || '');
+      }
+      return sortOrder === 'asc' ? a[sortField] - b[sortField] : b[sortField] - a[sortField];
     });
-  }, [leaderboardEntries, uniqueFilter]);
+  }, [leaderboardEntries, uniqueFilter, sortField, sortOrder]);
 
-  const totalPages = Math.ceil(filteredEntries.length / ENTRIES_PER_PAGE)
-  const paginatedEntries = filteredEntries.slice(
+  const totalPages = Math.ceil(sortedAndFilteredEntries.length / ENTRIES_PER_PAGE)
+  const paginatedEntries = sortedAndFilteredEntries.slice(
     (currentPage - 1) * ENTRIES_PER_PAGE,
     currentPage * ENTRIES_PER_PAGE
   )
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage)
+  }
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortOrder('asc')
+    }
   }
 
   if (isLoading) {
@@ -178,28 +201,21 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
       <div className="flex flex-col items-center md:items-start md:flex-row gap-4 mb-4">
         <div className="w-full md:w-[288px] flex flex-col items-center md:items-start">
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center w-full max-w-[288px]">
-            <h3 className="text-lg font-semibold mb-2">Grid Info & Averages</h3>
-            <div className="grid grid-cols-2 gap-4 p-4 text-sm text-gray-800 dark:text-gray-300">
+          <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-left w-full max-w-[288px]">
+            <h3 className="text-lg font-semibold mb-2 text-center">Grid Info & Averages</h3>
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-800 dark:text-gray-300">
               <div>
+                <h4 className="font-semibold mb-2">Initial Grid Info</h4>
                 <p>Difficulty: {latinHAM.difficulty}</p>
                 <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
                 <p>Best Moves: {latinHAM.bestMoves}</p>
                 <p>Best Time: {formatTime(latinHAM.bestTime)}</p>
               </div>
               <div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Moves</p>
-                  <p className="text-lg font-bold">{averages.moves.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
-                  <p className="text-lg font-bold">{formatTime(Math.round(averages.duration))}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Hints</p>
-                  <p className="text-lg font-bold">{averages.hints.toFixed(2)}</p>
-                </div>
+                <h4 className="font-semibold mb-2">Overall Averages</h4>
+                <p>Avg. Moves: {averages.moves.toFixed(2)}</p>
+                <p>Avg. Duration: {formatTime(Math.round(averages.duration))}</p>
+                <p>Avg. Hints: {averages.hints.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -227,12 +243,24 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
                   <TableHeader>
                     <TableRow>
                       <TableHead>LatinHAM</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Moves</TableHead>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Quote</TableHead>
-                      <TableHead>Time of Day</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead onClick={() => handleSort('username')} className="cursor-pointer">
+                        User {sortField === 'username' && (sortOrder === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                      </TableHead>
+                      <TableHead onClick={() => handleSort('moves')} className="cursor-pointer">
+                        Moves {sortField === 'moves' && (sortOrder === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                      </TableHead>
+                      <TableHead onClick={() => handleSort('time')} className="cursor-pointer">
+                        Time {sortField === 'time' && (sortOrder === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                      </TableHead>
+                      <TableHead onClick={() => handleSort('quote')} className="cursor-pointer">
+                        Quote {sortField === 'quote' && (sortOrder === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                      </TableHead>
+                      <TableHead onClick={() => handleSort('timestamp')} className="cursor-pointer">
+                        Time of Day {sortField === 'timestamp' && (sortOrder === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                      </TableHead>
+                      <TableHead onClick={() => handleSort('timestamp')} className="cursor-pointer">
+                        Date {sortField === 'timestamp' && (sortOrder === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -251,6 +279,7 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
                         <TableCell>{entry.moves}</TableCell>
                         <TableCell>{formatTime(entry.time)}</TableCell>
                         <TableCell className="max-w-xs truncate">{entry.quote || 'No quote provided'}</TableCell>
+                        
                         <TableCell>{formatTimeOfDay(entry.timestamp)}</TableCell>
                         <TableCell>{formatDate(entry.timestamp)}</TableCell>
                       </TableRow>
