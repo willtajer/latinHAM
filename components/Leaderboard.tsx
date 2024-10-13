@@ -141,11 +141,11 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
           </div>
           <div>
             <p className="text-sm text-gray-400">Avg. Duration</p>
-            <p className="text-lg font-bold text-white dark:text-gray-100">{formatDuration(Math.round(averages.duration))}</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatDuration(Math.round(averages.duration))}</p>
           </div>
           <div>
             <p className="text-sm text-gray-400">Avg. Hints</p>
-            <p className="text-lg font-bold text-white dark:text-gray-100">{averages.hints.toFixed(2)}</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{averages.hints.toFixed(2)}</p>
           </div>
         </div>
       </div>

@@ -141,7 +141,7 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
         return true;
       }
       const existingEntry = uniqueSolutions.get(solutionKey);
-      if (entry.timestamp < existingEntry.timestamp) {
+      if (new Date(entry.timestamp).getTime() < new Date(existingEntry.timestamp).getTime()) {
         uniqueSolutions.set(solutionKey, entry);
         return true;
       }
@@ -169,7 +169,7 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full">
-      <h2 className="text-2xl text-center font-bold mb-4">LatinHAM Leaderboard</h2>
+      <h2 className="text-2xl font-bold mb-4">LatinHAM Leaderboard</h2>
       <div className="flex flex-col items-center md:items-start md:flex-row gap-4 mb-4">
         <div className="w-full md:w-[288px] flex flex-col items-center md:items-start">
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
