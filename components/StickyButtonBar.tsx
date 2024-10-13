@@ -186,7 +186,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                         </h1>
                       </Link>
                       <GamePreview />
-                      <h2 className="text-2xl font-semibold text-center text-white sm:mt-8 md:mt-12 mb-4">Learning Mode</h2>
+                      <h2 className="text-2xl font-semibold text-center text-white sm:mt-8 md:mt-8 mb-4">Learning Mode</h2>
                       <p className="text-center text-white mt-4">
                         {isLearningComplete
                           ? "Great job! You've mastered the basics of Latin squares."
