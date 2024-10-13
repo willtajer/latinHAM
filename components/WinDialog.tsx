@@ -37,7 +37,8 @@ export const WinDialog: React.FC<WinDialogProps> = ({
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
   const [quoteSubmitted, setQuoteSubmitted] = useState(false)
-  const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(entry || null)
+  // Remove this line
+  // const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(entry || null)
 
   const handleDownload = () => {
     if (imageDataUrl) {
@@ -57,31 +58,18 @@ export const WinDialog: React.FC<WinDialogProps> = ({
     }
   }
 
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && showQuoteInput && !quoteSubmitted) {
-      // If closing without submitting a quote, submit an empty quote
-      onSubmit("")
-      setQuoteSubmitted(true)
-    }
-    onOpenChange(newOpen)
-  }
+  // Removed handleOpenChange function
 
   const handleSubmitQuote = () => {
     onSubmit(quote)
     setQuoteSubmitted(true)
-    // Ensure entry is defined before accessing its properties
-    if (entry) {
-      setSelectedGame({
-        ...entry,
-        quote: quote
-      })
-    }
   }
 
   return (
     <Dialog open={open} onOpenChange={(newOpen) => {
       if (!newOpen && showQuoteInput && !quoteSubmitted) {
-        handleSubmitQuote()
+        onSubmit("")
+        setQuoteSubmitted(true)
       }
       onOpenChange(newOpen)
     }}>
