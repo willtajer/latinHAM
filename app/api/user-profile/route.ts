@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     const result = await sql`
       SELECT 
-        le.*, 
+        le.id, le.difficulty, le.moves, le.time, le.grid, le.initial_grid, le.quote, le.hints, le.timestamp,
         up.username,
         up.created_at AS user_created_at
       FROM 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       WHERE
         le.user_id = ${userId}
       ORDER BY 
-        le.created_at DESC
+        le.timestamp DESC
       LIMIT 10
     `
 
@@ -39,7 +39,10 @@ export async function GET(request: Request) {
         moves: row.moves,
         time: row.time,
         hints: row.hints,
-        created_at: row.created_at
+        created_at: row.timestamp,
+        grid: row.grid.split(',').map(Number),
+        initialGrid: row.initial_grid.split(',').map(Number),
+        quote: row.quote
       }))
     }
 

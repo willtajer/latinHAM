@@ -21,8 +21,10 @@ interface GameEntry {
   difficulty: 'easy' | 'medium' | 'hard'
   moves: number
   time: number
-  grid: number[][]
-  initialGrid: number[][]
+  hints: number
+  grid: number[]
+  initialGrid: number[]
+  quote: string
   created_at: string
 }
 
@@ -41,7 +43,7 @@ const colorClasses = [
   'bg-orange-500',
 ]
 
-const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
+const MiniProgressBar: React.FC<{ grid: number[] }> = ({ grid }) => {
   if (!Array.isArray(grid) || grid.length === 0) {
     console.error('Invalid grid data:', grid)
     return null
@@ -49,15 +51,11 @@ const MiniProgressBar: React.FC<{ grid: number[][] }> = ({ grid }) => {
 
   return (
     <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
-      {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex">
-          {row.map((cell, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
-            />
-          ))}
-        </div>
+      {grid.map((cell, index) => (
+        <div
+          key={index}
+          className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
+        />
       ))}
     </div>
   )
@@ -190,6 +188,8 @@ export function UserProfile() {
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
+              <TableHead>Hints</TableHead>
+              <TableHead>Quote</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -206,6 +206,8 @@ export function UserProfile() {
                 </TableCell>
                 <TableCell>{game.moves}</TableCell>
                 <TableCell>{formatDuration(game.time)}</TableCell>
+                <TableCell>{game.hints}</TableCell>
+                <TableCell>{game.quote}</TableCell>
               </TableRow>
             ))}
           </TableBody>
