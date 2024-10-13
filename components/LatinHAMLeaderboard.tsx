@@ -140,11 +140,6 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
         uniqueSolutions.set(solutionKey, entry);
         return true;
       }
-      const existingEntry = uniqueSolutions.get(solutionKey);
-      if (new Date(entry.timestamp).getTime() < new Date(existingEntry.timestamp).getTime()) {
-        uniqueSolutions.set(solutionKey, entry);
-        return true;
-      }
       return false;
     });
   }, [leaderboardEntries, uniqueFilter]);
