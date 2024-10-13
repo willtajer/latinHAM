@@ -37,8 +37,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
 }) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
   const [quoteSubmitted, setQuoteSubmitted] = useState(false)
-  // Remove this line
-  // const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(entry || null)
 
   const handleDownload = () => {
     if (imageDataUrl) {
@@ -58,20 +56,24 @@ export const WinDialog: React.FC<WinDialogProps> = ({
     }
   }
 
-  // Removed handleOpenChange function
-
   const handleSubmitQuote = () => {
     onSubmit(quote)
     setQuoteSubmitted(true)
+    onOpenChange(false) // Close the dialog after submitting
   }
 
   return (
     <Dialog open={open} onOpenChange={(newOpen) => {
-      if (!newOpen && showQuoteInput && !quoteSubmitted) {
-        onSubmit("")
-        setQuoteSubmitted(true)
+      if (!newOpen) {
+        if (showQuoteInput && !quoteSubmitted) {
+          // If closing without submitting a quote, submit an empty quote
+          onSubmit("")
+          setQuoteSubmitted(true)
+        }
+        onOpenChange(false)
+      } else {
+        onOpenChange(true)
       }
-      onOpenChange(newOpen)
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -93,7 +95,10 @@ export const WinDialog: React.FC<WinDialogProps> = ({
             </div>
             <DialogFooter className="flex justify-center">
               <Button 
-                onClick={handleSubmitQuote} 
+                onClick={() => {
+                  handleSubmitQuote()
+                  onOpenChange(false)
+                }} 
                 className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
                 disabled={isSubmitting}
               >
