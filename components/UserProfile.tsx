@@ -30,8 +30,8 @@ interface GameEntry {
   moves: number
   time: number
   hints: number
-  grid: number[]
-  initialGrid: number[]
+  grid: number[][]
+  initialGrid: number[][]
   quote: string
   created_at: string
 }
@@ -51,7 +51,7 @@ const colorClasses = [
   'bg-orange-500',
 ]
 
-const MiniProgressBar: React.FC<{ grid: number[], onClick: () => void }> = ({ grid, onClick }) => {
+const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ grid, onClick }) => {
   if (!Array.isArray(grid) || grid.length === 0) {
     console.error('Invalid grid data:', grid)
     return null
@@ -60,7 +60,7 @@ const MiniProgressBar: React.FC<{ grid: number[], onClick: () => void }> = ({ gr
   return (
     <button onClick={onClick} className="w-full">
       <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
-        {grid.map((cell, index) => (
+        {grid.flat().map((cell, index) => (
           <div
             key={index}
             className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
@@ -92,7 +92,16 @@ export function UserProfile() {
           throw new Error('Failed to fetch user profile')
         }
         const data = await response.json()
-        setProfileData(data)
+        // Ensure grid and initialGrid are 2D arrays
+        const processedData = {
+          ...data,
+          games: data.games.map((game: any) => ({
+            ...game,
+            grid: Array.isArray(game.grid[0]) ? game.grid : convertTo2DArray(game.grid),
+            initialGrid: Array.isArray(game.initialGrid[0]) ? game.initialGrid : convertTo2DArray(game.initialGrid),
+          }))
+        }
+        setProfileData(processedData)
       } catch (err) {
         setError('Error loading profile data')
         console.error(err)
@@ -103,6 +112,14 @@ export function UserProfile() {
 
     fetchUserProfile()
   }, [user])
+
+  const convertTo2DArray = (arr: number[]) => {
+    const result = []
+    for (let i = 0; i < arr.length; i += 6) {
+      result.push(arr.slice(i, i + 6))
+    }
+    return result
+  }
 
   const handleSort = (column: 'date' | 'moves' | 'time') => {
     if (sortColumn === column) {
@@ -270,18 +287,6 @@ export function UserProfile() {
             <CompletedPuzzleCard
               entry={{
                 ...selectedGame,
-                grid: selectedGame.grid.reduce((acc, val, i) => {
-                  const row = Math.floor(i / 6);
-                  if (!acc[row]) acc[row] = [];
-                  acc[row].push(val);
-                  return acc;
-                }, [] as number[][]),
-                initialGrid: selectedGame.initialGrid.reduce((acc, val, i) => {
-                  const row = Math.floor(i / 6);
-                  if (!acc[row]) acc[row] = [];
-                  acc[row].push(val);
-                  return acc;
-                }, [] as number[][]),
                 timestamp: selectedGame.created_at
               }}
               difficulty={selectedGame.difficulty}
