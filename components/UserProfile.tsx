@@ -86,7 +86,7 @@ export function UserProfile() {
   const [profileData, setProfileData] = useState<UserProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [sortColumn, setSortColumn] = useState<'date' | 'moves' | 'time' | 'hints' | 'quote'>('date')
+  const [sortColumn, setSortColumn] = useState<'date' | 'moves' | 'time' | 'hints' | 'duration' | 'quote'>('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<GameEntry | null>(null)
@@ -137,7 +137,7 @@ export function UserProfile() {
     return result
   }
 
-  const handleSort = (column: 'date' | 'moves' | 'time' | 'hints' | 'quote') => {
+  const handleSort = (column: 'date' | 'moves' | 'time' | 'hints' | 'duration' | 'quote') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -180,10 +180,14 @@ export function UserProfile() {
         compareValue = a.moves - b.moves;
         break;
       case 'time':
-        compareValue = a.time - b.time;
+        compareValue = new Date(a.created_at).getHours() * 60 + new Date(a.created_at).getMinutes() - 
+                       (new Date(b.created_at).getHours() * 60 + new Date(b.created_at).getMinutes());
         break;
       case 'hints':
         compareValue = a.hints - b.hints;
+        break;
+      case 'duration':
+        compareValue = a.time - b.time;
         break;
       case 'quote':
         compareValue = a.quote.localeCompare(b.quote);
@@ -252,7 +256,15 @@ export function UserProfile() {
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-24">Duration</TableHead>
+                <TableHead 
+                  className="w-24 cursor-pointer"
+                  onClick={() => handleSort('duration')}
+                >
+                  Duration
+                  {sortColumn === 'duration' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
                 <TableHead 
                   className="w-40 cursor-pointer"
                   onClick={() => handleSort('quote')}
