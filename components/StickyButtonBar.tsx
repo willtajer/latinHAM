@@ -56,9 +56,9 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
   const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning') => {
     const colors = {
-      discovered: { light: 'bg-yellow-100', dark: 'bg-yellow-900' },
-      leaderboard: { light: 'bg-green-100', dark: 'bg-green-900' },
-      learning: { light: 'bg-blue-100', dark: 'bg-blue-900' },
+      discovered: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
+      leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
+      learning: { light: 'bg-blue-500', dark: 'bg-slate-950' },
     }
 
     const color = colors[overlayType]
