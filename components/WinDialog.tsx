@@ -95,7 +95,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                   onOpenChange(true); // Ensure dialog stays open during submission
                   onSubmit(quote);
                 }} 
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : (quote.trim() ? "Submit" : "Skip")}
