@@ -138,8 +138,6 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
       <h2 className="text-2xl font-bold mb-4 text-center text-white mx-auto">
         {difficulty === 'all' ? 'All Difficulties' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} latinHAM Leaderboard
       </h2>
-      <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
-
       <div className="mb-4 flex justify-center space-x-2">
         <Button
           onClick={() => onDifficultyChange('all')}
@@ -166,23 +164,24 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
           Hard
         </Button>
       </div>
+      <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
 
-      <div className="bg-gray-800 p-4 rounded-lg mb-6">
-        <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-gray-100">
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+        <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
           {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
         </h3>
         <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
           <div>
-            <p className="text-sm text-gray-400">Avg. Moves</p>
-            <p className="text-lg font-bold text-white">{averages.moves.toFixed(2)}</p>
+            <p className="text-sm text-gray-800 dark:text-gray-400">Avg. Moves</p>
+            <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-400">Avg. Duration</p>
-            <p className="text-lg font-bold text-white">{formatDuration(Math.round(averages.duration))}</p>
+            <p className="text-sm text-gray-800 dark:text-gray-400">Avg. Duration</p>
+            <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-400">Avg. Hints</p>
-            <p className="text-lg font-bold text-white">{averages.hints.toFixed(2)}</p>
+            <p className="text-sm text-gray-800 dark:text-gray-400">Avg. Hints</p>
+            <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
           </div>
         </div>
       </div>
@@ -192,7 +191,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
           <TableHeader>
             <TableRow>
               <TableHead
-                className="w-16 text-center cursor-pointer"
+                className="w-16 text-center text-white cursor-pointer"
                 onClick={() => handleSort('rank')}
               >
                 Rank
@@ -200,9 +199,9 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">latinHAM</TableHead>
+              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center text-white">latinHAM</TableHead>
               <TableHead
-                className="w-32 text-center cursor-pointer"
+                className="w-32 text-center text-white cursor-pointer"
                 onClick={() => handleSort('user')}
               >
                 User
@@ -211,7 +210,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                 )}
               </TableHead>
               <TableHead
-                className="w-24 text-center cursor-pointer"
+                className="w-24 text-center text-white cursor-pointer"
                 onClick={() => handleSort('moves')}
               >
                 Moves
@@ -220,7 +219,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                 )}
               </TableHead>
               <TableHead
-                className="w-24 text-center cursor-pointer"
+                className="w-24 text-center text-white cursor-pointer"
                 onClick={() => handleSort('time')}
               >
                 Time
@@ -229,7 +228,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                 )}
               </TableHead>
               <TableHead
-                className="w-24 text-center cursor-pointer"
+                className="w-24 text-center text-white cursor-pointer"
                 onClick={() => handleSort('hints')}
               >
                 Hints
@@ -238,7 +237,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                 )}
               </TableHead>
               <TableHead
-                className="w-32 text-center cursor-pointer"
+                className="w-32 text-center text-white cursor-pointer"
                 onClick={() => handleSort('duration')}
               >
                 Duration
@@ -247,7 +246,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                 )}
               </TableHead>
               <TableHead
-                className="w-24 text-center cursor-pointer"
+                className="w-24 text-center text-white cursor-pointer"
                 onClick={() => handleSort('difficulty')}
               >
                 Difficulty
@@ -273,14 +272,14 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
                       <div>No grid data</div>
                     )}
                   </TableCell>
-                  <TableCell className="text-center align-middle">{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
-                  <TableCell className="text-center align-middle">
-                    {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <TableCell className="text-center text-gray-50 align-middle">{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell className="text-center text-gray-50 align-middle">{entry.moves}</TableCell>
+                  <TableCell className="text-center text-gray-50 align-middle">
+                    {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </TableCell>
-                  <TableCell className="text-center align-middle">{entry.hints || 0}</TableCell>
-                  <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
-                  <TableCell className="text-center align-middle">
+                  <TableCell className="text-center text-gray-50 align-middle">{entry.hints || 0}</TableCell>
+                  <TableCell className="text-center text-gray-50 align-middle">{formatDuration(entry.time)}</TableCell>
+                  <TableCell className="text-center text-gray-50 align-middle">
                     {entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1)}
                   </TableCell>
                 </TableRow>

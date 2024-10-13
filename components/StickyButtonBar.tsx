@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
-import { Play, Grid, Trophy, HelpCircle, User, X } from "lucide-react"
+import { Play, Grid, Trophy, HelpCircle, User, X, Award } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
@@ -19,7 +19,7 @@ interface StickyButtonBarProps {
 
 export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps) {
   const { theme } = useTheme()
-  const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning' | 'profile'>('none')
+  const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'quests'>('none')
   const [isLearningComplete, setIsLearningComplete] = useState(false)
   const [learningKey, setLearningKey] = useState(0)
 
@@ -27,7 +27,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     onStartNewGame()
   }
 
-  const toggleOverlay = (overlay: 'discovered' | 'leaderboard' | 'learning' | 'profile') => {
+  const toggleOverlay = (overlay: 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'quests') => {
     setActiveOverlay(prev => prev === overlay ? 'none' : overlay)
   }
 
@@ -50,12 +50,13 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     exit: { opacity: 0, y: '100%' }
   }
 
-  const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning' | 'profile') => {
+  const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'quests') => {
     const colors = {
       discovered: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
       leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
       learning: { light: 'bg-purple-500', dark: 'bg-slate-950' },
       profile: { light: 'bg-blue-500', dark: 'bg-slate-950' },
+      quests: { light: 'bg-orange-500', dark: 'bg-slate-950' },
     }
 
     const color = colors[overlayType]
@@ -67,7 +68,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
   return (
     <>
       <div className="fixed bottom-0 left-0 w-full sm:bottom-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:w-auto z-[60]">
-        <div className="bg-gray-200 dark:bg-gray-900 bg-opacity-70 backdrop-blur-md text-white py-4 px-4 sm:py-2 sm:px-4 sm:rounded-full shadow-lg flex justify-center items-center w-full sm:w-auto">
+        <div className="bg-gray-950 bg-opacity-70 backdrop-blur-md text-white py-4 px-4 sm:py-2 sm:px-4 sm:rounded-full shadow-lg flex justify-center items-center w-full sm:w-auto">
           <div className="flex justify-center space-x-2">
             <Button
               variant="ghost"
@@ -80,6 +81,15 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               aria-label="Start New Game"
             >
               <Play className="h-6 w-6" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-orange-500 hover:bg-gray-700 text-white hover:text-orange-500"
+              onClick={() => toggleOverlay('quests')}
+              aria-label="Quests"
+            >
+              <Award className="h-6 w-6" />
             </Button>
             <Button
               variant="ghost"
@@ -154,7 +164,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                     LatinHAM Leaderboard
                   </h1>
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-[calc(6*3rem+6*0.75rem)] mt-4 mb-4">
+                    <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
                       <GamePreview />
                     </div>
                   </div>
@@ -219,6 +229,16 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               {activeOverlay === 'profile' && (
                 <div className="max-w-6xl mx-auto pt-16">
                   <UserProfile />
+                </div>
+              )}
+              {activeOverlay === 'quests' && (
+                <div className="max-w-6xl mx-auto pt-16">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
+                    Quests
+                  </h1>
+                  <div className="flex flex-col items-center justify-center">
+                    <p className="text-2xl text-white">Coming Soon</p>
+                  </div>
                 </div>
               )}
             </div>
