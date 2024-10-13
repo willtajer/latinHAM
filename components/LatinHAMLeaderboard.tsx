@@ -162,10 +162,10 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
       <Button variant="secondary" className="mb-8 mx-auto block">Back to Grid</Button>
       <div className="flex flex-col items-center gap-8 mb-8">
         <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-[480px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-[400px]">
           <div className="bg-gray-800 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-2 text-center">Initial Grid Info</h3>
-            <div className="grid grid-cols-1 gap-2 text-sm text-center">
+            <div className="grid grid-cols-1 gap-2 text-center text-sm">
               <p>Difficulty: {latinHAM.difficulty}</p>
               <p>Solved: {latinHAM.solveCount} time{latinHAM.solveCount !== 1 ? 's' : ''}</p>
               <p>Best Moves: {latinHAM.bestMoves}</p>
