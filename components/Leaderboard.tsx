@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import {
@@ -104,6 +104,19 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
     currentPage * entriesPerPage
   )
 
+  const averages = useMemo(() => {
+    const totalMoves = entries.reduce((sum, entry) => sum + entry.moves, 0)
+    const totalDuration = entries.reduce((sum, entry) => sum + entry.time, 0)
+    const totalHints = entries.reduce((sum, entry) => sum + (entry.hints || 0), 0)
+    const count = entries.length
+
+    return {
+      moves: count > 0 ? totalMoves / count : 0,
+      duration: count > 0 ? totalDuration / count : 0,
+      hints: count > 0 ? totalHints / count : 0,
+    }
+  }, [entries])
+
   if (entries.length === 0) {
     return (
       <div className="w-full max-w-5xl mx-auto px-4 mb-20">
@@ -118,6 +131,25 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
     <div className="w-full max-w-5xl mx-auto px-4 mb-20">
       <h2 className="text-2xl font-bold mb-4 text-center text-white">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAM Leaderboard</h2>
       <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
+      
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-400 text-center">Overall Averages</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-400">{averages.moves.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-400">{formatDuration(Math.round(averages.duration))}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-400">{averages.hints.toFixed(2)}</p>
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <Table className="w-full">
           <TableHeader>

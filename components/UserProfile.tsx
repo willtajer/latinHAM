@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
@@ -156,6 +156,20 @@ export function UserProfile() {
     setSelectedGame(game)
   }
 
+  const averages = useMemo(() => {
+    if (!profileData || profileData.games.length === 0) return null;
+    const totalMoves = profileData.games.reduce((sum, game) => sum + game.moves, 0)
+    const totalDuration = profileData.games.reduce((sum, game) => sum + game.time, 0)
+    const totalHints = profileData.games.reduce((sum, game) => sum + game.hints, 0)
+    const count = profileData.games.length
+
+    return {
+      moves: totalMoves / count,
+      duration: totalDuration / count,
+      hints: totalHints / count,
+    }
+  }, [profileData])
+
   if (isLoading) {
     return <LoadingSkeleton />
   }
@@ -215,6 +229,27 @@ export function UserProfile() {
             <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
             <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
+
+          {averages && (
+            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-400 text-center">Overall Averages</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-400">{averages.moves.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-400">{formatDuration(Math.round(averages.duration))}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-400">{averages.hints.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
