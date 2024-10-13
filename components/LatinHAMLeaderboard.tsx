@@ -147,7 +147,7 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
   }, [leaderboardEntries])
 
   const sortedAndFilteredEntries = useMemo(() => {
-    let entries = uniqueFilter
+    const entries = uniqueFilter
       ? leaderboardEntries.filter((entry, index, self) =>
           index === self.findIndex((t) => JSON.stringify(t.grid) === JSON.stringify(entry.grid))
         )
@@ -197,12 +197,11 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full">
-      <h2 className="text-2xl font-bold mb-4">LatinHAM Leaderboard</h2>
       <div className="flex flex-col items-center md:items-start md:flex-row gap-4 mb-4">
         <div className="w-full md:w-[288px] flex flex-col items-center md:items-start">
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
           <div className="mt-4 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-left w-full max-w-[288px]">
-            <h3 className="text-lg font-semibold mb-2 text-center">latinHAM Info & Averages</h3>
+            <h3 className="text-lg font-semibold mb-2 text-center">Info & Averages</h3>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-800 dark:text-gray-300">
               <div>
                 <p>Difficulty: {latinHAM.difficulty}</p>
