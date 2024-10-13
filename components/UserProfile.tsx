@@ -22,6 +22,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 
 interface GameEntry {
@@ -90,6 +91,7 @@ export function UserProfile() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<GameEntry | null>(null)
+  const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
   const entriesPerPage = 10
 
   useEffect(() => {
@@ -170,6 +172,46 @@ export function UserProfile() {
     }
   }, [profileData])
 
+  const filteredAndSortedGames = useMemo(() => {
+    let filtered = profileData ? profileData.games : [];
+    if (difficultyFilter !== 'all') {
+      filtered = filtered.filter(game => game.difficulty === difficultyFilter);
+    }
+    return filtered.sort((a, b) => {
+      let compareValue: number;
+      switch (sortColumn) {
+        case 'date':
+          compareValue = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        case 'moves':
+          compareValue = a.moves - b.moves;
+          break;
+        case 'time':
+          compareValue = new Date(a.created_at).getHours() * 60 + new Date(a.created_at).getMinutes() - 
+                         (new Date(b.created_at).getHours() * 60 + new Date(b.created_at).getMinutes());
+          break;
+        case 'hints':
+          compareValue = a.hints - b.hints;
+          break;
+        case 'duration':
+          compareValue = a.time - b.time;
+          break;
+        case 'quote':
+          compareValue = a.quote.localeCompare(b.quote);
+          break;
+        default:
+          compareValue = 0;
+      }
+      return sortDirection === 'asc' ? compareValue : -compareValue
+    });
+  }, [profileData, difficultyFilter, sortColumn, sortDirection]);
+
+  const totalPages = Math.ceil(filteredAndSortedGames.length / entriesPerPage)
+  const paginatedGames = filteredAndSortedGames.slice(
+    (currentPage - 1) * entriesPerPage,
+    currentPage * entriesPerPage
+  )
+
   if (isLoading) {
     return <LoadingSkeleton />
   }
@@ -183,40 +225,6 @@ export function UserProfile() {
       </Card>
     )
   }
-
-  const sortedGames = [...profileData.games].sort((a, b) => {
-    let compareValue: number;
-    switch (sortColumn) {
-      case 'date':
-        compareValue = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        break;
-      case 'moves':
-        compareValue = a.moves - b.moves;
-        break;
-      case 'time':
-        compareValue = new Date(a.created_at).getHours() * 60 + new Date(a.created_at).getMinutes() - 
-                       (new Date(b.created_at).getHours() * 60 + new Date(b.created_at).getMinutes());
-        break;
-      case 'hints':
-        compareValue = a.hints - b.hints;
-        break;
-      case 'duration':
-        compareValue = a.time - b.time;
-        break;
-      case 'quote':
-        compareValue = a.quote.localeCompare(b.quote);
-        break;
-      default:
-        compareValue = 0;
-    }
-    return sortDirection === 'asc' ? compareValue : -compareValue
-  })
-
-  const totalPages = Math.ceil(sortedGames.length / entriesPerPage)
-  const paginatedGames = sortedGames.slice(
-    (currentPage - 1) * entriesPerPage,
-    currentPage * entriesPerPage
-  )
 
   return (
     <>
@@ -249,6 +257,33 @@ export function UserProfile() {
               </div>
             </div>
           )}
+
+          <div className="mb-4 flex justify-center space-x-2">
+            <Button
+              onClick={() => setDifficultyFilter('all')}
+              variant={difficultyFilter === 'all' ? 'default' : 'outline'}
+            >
+              All
+            </Button>
+            <Button
+              onClick={() => setDifficultyFilter('easy')}
+              variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
+            >
+              Easy
+            </Button>
+            <Button
+              onClick={() => setDifficultyFilter('medium')}
+              variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
+            >
+              Medium
+            </Button>
+            <Button
+              onClick={() => setDifficultyFilter('hard')}
+              variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
+            >
+              Hard
+            </Button>
+          </div>
 
           <Table className="w-full table-fixed">
             <TableHeader>
@@ -323,7 +358,7 @@ export function UserProfile() {
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatTime(game.created_at)}</TableCell>
+                  <TableCell  className="p-1 text-sm">{formatTime(game.created_at)}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>

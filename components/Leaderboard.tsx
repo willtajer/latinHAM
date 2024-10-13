@@ -15,7 +15,7 @@ import { LeaderboardEntry } from '@/types'
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: "all" | "easy" | "medium" | "hard";
   onViewCompletedBoard: (entry: LeaderboardEntry) => void;
 }
 
@@ -53,7 +53,7 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 }
 
 export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: LeaderboardProps) {
-  const [sortColumn, setSortColumn] = useState<'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration'>('rank')
+  const [sortColumn, setSortColumn] = useState<'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration' | 'difficulty'>('rank')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
   const entriesPerPage = 10
@@ -64,7 +64,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const handleSort = (column: 'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration') => {
+  const handleSort = (column: 'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration' | 'difficulty') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -91,6 +91,9 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
         break;
       case 'duration':
         compareValue = a.time - b.time;
+        break;
+      case 'difficulty':
+        compareValue = a.difficulty.localeCompare(b.difficulty);
         break;
       default:
         compareValue = 0;
@@ -121,7 +124,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
     return (
       <div className="w-full max-w-5xl mx-auto px-4 mb-20">
         <h2 className="text-2xl font-bold mb-4 text-center">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAM Leaderboard</h2>
-        <p className="text-center">No entries available for {difficulty} difficulty.</p>
+        <p className="text-center">No entries available {difficulty === 'all' ? 'across all difficulties' : `for ${difficulty} difficulty`}. </p>
         <p className="text-center">Sign in to rank on the leaderboard.</p>
       </div>
     )
@@ -129,23 +132,25 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 mb-20">
-      <h2 className="text-2xl font-bold mb-4 text-center text-white">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAM Leaderboard</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-white">
+        {difficulty === 'all' ? 'All Difficulties' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} latinHAM Leaderboard
+      </h2>
       <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
-      
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-        <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">Overall Averages</h3>
+
+      <div className="bg-gray-800 p-4 rounded-lg mb-6">
+        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-400">Overall Averages</h3>
         <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
           <div>
             <p className="text-sm text-gray-400">Avg. Moves</p>
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{averages.moves.toFixed(2)}</p>
+            <p className="text-lg font-bold text-white">{averages.moves.toFixed(2)}</p>
           </div>
           <div>
             <p className="text-sm text-gray-400">Avg. Duration</p>
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatDuration(Math.round(averages.duration))}</p>
+            <p className="text-lg font-bold text-white">{formatDuration(Math.round(averages.duration))}</p>
           </div>
           <div>
             <p className="text-sm text-gray-400">Avg. Hints</p>
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{averages.hints.toFixed(2)}</p>
+            <p className="text-lg font-bold text-white">{averages.hints.toFixed(2)}</p>
           </div>
         </div>
       </div>
@@ -154,7 +159,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
         <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead 
+              <TableHead
                 className="w-16 text-center cursor-pointer"
                 onClick={() => handleSort('rank')}
               >
@@ -164,7 +169,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                 )}
               </TableHead>
               <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">latinHAM</TableHead>
-              <TableHead 
+              <TableHead
                 className="w-32 text-center cursor-pointer"
                 onClick={() => handleSort('user')}
               >
@@ -173,7 +178,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="w-24 text-center cursor-pointer"
                 onClick={() => handleSort('moves')}
               >
@@ -182,7 +187,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="w-24 text-center cursor-pointer"
                 onClick={() => handleSort('time')}
               >
@@ -191,7 +196,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="w-24 text-center cursor-pointer"
                 onClick={() => handleSort('hints')}
               >
@@ -200,12 +205,21 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
-              <TableHead 
+              <TableHead
                 className="w-32 text-center cursor-pointer"
                 onClick={() => handleSort('duration')}
               >
                 Duration
                 {sortColumn === 'duration' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead
+                className="w-24 text-center cursor-pointer"
+                onClick={() => handleSort('difficulty')}
+              >
+                Difficulty
+                {sortColumn === 'difficulty' && (
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
@@ -219,8 +233,8 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
                   <TableCell className="text-center py-2">
                     {entry.grid ? (
-                      <MiniProgressBar 
-                        grid={entry.grid} 
+                      <MiniProgressBar
+                        grid={entry.grid}
                         onClick={() => onViewCompletedBoard(entry)}
                       />
                     ) : (
@@ -230,10 +244,13 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   <TableCell className="text-center align-middle">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
                   <TableCell className="text-center align-middle">
-                    {new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </TableCell>
                   <TableCell className="text-center align-middle">{entry.hints || 0}</TableCell>
                   <TableCell className="text-center align-middle">{formatDuration(entry.time)}</TableCell>
+                  <TableCell className="text-center align-middle">
+                    {entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1)}
+                  </TableCell>
                 </TableRow>
               )
             })}
@@ -244,7 +261,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
         <Pagination className="mt-4">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious 
+              <PaginationPrevious
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
               />
@@ -260,7 +277,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
               </PaginationItem>
             ))}
             <PaginationItem>
-              <PaginationNext 
+              <PaginationNext
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
               />
