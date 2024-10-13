@@ -71,6 +71,11 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
   )
 }
 
+const formatDateTime = (dateString: string) => {
+  const date = new Date(dateString);
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
+
 export function UserProfile() {
   const { user } = useUser()
   const [profileData, setProfileData] = useState<UserProfileData | null>(null)
@@ -201,7 +206,7 @@ export function UserProfile() {
                 <TableHead className="w-16">latinHAM</TableHead>
                 <TableHead className="w-20">Difficulty</TableHead>
                 <TableHead 
-                  className="w-28 cursor-pointer"
+                  className="w-36 cursor-pointer"
                   onClick={() => handleSort('date')}
                 >
                   Date
@@ -242,11 +247,11 @@ export function UserProfile() {
                       {game.difficulty}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-2 text-sm">{new Date(game.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell className="p-2 text-center">{game.moves}</TableCell>
-                  <TableCell className="p-2 text-center">{game.hints}</TableCell>
-                  <TableCell className="p-2 text-sm">{formatDuration(game.time)}</TableCell>
-                  <TableCell className="p-2 text-sm truncate">{game.quote}</TableCell>
+                  <TableCell className="p-1 text-sm">{formatDateTime(game.created_at)}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
+                  <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>
+                  <TableCell className="p-1 text-sm truncate">{game.quote}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
