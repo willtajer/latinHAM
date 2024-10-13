@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronUp, ChevronDown } from 'lucide-react'
@@ -199,7 +199,7 @@ export function UserProfile() {
             <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
           <Table className="w-full table-fixed">
-            <TableHead>
+            <TableHeader>
               <TableRow>
                 <TableHead className="w-16">latinHAM</TableHead>
                 <TableHead 
@@ -233,7 +233,7 @@ export function UserProfile() {
                 <TableHead className="w-16">Hints</TableHead>
                 <TableHead className="w-40">Quote</TableHead>
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {paginatedGames.map((game) => (
                 <TableRow key={game.id}>
