@@ -52,11 +52,11 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
   const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'quests') => {
     const colors = {
-      discovered: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
+      discovered: { light: 'bg-orange-500', dark: 'bg-slate-950' },
       leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
       learning: { light: 'bg-purple-500', dark: 'bg-slate-950' },
       profile: { light: 'bg-blue-500', dark: 'bg-slate-950' },
-      quests: { light: 'bg-orange-500', dark: 'bg-slate-950' },
+      quests: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
     }
 
     const color = colors[overlayType]
@@ -85,20 +85,20 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-orange-500 hover:bg-gray-700 text-white hover:text-orange-500"
-              onClick={() => toggleOverlay('quests')}
-              aria-label="Quests"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-orange-500 hover:bg-gray-700 text-white hover:text-oragne-500"
+              onClick={() => toggleOverlay('discovered')}
+              aria-label="View Discovered LatinHAMs"
             >
-              <Award className="h-6 w-6" />
+              <Grid className="h-6 w-6" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 hover:bg-gray-700 text-white hover:text-yellow-500"
-              onClick={() => toggleOverlay('discovered')}
-              aria-label="View Discovered LatinHAMs"
+              onClick={() => toggleOverlay('quests')}
+              aria-label="Quests"
             >
-              <Grid className="h-6 w-6" />
+              <Award className="h-6 w-6" />
             </Button>
             <Button
               variant="ghost"
