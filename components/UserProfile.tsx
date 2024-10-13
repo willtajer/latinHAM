@@ -92,7 +92,6 @@ export function UserProfile() {
           throw new Error('Failed to fetch user profile')
         }
         const data: UserProfileData = await response.json()
-        // Ensure grid and initialGrid are 2D arrays
         const processedData: UserProfileData = {
           ...data,
           games: data.games.map((game: GameEntry) => ({
@@ -112,7 +111,6 @@ export function UserProfile() {
 
     fetchUserProfile()
   }, [user])
-
 
   const ensureGrid2D = (grid: number[] | number[][]): number[][] => {
     if (Array.isArray(grid[0])) {
@@ -147,7 +145,6 @@ export function UserProfile() {
   const handleViewCompletedBoard = (game: GameEntry) => {
     setSelectedGame(game)
   }
-
 
   if (isLoading) {
     return <LoadingSkeleton />
@@ -202,6 +199,7 @@ export function UserProfile() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-16">latinHAM</TableHead>
+                <TableHead className="w-20">Difficulty</TableHead>
                 <TableHead 
                   className="w-28 cursor-pointer"
                   onClick={() => handleSort('date')}
@@ -211,7 +209,6 @@ export function UserProfile() {
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-24">Difficulty</TableHead>
                 <TableHead 
                   className="w-20 cursor-pointer"
                   onClick={() => handleSort('moves')}
@@ -221,6 +218,7 @@ export function UserProfile() {
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
+                <TableHead className="w-16">Hints</TableHead>
                 <TableHead 
                   className="w-24 cursor-pointer"
                   onClick={() => handleSort('time')}
@@ -230,7 +228,6 @@ export function UserProfile() {
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-16">Hints</TableHead>
                 <TableHead className="w-40">Quote</TableHead>
               </TableRow>
             </TableHeader>
@@ -240,15 +237,15 @@ export function UserProfile() {
                   <TableCell className="p-2">
                     <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
                   </TableCell>
-                  <TableCell className="p-2 text-sm">{new Date(game.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="p-2">
                     <Badge variant={game.difficulty === 'easy' ? 'default' : game.difficulty === 'medium' ? 'secondary' : 'destructive'}>
                       {game.difficulty}
                     </Badge>
                   </TableCell>
+                  <TableCell className="p-2 text-sm">{new Date(game.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="p-2 text-center">{game.moves}</TableCell>
-                  <TableCell className="p-2 text-sm">{formatDuration(game.time)}</TableCell>
                   <TableCell className="p-2 text-center">{game.hints}</TableCell>
+                  <TableCell className="p-2 text-sm">{formatDuration(game.time)}</TableCell>
                   <TableCell className="p-2 text-sm truncate">{game.quote}</TableCell>
                 </TableRow>
               ))}
