@@ -12,11 +12,13 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { LeaderboardEntry } from '@/types'
+import { Button } from "@/components/ui/button"
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
   difficulty: "all" | "easy" | "medium" | "hard";
   onViewCompletedBoard: (entry: LeaderboardEntry) => void;
+  onDifficultyChange: (difficulty: "all" | "easy" | "medium" | "hard") => void;
 }
 
 const colorClasses = [
@@ -52,7 +54,7 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
   )
 }
 
-export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: LeaderboardProps) {
+export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, onDifficultyChange }: LeaderboardProps) {
   const [sortColumn, setSortColumn] = useState<'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration' | 'difficulty'>('rank')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
@@ -108,17 +110,18 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
   )
 
   const averages = useMemo(() => {
-    const totalMoves = entries.reduce((sum, entry) => sum + entry.moves, 0)
-    const totalDuration = entries.reduce((sum, entry) => sum + entry.time, 0)
-    const totalHints = entries.reduce((sum, entry) => sum + (entry.hints || 0), 0)
-    const count = entries.length
+    const filteredEntries = difficulty === 'all' ? entries : entries.filter(entry => entry.difficulty === difficulty);
+    const totalMoves = filteredEntries.reduce((sum, entry) => sum + entry.moves, 0)
+    const totalDuration = filteredEntries.reduce((sum, entry) => sum + entry.time, 0)
+    const totalHints = filteredEntries.reduce((sum, entry) => sum + (entry.hints || 0), 0)
+    const count = filteredEntries.length
 
     return {
       moves: count > 0 ? totalMoves / count : 0,
       duration: count > 0 ? totalDuration / count : 0,
       hints: count > 0 ? totalHints / count : 0,
     }
-  }, [entries])
+  }, [entries, difficulty])
 
   if (entries.length === 0) {
     return (
@@ -137,8 +140,37 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
       </h2>
       <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
 
+      <div className="mb-4 flex justify-center space-x-2">
+        <Button
+          onClick={() => onDifficultyChange('all')}
+          variant={difficulty === 'all' ? 'default' : 'outline'}
+        >
+          All
+        </Button>
+        <Button
+          onClick={() => onDifficultyChange('easy')}
+          variant={difficulty === 'easy' ? 'default' : 'outline'}
+        >
+          Easy
+        </Button>
+        <Button
+          onClick={() => onDifficultyChange('medium')}
+          variant={difficulty === 'medium' ? 'default' : 'outline'}
+        >
+          Medium
+        </Button>
+        <Button
+          onClick={() => onDifficultyChange('hard')}
+          variant={difficulty === 'hard' ? 'default' : 'outline'}
+        >
+          Hard
+        </Button>
+      </div>
+
       <div className="bg-gray-800 p-4 rounded-lg mb-6">
-        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-400">Overall Averages</h3>
+        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-400">
+          {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
+        </h3>
         <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
           <div>
             <p className="text-sm text-gray-400">Avg. Moves</p>

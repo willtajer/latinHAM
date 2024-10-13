@@ -15,10 +15,11 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
   })
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [currentDifficulty, setCurrentDifficulty] = useState<'all' | 'easy' | 'medium' | 'hard'>(difficulty);
 
   const fetchLeaderboard = useCallback(async () => {
     try {
-      const response = await fetch(`/api/leaderboard?difficulty=${difficulty}`)
+      const response = await fetch(`/api/leaderboard?difficulty=${currentDifficulty === 'all' ? difficulty : currentDifficulty}`)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -26,16 +27,16 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
       console.log('Fetched leaderboard data:', data)
       setLeaderboard(prevState => ({
         ...prevState,
-        [difficulty]: data
+        [currentDifficulty === 'all' ? difficulty : currentDifficulty]: data
       }))
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error)
     }
-  }, [difficulty])
+  }, [currentDifficulty, difficulty])
 
   useEffect(() => {
     fetchLeaderboard()
-  }, [fetchLeaderboard])
+  }, [fetchLeaderboard, currentDifficulty])
 
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     console.log('Viewing completed board:', entry)
@@ -48,12 +49,17 @@ export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ difficul
     setViewingEntry(null)
   }, [])
 
+  const handleDifficultyChange = useCallback((newDifficulty: 'all' | 'easy' | 'medium' | 'hard') => {
+    setCurrentDifficulty(newDifficulty);
+  }, []);
+
   return (
     <>
       <Leaderboard
-        entries={leaderboard[difficulty]}
-        difficulty={difficulty}
+        entries={leaderboard[currentDifficulty === 'all' ? difficulty : currentDifficulty]}
+        difficulty={currentDifficulty}
         onViewCompletedBoard={handleViewCompletedBoard}
+        onDifficultyChange={handleDifficultyChange}
       />
       <ViewCompletedPuzzleDialog
         open={isViewDialogOpen}

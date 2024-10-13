@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
 import LatinHAMLeaderboard from './LatinHAMLeaderboard'
 import { LatinHAM } from '@/types'
@@ -46,29 +46,30 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
 
-  useEffect(() => {
-    const fetchLatinHAMs = async () => {
-      try {
-        const response = await fetch('/api/discovered')
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data = await response.json()
-        if (Array.isArray(data)) {
-          setLatinHAMs(data)
-        } else {
-          throw new Error('Invalid data format')
-        }
-      } catch (error) {
-        console.error('Error fetching latinHAMs:', error)
-        setError('Failed to load Discovered LatinHAMs. Please try again later.')
-      } finally {
-        setIsLoading(false)
+  const fetchLatinHAMs = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}`)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
+      const data = await response.json()
+      if (Array.isArray(data)) {
+        setLatinHAMs(data)
+      } else {
+        throw new Error('Invalid data format')
+      }
+    } catch (error) {
+      console.error('Error fetching latinHAMs:', error)
+      setError('Failed to load Discovered LatinHAMs. Please try again later.')
+    } finally {
+      setIsLoading(false)
     }
+  }, [difficultyFilter])
 
+  useEffect(() => {
     fetchLatinHAMs()
-  }, [])
+  }, [fetchLatinHAMs])
 
   const handleLatinHAMClick = (latinHAM: LatinHAM) => {
     setSelectedLatinHAM(latinHAM)
@@ -89,8 +90,6 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   if (latinHAMs.length === 0) {
     return <div className="text-center py-8 text-white">No Discovered LatinHAMs found. Start playing to create some!</div>
   }
-
-  const filteredLatinHAMs = latinHAMs.filter(lh => difficultyFilter === 'all' || lh.difficulty === difficultyFilter)
 
   return (
     <div className="container mx-auto pb-16">
@@ -121,7 +120,7 @@ export const DiscoveredLatinHAMs: React.FC = () => {
         </div>
       ) : (
         <LatinHAMGrid 
-          latinHAMs={filteredLatinHAMs} 
+          latinHAMs={latinHAMs} 
           onLatinHAMClick={handleLatinHAMClick}
           difficultyFilter={difficultyFilter}
         />

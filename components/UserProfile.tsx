@@ -160,17 +160,20 @@ export function UserProfile() {
 
   const averages = useMemo(() => {
     if (!profileData || profileData.games.length === 0) return null;
-    const totalMoves = profileData.games.reduce((sum, game) => sum + game.moves, 0)
-    const totalDuration = profileData.games.reduce((sum, game) => sum + game.time, 0)
-    const totalHints = profileData.games.reduce((sum, game) => sum + game.hints, 0)
-    const count = profileData.games.length
+    const filteredGames = difficultyFilter === 'all' 
+    ? profileData.games 
+    : profileData.games.filter(game => game.difficulty === difficultyFilter);
+    const totalMoves = filteredGames.reduce((sum, game) => sum + game.moves, 0)
+    const totalDuration = filteredGames.reduce((sum, game) => sum + game.time, 0)
+    const totalHints = filteredGames.reduce((sum, game) => sum + game.hints, 0)
+    const count = filteredGames.length
 
-    return {
+    return count > 0 ? {
       moves: totalMoves / count,
       duration: totalDuration / count,
       hints: totalHints / count,
-    }
-  }, [profileData])
+    } : null;
+  }, [profileData, difficultyFilter])
 
   const filteredAndSortedGames = useMemo(() => {
     let filtered = profileData ? profileData.games : [];
@@ -238,26 +241,6 @@ export function UserProfile() {
             <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
 
-          {averages && (
-            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-              <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">Overall Averages</h3>
-              <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.moves.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.hints.toFixed(2)}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="mb-4 flex justify-center space-x-2">
             <Button
               onClick={() => setDifficultyFilter('all')}
@@ -284,6 +267,28 @@ export function UserProfile() {
               Hard
             </Button>
           </div>
+
+          {averages && (
+            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+              <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+                {difficultyFilter === 'all' ? 'Overall' : `${difficultyFilter.charAt(0).toUpperCase() + difficultyFilter.slice(1)}`} Averages
+              </h3>
+              <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.moves.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.hints.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Table className="w-full table-fixed">
             <TableHeader>
