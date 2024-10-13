@@ -137,6 +137,7 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
               <TableHeader>
                 <TableRow>
                   <TableHead>Rank</TableHead>
+                  <TableHead>User</TableHead>
                   <TableHead>Progress</TableHead>
                   <TableHead>Moves</TableHead>
                   <TableHead>Time</TableHead>
@@ -150,6 +151,7 @@ const LatinHAMLeaderboard: React.FC<LatinHAMLeaderboardProps> = ({ latinHAM }) =
                     className="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   >
                     <TableCell>{index + 1}</TableCell>
+                    <TableCell>{entry.username || 'Anonymous'}</TableCell>
                     <TableCell>
                       <MiniProgressBar 
                         grid={entry.grid} 

@@ -131,6 +131,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
+              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">latinHAM</TableHead>
               <TableHead 
                 className="w-32 text-center cursor-pointer"
                 onClick={() => handleSort('user')}
@@ -140,7 +141,6 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                   sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                 )}
               </TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center">latinHAM</TableHead>
               <TableHead 
                 className="w-24 text-center cursor-pointer"
                 onClick={() => handleSort('moves')}
@@ -185,7 +185,6 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
               return (
                 <TableRow key={entry.id}>
                   <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
-                  <TableCell className="text-center align-middle">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="text-center py-2">
                     {entry.grid ? (
                       <MiniProgressBar 
@@ -196,6 +195,7 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard }: 
                       <div>No grid data</div>
                     )}
                   </TableCell>
+                  <TableCell className="text-center align-middle">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="font-medium text-center align-middle">{entry.moves}</TableCell>
                   <TableCell className="text-center align-middle">
                     {new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}

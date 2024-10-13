@@ -1,6 +1,6 @@
 export interface LeaderboardEntry {
   id: string;
-  username?: string; // Make username optional
+  username?: string; // Username is optional
   difficulty: 'easy' | 'medium' | 'hard';
   moves: number;
   time: number;
@@ -11,14 +11,15 @@ export interface LeaderboardEntry {
   timestamp: string;
 }
 
-// Keep other interfaces unchanged
 export interface LatinHAM {
   id: string;
   initialGrid: number[][]
   difficulty: 'easy' | 'medium' | 'hard'
   solveCount: number
   bestMoves: number
+  bestMovesPlayer?: string // New field
   bestTime: number
+  bestTimePlayer?: string // New field
 }
 
 export interface CompletedPuzzle {
