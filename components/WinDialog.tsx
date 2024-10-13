@@ -55,22 +55,21 @@ export const WinDialog: React.FC<WinDialogProps> = ({
     }
   }
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen === false && showQuoteInput) {
+      // Prevent closing if quote input is shown
+      return;
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className={`text-center ${showQuoteInput ? "" : "text-2xl font-bold"}`}>
             {showQuoteInput ? "Enter Your Victory Quote" : "Congratulations!"}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white rounded-full"
-            onClick={() => onOpenChange(false)}
-            aria-label="Close Dialog"
-          >
-            <X className="h-6 w-6" />
-          </Button>
         </DialogHeader>
         {showQuoteInput ? (
           <>
@@ -90,7 +89,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                 className="w-full sm:w-auto"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isSubmitting ? "Submitting..." : (quote.trim() ? "Submit" : "Skip")}
               </Button>
             </DialogFooter>
           </>
