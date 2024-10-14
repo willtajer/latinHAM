@@ -259,8 +259,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
               <TableRow>
                 <TableHead className="w-12">Rank</TableHead>
                 <TableHead className="w-16">Minigrid</TableHead>
-                <TableHead className="w-20">Difficulty</TableHead>
-                <TableHead className="w-24">User</TableHead>
                 <TableHead 
                   className="w-16 cursor-pointer"
                   onClick={() => handleSort('moves')}
@@ -270,6 +268,8 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
+                <TableHead className="w-20">Difficulty</TableHead>
+                <TableHead className="w-24">User</TableHead>
                 <TableHead 
                   className="w-24 cursor-pointer"
                   onClick={() => handleSort('duration')}
@@ -315,6 +315,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   <TableCell className="p-2">
                     <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
                   </TableCell>
+                  <TableCell className="p-1 text-sm  text-center">{entry.moves}</TableCell>
                   <TableCell className="p-2">
                     <Badge 
                       className={
@@ -329,7 +330,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell className="p-1 text-sm  text-center">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
                   <TableCell className="p-1 text-sm">{formatTime(entry.timestamp)}</TableCell>
