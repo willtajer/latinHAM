@@ -335,7 +335,6 @@ export function UserProfile() {
 
           {/* Performance Trends graph */}
           <div className="mb-6">
-            <h3 className="text-xl text-center font-semibold mb-4">Performance Trends</h3>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
               <div ref={chartRef} className="overflow-x-auto flex-grow w-full md:w-4/5">
                 <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
