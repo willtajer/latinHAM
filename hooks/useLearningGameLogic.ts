@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
-import { LEARNING_GRID_SIZE, CellState, checkWin } from '@/utils/learningGameLogic'
+
+export const LEARNING_GRID_SIZE = 3
+export type CellState = 0 | 1 | 2 | 3
 
 interface LearningGameState {
   grid: CellState[][]
@@ -9,48 +11,43 @@ interface LearningGameState {
   moveCount: number
 }
 
+function createLatinSquare(): number[][] {
+  const base = [1, 2, 3]
+  const square = [
+    [...base],
+    [base[1], base[2], base[0]],
+    [base[2], base[0], base[1]]
+  ]
+  
+  // Shuffle rows
+  for (let i = square.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [square[i], square[j]] = [square[j], square[i]]
+  }
+
+  return square
+}
+
+function prefillCells(grid: CellState[][], locked: boolean[][], solution: number[][]): void {
+  const cellsToFill = 3
+  const positions = Array.from({ length: LEARNING_GRID_SIZE * LEARNING_GRID_SIZE }, (_, i) => i)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, cellsToFill)
+
+  for (const pos of positions) {
+    const row = Math.floor(pos / LEARNING_GRID_SIZE)
+    const col = pos % LEARNING_GRID_SIZE
+    grid[row][col] = solution[row][col] as CellState
+    locked[row][col] = true
+  }
+}
+
 function generateSolvableGrid(): [CellState[][], boolean[][], number[][]] {
-  const solution = Array(LEARNING_GRID_SIZE).fill(null).map(() => Array(LEARNING_GRID_SIZE).fill(0))
+  const solution = createLatinSquare()
   const grid: CellState[][] = Array(LEARNING_GRID_SIZE).fill(null).map(() => Array(LEARNING_GRID_SIZE).fill(0))
   const locked: boolean[][] = Array(LEARNING_GRID_SIZE).fill(null).map(() => Array(LEARNING_GRID_SIZE).fill(false))
 
-  // Fill the diagonal
-  for (let i = 0; i < LEARNING_GRID_SIZE; i++) {
-    const value = Math.floor(Math.random() * LEARNING_GRID_SIZE) + 1
-    solution[i][i] = value
-    grid[i][i] = value as CellState
-    locked[i][i] = true
-  }
-
-  // Fill one more random cell
-  let row: number, col: number
-  do {
-    row = Math.floor(Math.random() * LEARNING_GRID_SIZE)
-    col = Math.floor(Math.random() * LEARNING_GRID_SIZE)
-  } while (locked[row][col])
-
-  let value: number
-  do {
-    value = Math.floor(Math.random() * LEARNING_GRID_SIZE) + 1
-  } while (solution[row].includes(value) || solution.map(r => r[col]).includes(value))
-
-  solution[row][col] = value
-  grid[row][col] = value as CellState
-  locked[row][col] = true
-
-  // Complete the solution
-  for (let i = 0; i < LEARNING_GRID_SIZE; i++) {
-    for (let j = 0; j < LEARNING_GRID_SIZE; j++) {
-      if (solution[i][j] === 0) {
-        for (let num = 1; num <= LEARNING_GRID_SIZE; num++) {
-          if (!solution[i].includes(num) && !solution.map(r => r[j]).includes(num)) {
-            solution[i][j] = num
-            break
-          }
-        }
-      }
-    }
-  }
+  prefillCells(grid, locked, solution)
 
   return [grid, locked, solution]
 }
@@ -103,4 +100,15 @@ export function useLearningGameLogic() {
     handleCellClick,
     resetGame,
   }
+}
+
+function checkWin(grid: CellState[][]): boolean {
+  for (let i = 0; i < LEARNING_GRID_SIZE; i++) {
+    const rowSet = new Set(grid[i])
+    const colSet = new Set(grid.map(row => row[i]))
+    if (rowSet.size !== LEARNING_GRID_SIZE || rowSet.has(0) || colSet.size !== LEARNING_GRID_SIZE || colSet.has(0)) {
+      return false
+    }
+  }
+  return true
 }
