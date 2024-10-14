@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -83,27 +83,13 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     const fetchLeaderboard = async () => {
       setIsLoading(true)
       try {
-        let data: LeaderboardEntry[] = []
-        if (difficulty === 'all') {
-          const easyResponse = await fetch('/api/leaderboard?difficulty=easy')
-          const mediumResponse = await fetch('/api/leaderboard?difficulty=medium')
-          const hardResponse = await fetch('/api/leaderboard?difficulty=hard')
-          
-          const [easyData, mediumData, hardData] = await Promise.all([
-            easyResponse.json(),
-            mediumResponse.json(),
-            hardResponse.json()
-          ])
-          
-          data = [...easyData, ...mediumData, ...hardData]
-        } else {
-          const response = await fetch(`/api/leaderboard?difficulty=${difficulty}`)
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`)
-          }
-          data = await response.json()
-        }
-        setEntries(data)
+        const [easyData, mediumData, hardData] = await Promise.all([
+          fetch('/api/leaderboard?difficulty=easy').then(res => res.json()),
+          fetch('/api/leaderboard?difficulty=medium').then(res => res.json()),
+          fetch('/api/leaderboard?difficulty=hard').then(res => res.json())
+        ])
+        const allData = [...easyData, ...mediumData, ...hardData]
+        setEntries(allData)
       } catch (err) {
         setError('Failed to fetch leaderboard data')
         console.error(err)
@@ -113,7 +99,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     }
 
     fetchLeaderboard()
-  }, [difficulty])
+  }, [])
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -130,8 +116,12 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     }
   }
 
+  const filteredEntries = useMemo(() => {
+    return difficulty === 'all' ? entries : entries.filter(entry => entry.difficulty === difficulty)
+  }, [entries, difficulty])
+
   const sortedEntries = useMemo(() => {
-    return [...entries].sort((a, b) => {
+    return [...filteredEntries].sort((a, b) => {
       let compareValue: number;
       switch (sortColumn) {
         case 'date':
@@ -158,7 +148,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
       }
       return sortDirection === 'asc' ? compareValue : -compareValue
     });
-  }, [entries, sortColumn, sortDirection]);
+  }, [filteredEntries, sortColumn, sortDirection]);
 
   const totalPages = Math.ceil(sortedEntries.length / entriesPerPage)
   const paginatedEntries = sortedEntries.slice(
@@ -167,7 +157,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
   )
 
   const averages = useMemo(() => {
-    const filteredEntries = difficulty === 'all' ? entries : entries.filter(entry => entry.difficulty === difficulty);
     const totalMoves = filteredEntries.reduce((sum, entry) => sum + entry.moves, 0)
     const totalDuration = filteredEntries.reduce((sum, entry) => sum + entry.time, 0)
     const totalHints = filteredEntries.reduce((sum, entry) => sum + (entry.hints || 0), 0)
@@ -178,17 +167,17 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
       duration: count > 0 ? totalDuration / count : 0,
       hints: count > 0 ? totalHints / count : 0,
     }
-  }, [entries, difficulty])
+  }, [filteredEntries])
 
-  const handleViewCompletedBoard = (entry: LeaderboardEntry) => {
+  const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     setSelectedGame(entry)
-  }
+  }, [])
 
-  const handleDifficultyChange = (newDifficulty: "all" | "easy" | "medium" | "hard") => {
+  const handleDifficultyChange = useCallback((newDifficulty: "all" | "easy" | "medium" | "hard") => {
     setDifficulty(newDifficulty)
     setCurrentPage(1) // Reset to first page when changing difficulty
     onDifficultyChange(newDifficulty)
-  }
+  }, [onDifficultyChange])
 
   if (isLoading) {
     return <div className="text-center py-8">Loading leaderboard entries...</div>
@@ -338,10 +327,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
-                  
                   <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
-                  <TableCell  className="p-1 text-sm text-center">{entry.moves}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
+                  <TableCell  className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
                   <TableCell className="p-1 text-sm">{formatTime(entry.timestamp)}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(entry.timestamp)}</TableCell>
                 </TableRow>

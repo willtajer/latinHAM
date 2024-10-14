@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 import { DiscoveredLatinHAMs } from './DiscoveredLatinHAMs'
 import { GamePreview } from './GamePreview'
-import { LeaderboardWrapper } from './LeaderboardWrapper'
+import Leaderboard from './Leaderboard'
 import { LearningModeGame } from './LearningModeGame'
 import { UserProfile } from './UserProfile'
 
@@ -153,13 +153,13 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               </Button>
 
               {activeOverlay === 'discovered' && (
-                <div className="max-w-6xl mx-auto pt-16">
+                <div className="max-w-6xl mx-auto pt-16 pb-16">
                   <DiscoveredLatinHAMs />
                 </div>
               )}
 
               {activeOverlay === 'leaderboard' && (
-                <div className="max-w-6xl mx-auto pt-16">
+                <div className="max-w-6xl mx-auto pt-16 pb-16">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
                     LatinHAM Leaderboard
                   </h1>
@@ -168,7 +168,10 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                       <GamePreview />
                     </div>
                   </div>
-                  <LeaderboardWrapper difficulty="easy" />
+                  <Leaderboard 
+                    initialDifficulty="all" 
+                    onDifficultyChange={(newDifficulty) => console.log(`Difficulty changed to: ${newDifficulty}`)} 
+                  />
                 </div>
               )}
 
