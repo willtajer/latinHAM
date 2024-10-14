@@ -77,17 +77,12 @@ const formatDate = (dateString: string) => {
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)}`;
 }
 
-const formatTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-}
-
 export function UserProfile() {
   const { user } = useUser()
   const [profileData, setProfileData] = useState<UserProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [sortColumn, setSortColumn] = useState<'date' | 'moves' | 'time' | 'hints' | 'duration' | 'quote'>('date')
+  const [sortColumn, setSortColumn] = useState<'date' | 'moves' | 'hints' | 'duration' | 'quote'>('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<GameEntry | null>(null)
@@ -139,7 +134,7 @@ export function UserProfile() {
     return result
   }
 
-  const handleSort = (column: 'date' | 'moves' | 'time' | 'hints' | 'duration' | 'quote') => {
+  const handleSort = (column: 'date' | 'moves' | 'hints' | 'duration' | 'quote') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -188,10 +183,6 @@ export function UserProfile() {
           break;
         case 'moves':
           compareValue = a.moves - b.moves;
-          break;
-        case 'time':
-          compareValue = new Date(a.created_at).getHours() * 60 + new Date(a.created_at).getMinutes() - 
-                         (new Date(b.created_at).getHours() * 60 + new Date(b.created_at).getMinutes());
           break;
         case 'hints':
           compareValue = a.hints - b.hints;
@@ -308,15 +299,6 @@ export function UserProfile() {
                 </TableHead>
                 <TableHead 
                   className="w-16 cursor-pointer"
-                  onClick={() => handleSort('time')}
-                >
-                  Time
-                  {sortColumn === 'time' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-16 cursor-pointer"
                   onClick={() => handleSort('moves')}
                 >
                   Moves
@@ -349,7 +331,6 @@ export function UserProfile() {
                   Quote
                   {sortColumn === 'quote' && (
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  
                   )}
                 </TableHead>
               </TableRow>
@@ -374,10 +355,9 @@ export function UserProfile() {
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
-                  <TableCell  className="p-1 text-sm">{formatTime(game.created_at)}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>
+                  <TableCell className="p-1  text-sm">{formatDuration(game.time)}</TableCell>
                   <TableCell className="p-1 text-sm truncate">{game.quote}</TableCell>
                 </TableRow>
               ))}
