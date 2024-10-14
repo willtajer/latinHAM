@@ -26,6 +26,8 @@ import {
 
 interface LeaderboardProps {
   initialDifficulty?: "all" | "easy" | "medium" | "hard";
+  onViewCompletedBoard: (entry: LeaderboardEntry) => void;
+  onDifficultyChange: (newDifficulty: "all" | "easy" | "medium" | "hard") => void;
 }
 
 const colorClasses = [
@@ -67,7 +69,7 @@ const formatTime = (dateString: string) => {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-export default function Leaderboard({ initialDifficulty = "all" }: LeaderboardProps) {
+export default function Leaderboard({ initialDifficulty = "all", onViewCompletedBoard, onDifficultyChange }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -75,7 +77,6 @@ export default function Leaderboard({ initialDifficulty = "all" }: LeaderboardPr
   const [sortColumn, setSortColumn] = useState<'date' | 'time' | 'moves' | 'hints' | 'duration' | 'difficulty'>('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(null)
   const entriesPerPage = 10
 
   useEffect(() => {
@@ -179,13 +180,10 @@ export default function Leaderboard({ initialDifficulty = "all" }: LeaderboardPr
     }
   }, [entries, difficulty])
 
-  const handleViewCompletedBoard = (entry: LeaderboardEntry) => {
-    setSelectedGame(entry)
-  }
-
   const handleDifficultyChange = (newDifficulty: "all" | "easy" | "medium" | "hard") => {
     setDifficulty(newDifficulty)
     setCurrentPage(1) // Reset to first page when changing difficulty
+    onDifficultyChange(newDifficulty)
   }
 
   if (isLoading) {
@@ -208,194 +206,172 @@ export default function Leaderboard({ initialDifficulty = "all" }: LeaderboardPr
   }
 
   return (
-    <>
-      <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
-        <CardHeader>
-          <div className="text-center">
-            <CardTitle>latinHAM Leaderboard</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex justify-center space-x-2">
-            <Button
-              onClick={() => handleDifficultyChange('all')}
-              variant={difficulty === 'all' ? 'default' : 'outline'}
-            >
-              All
-            </Button>
-            <Button
-              onClick={() => handleDifficultyChange('easy')}
-              variant={difficulty === 'easy' ? 'default' : 'outline'}
-            >
-              Easy
-            </Button>
-            <Button
-              onClick={() => handleDifficultyChange('medium')}
-              variant={difficulty === 'medium' ? 'default' : 'outline'}
-            >
-              Medium
-            </Button>
-            <Button
-              onClick={() => handleDifficultyChange('hard')}
-              variant={difficulty === 'hard' ? 'default' : 'outline'}
-            >
-              Hard
-            </Button>
-          </div>
+    <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
+      <CardHeader>
+        <div className="text-center">
+          <CardTitle>latinHAM Leaderboard</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4 flex justify-center space-x-2">
+          <Button
+            onClick={() => handleDifficultyChange('all')}
+            variant={difficulty === 'all' ? 'default' : 'outline'}
+          >
+            All
+          </Button>
+          <Button
+            onClick={() => handleDifficultyChange('easy')}
+            variant={difficulty === 'easy' ? 'default' : 'outline'}
+          >
+            Easy
+          </Button>
+          <Button
+            onClick={() => handleDifficultyChange('medium')}
+            variant={difficulty === 'medium' ? 'default' : 'outline'}
+          >
+            Medium
+          </Button>
+          <Button
+            onClick={() => handleDifficultyChange('hard')}
+            variant={difficulty === 'hard' ? 'default' : 'outline'}
+          >
+            Hard
+          </Button>
+        </div>
 
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-            <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
-              {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
-            </h3>
-            <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
-              </div>
+        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+          <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+            {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
+          </h3>
+          <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
+            <div>
+              <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+              <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+              <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+              <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
             </div>
           </div>
+        </div>
 
-          <Table className="w-full table-fixed">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">Minigrid</TableHead>
-                <TableHead className="w-20">Difficulty</TableHead>
-                <TableHead className="w-24">User</TableHead>
-                <TableHead 
-                  className="w-24 cursor-pointer"
-                  onClick={() => handleSort('duration')}
-                >
-                  Duration
-                  {sortColumn === 'duration' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-16 cursor-pointer"
-                  onClick={() => handleSort('moves')}
-                >
-                  Moves
-                  {sortColumn === 'moves' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-16 cursor-pointer"
-                  onClick={() => handleSort('hints')}
-                >
-                  Hints
-                  {sortColumn === 'hints' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-16 cursor-pointer"
-                  onClick={() => handleSort('time')}
-                >
-                  Time
-                  {sortColumn === 'time' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-24 cursor-pointer"
-                  onClick={() => handleSort('date')}
-                >
-                  Date
-                  {sortColumn === 'date' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
+        <Table className="w-full table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16">Minigrid</TableHead>
+              <TableHead className="w-20">Difficulty</TableHead>
+              <TableHead className="w-24">User</TableHead>
+              <TableHead 
+                className="w-24 cursor-pointer"
+                onClick={() => handleSort('duration')}
+              >
+                Duration
+                {sortColumn === 'duration' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-16 cursor-pointer"
+                onClick={() => handleSort('moves')}
+              >
+                Moves
+                {sortColumn === 'moves' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-16 cursor-pointer"
+                onClick={() => handleSort('hints')}
+              >
+                Hints
+                {sortColumn === 'hints' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-16 cursor-pointer"
+                onClick={() => handleSort('time')}
+              >
+                Time
+                {sortColumn === 'time' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+              <TableHead 
+                className="w-24 cursor-pointer"
+                onClick={() => handleSort('date')}
+              >
+                Date
+                {sortColumn === 'date' && (
+                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                )}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedEntries.map((entry) => (
+              <TableRow key={entry.id}>
+                <TableCell className="p-2">
+                  <MiniProgressBar grid={entry.grid} onClick={() => onViewCompletedBoard(entry)} />
+                </TableCell>
+                <TableCell className="p-2">
+                  <Badge 
+                    className={
+                      entry.difficulty === 'easy' 
+                        ? 'bg-green-500 hover:bg-green-600' 
+                        : entry.difficulty === 'medium' 
+                          ? 'bg-orange-500 hover:bg-orange-600' 
+                          : 'bg-red-500 hover:bg-red-600'
+                    }
+                  >
+                    {entry.difficulty}
+                  </Badge>
+                </TableCell>
+                <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
+                <TableCell className="p-1  text-sm">{formatDuration(entry.time)}</TableCell>
+                <TableCell className="p-1 text-sm  text-center">{entry.moves}</TableCell>
+                <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
+                <TableCell className="p-1  text-sm">{formatTime(entry.timestamp)}</TableCell>
+                <TableCell className="p-1  text-sm">{formatDate(entry.timestamp)}</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedEntries.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell className="p-2">
-                    <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
-                  </TableCell>
-                  <TableCell className="p-2">
-                    <Badge 
-                      className={
-                        entry.difficulty === 'easy' 
-                          ? 'bg-green-500 hover:bg-green-600' 
-                          : entry.difficulty === 'medium' 
-                            ? 'bg-orange-500 hover:bg-orange-600' 
-                            : 'bg-red-500 hover:bg-red-600'
-                      }
-                    >
-                      {entry.difficulty}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm  text-center">{entry.moves}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
-                  <TableCell className="p-1  text-sm">{formatTime(entry.timestamp)}</TableCell>
-                  <TableCell className="p-1  text-sm">{formatDate(entry.timestamp)}</TableCell>
-                </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+              {[...Array(totalPages)].map((_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(i + 1)}
+                    isActive={currentPage === i + 1}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
               ))}
-            </TableBody>
-          </Table>
-          
-          {totalPages > 1 && (
-            <Pagination className="mt-4">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-                {[...Array(totalPages)].map((_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink
-                      onClick={() => setCurrentPage(i + 1)}
-                      isActive={currentPage === i + 1}
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </CardContent>
-      </Card>
-      <Dialog open={!!selectedGame} onOpenChange={(open) => {
-        if (!open) {
-          setSelectedGame(null);
-        }
-      }}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Completed latinHAM</DialogTitle>
-            <DialogDescription>
-              Details of the completed game
-            </DialogDescription>
-          </DialogHeader>
-          {selectedGame && (
-            <CompletedPuzzleCard
-              entry={selectedGame}
-              difficulty={selectedGame.difficulty}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+      </CardContent>
+    </Card>
   )
 }
