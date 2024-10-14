@@ -96,7 +96,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               size="icon"
               className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 hover:bg-gray-700 text-white hover:text-yellow-500"
               onClick={() => toggleOverlay('quests')}
-              aria-label="Quests"
+              aria-label="Achievements"
             >
               <Award className="h-6 w-6" />
             </Button>
@@ -237,7 +237,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               {activeOverlay === 'quests' && (
                 <div className="max-w-6xl mx-auto pt-16">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
-                    Quests
+                    Achievements
                   </h1>
                   <div className="flex flex-col items-center justify-center">
                     <p className="text-2xl text-white">Coming Soon</p>
