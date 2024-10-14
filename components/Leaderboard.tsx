@@ -224,7 +224,35 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
 
   return (
     <>
-      <Card className="w-full max-w-6xl pt-4 mx-auto overflow-auto max-h-[80vh]">
+      <div className="text-center mb-6">
+        <div className="flex justify-center space-x-2 mb-6">
+          <Button
+            onClick={() => handleDifficultyChange('all')}
+            variant={difficulty === 'all' ? 'default' : 'outline'}
+          >
+            All
+          </Button>
+          <Button
+            onClick={() => handleDifficultyChange('easy')}
+            variant={difficulty === 'easy' ? 'default' : 'outline'}
+          >
+            Easy
+          </Button>
+          <Button
+            onClick={() => handleDifficultyChange('medium')}
+            variant={difficulty === 'medium' ? 'default' : 'outline'}
+          >
+            Medium
+          </Button>
+          <Button
+            onClick={() => handleDifficultyChange('hard')}
+            variant={difficulty === 'hard' ? 'default' : 'outline'}
+          >
+            Hard
+          </Button>
+        </div>
+      </div>
+      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6">
         <CardContent>
           {/* Overall Averages */}
           <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
@@ -316,34 +344,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             </RadioGroup>
           </div>
 
-
-          {/* Difficulty selector */}
-          <div className="mb-6 flex justify-center space-x-2">
-            <Button
-              onClick={() => handleDifficultyChange('all')}
-              variant={difficulty === 'all' ? 'default' : 'outline'}
-            >
-              All
-            </Button>
-            <Button
-              onClick={() => handleDifficultyChange('easy')}
-              variant={difficulty === 'easy' ? 'default' : 'outline'}
-            >
-              Easy
-            </Button>
-            <Button
-              onClick={() => handleDifficultyChange('medium')}
-              variant={difficulty === 'medium' ? 'default' : 'outline'}
-            >
-              Medium
-            </Button>
-            <Button
-              onClick={() => handleDifficultyChange('hard')}
-              variant={difficulty === 'hard' ? 'default' : 'outline'}
-            >
-              Hard
-            </Button>
-          </div>
 
           {/* Leaderboard table */}
           <Table className="w-full">

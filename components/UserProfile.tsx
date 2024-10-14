@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -14,6 +14,7 @@ import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { GamePreview } from './GamePreview'
 
 interface GameEntry {
   id: string
@@ -269,18 +270,46 @@ export function UserProfile() {
 
   return (
     <>
-      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh]">
-        <CardHeader>
-          <div className="text-center">
-            <CardTitle>Player: {profileData.username}</CardTitle>
-          </div>
-        </CardHeader>
+      <div className="text-center mb-6 text-white">
+        <h1 className="text-3xl font-bold mb-2">{profileData.username}</h1>
+        <GamePreview />
+        <p className="text-xl mb-1">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
+        <p className="text-xl mb-4">
+          Total games played: {
+            difficultyFilter === 'all'
+              ? profileData.games.length
+              : profileData.games.filter(game => game.difficulty === difficultyFilter).length
+          }
+        </p>
+        <div className="flex justify-center space-x-2 mb-6">
+          <Button
+            onClick={() => setDifficultyFilter('all')}
+            variant={difficultyFilter === 'all' ? 'default' : 'outline'}
+          >
+            All
+          </Button>
+          <Button
+            onClick={() => setDifficultyFilter('easy')}
+            variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
+          >
+            Easy
+          </Button>
+          <Button
+            onClick={() => setDifficultyFilter('medium')}
+            variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
+          >
+            Medium
+          </Button>
+          <Button
+            onClick={() => setDifficultyFilter('hard')}
+            variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
+          >
+            Hard
+          </Button>
+        </div>
+      </div>
+      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6">
         <CardContent>
-          <div className="text-center mb-6">
-            <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-            <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
-          </div>
-
           {/* Overall Averages */}
           {averages && (
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
@@ -372,34 +401,6 @@ export function UserProfile() {
                 <Label htmlFor="daily">Daily View</Label>
               </div>
             </RadioGroup>
-          </div>
-
-          {/* Difficulty selector */}
-          <div className="mb-6 flex justify-center space-x-2">
-            <Button
-              onClick={() => setDifficultyFilter('all')}
-              variant={difficultyFilter === 'all' ? 'default' : 'outline'}
-            >
-              All
-            </Button>
-            <Button
-              onClick={() => setDifficultyFilter('easy')}
-              variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
-            >
-              Easy
-            </Button>
-            <Button
-              onClick={() => setDifficultyFilter('medium')}
-              variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
-            >
-              Medium
-            </Button>
-            <Button
-              onClick={() => setDifficultyFilter('hard')}
-              variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
-            >
-              Hard
-            </Button>
           </div>
 
           {/* Game history table */}
@@ -554,10 +555,8 @@ export function UserProfile() {
 function LoadingSkeleton() {
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <Skeleton className="h-8 w-[200px]" />
-      </CardHeader>
       <CardContent>
+        <Skeleton className="h-8 w-[200px] mb-4" />
         <Skeleton className="h-4 w-[150px] mb-2" />
         <Skeleton className="h-4 w-[180px] mb-6" />
         <div className="space-y-2">
