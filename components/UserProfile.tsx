@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 interface GameEntry {
   id: string
@@ -202,6 +203,18 @@ export function UserProfile() {
     currentPage * entriesPerPage
   )
 
+  const chartData = useMemo(() => {
+    if (!profileData) return [];
+    return profileData.games
+      .filter(game => difficultyFilter === 'all' || game.difficulty === difficultyFilter)
+      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      .map((game, index) => ({
+        game: index + 1,
+        moves: game.moves,
+        time: game.time,
+      }));
+  }, [profileData, difficultyFilter]);
+
   if (isLoading) {
     return <LoadingSkeleton />
   }
@@ -279,6 +292,23 @@ export function UserProfile() {
             </div>
           )}
 
+          {/* New chart section */}
+          <div className="mb-6">
+            <h3 className="text-xl text-center font-semibold mb-4">Performance Over Time</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="game" label={{ value: 'Game Number', position: 'insideBottom', offset: -5 }} />
+                <YAxis yAxisId="left" label={{ value: 'Moves', angle: -90, position: 'insideLeft' }} />
+                <YAxis yAxisId="right" orientation="right" label={{ value: 'Time (seconds)', angle: 90, position: 'insideRight' }} />
+                <Tooltip />
+                <Legend />
+                <Line yAxisId="left" type="monotone" dataKey="moves" stroke="#8884d8" name="Moves" />
+                <Line yAxisId="right" type="monotone" dataKey="time" stroke="#82ca9d" name="Time" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
@@ -299,7 +329,8 @@ export function UserProfile() {
                 >
                   Time
                   {sortColumn === 'time' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    sortDirection === 'asc' ? 
+                    <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
                 <TableHead 
@@ -336,7 +367,6 @@ export function UserProfile() {
                   Quote
                   {sortColumn === 'quote' && (
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  
                   )}
                 </TableHead>
               </TableRow>
