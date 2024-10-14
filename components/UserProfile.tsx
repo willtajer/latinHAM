@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -272,9 +272,11 @@ export function UserProfile() {
     <>
       <div className="text-center mb-6 text-white">
         <h1 className="text-3xl font-bold mb-2">{profileData.username}</h1>
-        <GamePreview />
+        <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
+          <GamePreview />
+        </div>
         <p className="text-xl mb-1">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-        <p className="text-xl mb-4">
+        <p className="text-xl mb-6">
           Total games played: {
             difficultyFilter === 'all'
               ? profileData.games.length
@@ -285,24 +287,28 @@ export function UserProfile() {
           <Button
             onClick={() => setDifficultyFilter('all')}
             variant={difficultyFilter === 'all' ? 'default' : 'outline'}
+            className={difficultyFilter === 'all' ? '' : 'text-foreground'}
           >
             All
           </Button>
           <Button
             onClick={() => setDifficultyFilter('easy')}
             variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
+            className={difficultyFilter === 'easy' ? '' : 'text-foreground'}
           >
             Easy
           </Button>
           <Button
             onClick={() => setDifficultyFilter('medium')}
             variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
+            className={difficultyFilter === 'medium' ? '' : 'text-foreground'}
           >
             Medium
           </Button>
           <Button
             onClick={() => setDifficultyFilter('hard')}
             variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
+            className={difficultyFilter === 'hard' ? '' : 'text-foreground'}
           >
             Hard
           </Button>
@@ -335,6 +341,7 @@ export function UserProfile() {
 
           {/* Performance Trends graph */}
           <div className="mb-6">
+            <h3 className="text-xl text-center font-semibold mb-4">Performance Trends</h3>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
               <div ref={chartRef} className="overflow-x-auto flex-grow w-full md:w-4/5">
                 <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
