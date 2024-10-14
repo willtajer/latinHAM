@@ -87,6 +87,7 @@ export function UserProfile() {
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<GameEntry | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
+  const [totalGames, setTotalGames] = useState(0)
   const entriesPerPage = 10
 
   useEffect(() => {
@@ -94,20 +95,21 @@ export function UserProfile() {
       if (!user) return
 
       try {
-        const response = await fetch(`/api/user-profile?userId=${user.id}`)
+        const response = await fetch(`/api/user-profile?userId=${user.id}&page=${currentPage}&limit=${entriesPerPage}&sortColumn=${sortColumn}&sortDirection=${sortDirection}&difficulty=${difficultyFilter}`)
         if (!response.ok) {
           throw new Error('Failed to fetch user profile')
         }
-        const data: UserProfileData = await response.json()
+        const data: { profileData: UserProfileData; totalGames: number } = await response.json()
         const processedData: UserProfileData = {
-          ...data,
-          games: data.games.map((game: GameEntry) => ({
+          ...data.profileData,
+          games: data.profileData.games.map((game: GameEntry) => ({
             ...game,
             grid: ensureGrid2D(game.grid),
             initialGrid: ensureGrid2D(game.initialGrid),
           }))
         }
         setProfileData(processedData)
+        setTotalGames(data.totalGames)
       } catch (err) {
         setError('Error loading profile data')
         console.error(err)
@@ -117,7 +119,7 @@ export function UserProfile() {
     }
 
     fetchUserProfile()
-  }, [user])
+  }, [user, currentPage, sortColumn, sortDirection, difficultyFilter])
 
   const ensureGrid2D = (grid: number[] | number[][]): number[][] => {
     if (Array.isArray(grid[0])) {
@@ -141,6 +143,7 @@ export function UserProfile() {
       setSortColumn(column)
       setSortDirection('desc')
     }
+    setCurrentPage(1)
   }
 
   const formatDuration = (seconds: number) => {
@@ -155,9 +158,7 @@ export function UserProfile() {
 
   const averages = useMemo(() => {
     if (!profileData || profileData.games.length === 0) return null;
-    const filteredGames = difficultyFilter === 'all' 
-      ? profileData.games 
-      : profileData.games.filter(game => game.difficulty === difficultyFilter);
+    const filteredGames = profileData.games;
     const totalMoves = filteredGames.reduce((sum, game) => sum + game.moves, 0)
     const totalDuration = filteredGames.reduce((sum, game) => sum + game.time, 0)
     const totalHints = filteredGames.reduce((sum, game) => sum + (game.hints || 0), 0)
@@ -168,43 +169,9 @@ export function UserProfile() {
       duration: totalDuration / count,
       hints: totalHints / count,
     } : null;
-  }, [profileData, difficultyFilter])
+  }, [profileData])
 
-  const filteredAndSortedGames = useMemo(() => {
-    let filtered = profileData ? profileData.games : [];
-    if (difficultyFilter !== 'all') {
-      filtered = filtered.filter(game => game.difficulty === difficultyFilter);
-    }
-    return filtered.sort((a, b) => {
-      let compareValue: number;
-      switch (sortColumn) {
-        case 'date':
-          compareValue = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-          break;
-        case 'moves':
-          compareValue = a.moves - b.moves;
-          break;
-        case 'hints':
-          compareValue = a.hints - b.hints;
-          break;
-        case 'duration':
-          compareValue = a.time - b.time;
-          break;
-        case 'quote':
-          compareValue = a.quote.localeCompare(b.quote);
-          break;
-        default:
-          compareValue = 0;
-      }
-      return sortDirection === 'asc' ? compareValue : -compareValue
-    });
-  }, [profileData, difficultyFilter, sortColumn, sortDirection]);
-
-  const totalPages = Math.ceil(filteredAndSortedGames.length / entriesPerPage)
-  const paginatedGames = filteredAndSortedGames.slice(
-    (currentPage - 1) * entriesPerPage,
-    currentPage * entriesPerPage
-  )
+  const totalPages = Math.ceil(totalGames / entriesPerPage)
 
   if (isLoading) {
     return <LoadingSkeleton />
@@ -231,30 +198,30 @@ export function UserProfile() {
         <CardContent>
           <div className="text-center mb-6">
             <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-            <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
+            <p className="text-sm text-muted-foreground">Total games played: {totalGames}</p>
           </div>
 
           <div className="mb-4 flex justify-center space-x-2">
             <Button
-              onClick={() => setDifficultyFilter('all')}
+              onClick={() => {setDifficultyFilter('all'); setCurrentPage(1);}}
               variant={difficultyFilter === 'all' ? 'default' : 'outline'}
             >
               All
             </Button>
             <Button
-              onClick={() => setDifficultyFilter('easy')}
+              onClick={() => {setDifficultyFilter('easy'); setCurrentPage(1);}}
               variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
             >
               Easy
             </Button>
             <Button
-              onClick={() => setDifficultyFilter('medium')}
+              onClick={() => {setDifficultyFilter('medium'); setCurrentPage(1);}}
               variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
             >
               Medium
             </Button>
             <Button
-              onClick={() => setDifficultyFilter('hard')}
+              onClick={() => {setDifficultyFilter('hard'); setCurrentPage(1);}}
               variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
             >
               Hard
@@ -336,7 +303,7 @@ export function UserProfile() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedGames.map((game) => (
+              {profileData.games.map((game) => (
                 <TableRow key={game.id}>
                   <TableCell className="p-2">
                     <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
@@ -372,6 +339,7 @@ export function UserProfile() {
                     className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
+                
                 {[...Array(totalPages)].map((_, i) => (
                   <PaginationItem key={i}>
                     <PaginationLink
