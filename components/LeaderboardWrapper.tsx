@@ -4,10 +4,10 @@ import Leaderboard from './Leaderboard'
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
 
 interface LeaderboardWrapperProps {
-  initialDifficulty: 'all' | 'easy' | 'medium' | 'hard'
+  initialDifficulty?: 'all' | 'easy' | 'medium' | 'hard'
 }
 
-export const LeaderboardWrapper: React.FC<LeaderboardWrapperProps> = ({ initialDifficulty }) => {
+export function LeaderboardWrapper({ initialDifficulty = 'all' }: LeaderboardWrapperProps) {
   const [viewingEntry, setViewingEntry] = useState<LeaderboardEntry | null>(null)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [currentDifficulty, setCurrentDifficulty] = useState<'all' | 'easy' | 'medium' | 'hard'>(initialDifficulty)

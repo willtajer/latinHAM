@@ -180,6 +180,10 @@ export default function Leaderboard({ initialDifficulty = "all", onViewCompleted
     }
   }, [entries, difficulty])
 
+  const handleViewCompletedBoard = (entry: LeaderboardEntry) => {
+    onViewCompletedBoard(entry)
+  }
+
   const handleDifficultyChange = (newDifficulty: "all" | "easy" | "medium" | "hard") => {
     setDifficulty(newDifficulty)
     setCurrentPage(1) // Reset to first page when changing difficulty
@@ -317,7 +321,7 @@ export default function Leaderboard({ initialDifficulty = "all", onViewCompleted
             {paginatedEntries.map((entry) => (
               <TableRow key={entry.id}>
                 <TableCell className="p-2">
-                  <MiniProgressBar grid={entry.grid} onClick={() => onViewCompletedBoard(entry)} />
+                  <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
                 </TableCell>
                 <TableCell className="p-2">
                   <Badge 
@@ -332,12 +336,12 @@ export default function Leaderboard({ initialDifficulty = "all", onViewCompleted
                     {entry.difficulty}
                   </Badge>
                 </TableCell>
-                <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
-                <TableCell className="p-1  text-sm">{formatDuration(entry.time)}</TableCell>
-                <TableCell className="p-1 text-sm  text-center">{entry.moves}</TableCell>
+                <TableCell className="p-1  text-sm">{entry.username || 'Anonymous'}</TableCell>
+                <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
+                <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
                 <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
-                <TableCell className="p-1  text-sm">{formatTime(entry.timestamp)}</TableCell>
-                <TableCell className="p-1  text-sm">{formatDate(entry.timestamp)}</TableCell>
+                <TableCell className="p-1 text-sm">{formatTime(entry.timestamp)}</TableCell>
+                <TableCell className="p-1 text-sm">{formatDate(entry.timestamp)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
