@@ -236,7 +236,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               )}
               {activeOverlay === 'quests' && (
                 <div className="max-w-6xl mx-auto pt-16">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
+                  <h1 className="text-6xl font-bold mb-6 text-center text-white">
                     Achievements
                   </h1>
                   <div className="flex flex-col items-center justify-center">

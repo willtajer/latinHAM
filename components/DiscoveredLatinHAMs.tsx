@@ -40,7 +40,7 @@ const DifficultyFilters: React.FC<{
   </div>
 )
 
-export const DiscoveredLatinHAMs: React.FC = () => {
+export function DiscoveredLatinHAMs() {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -76,15 +76,7 @@ export const DiscoveredLatinHAMs: React.FC = () => {
 
   useEffect(() => {
     fetchLatinHAMs()
-  }, [fetchLatinHAMs, user]) // Re-fetch when user changes
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      fetchLatinHAMs()
-    }, 60000) // Fetch every minute
-
-    return () => clearInterval(intervalId)
-  }, [fetchLatinHAMs])
+  }, [fetchLatinHAMs, difficultyFilter, user])
 
   const handleLatinHAMClick = (latinHAM: LatinHAM) => {
     setSelectedLatinHAM(latinHAM)
@@ -93,10 +85,6 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   const handleCloseLeaderboard = () => {
     setSelectedLatinHAM(null)
     fetchLatinHAMs() // Re-fetch data when closing leaderboard
-  }
-
-  const handleRefresh = () => {
-    fetchLatinHAMs()
   }
 
   if (isLoading) {
@@ -121,26 +109,21 @@ export const DiscoveredLatinHAMs: React.FC = () => {
       </div>
       <p className="text-center mb-6 text-white">Explore player-identified gameboard layouts.</p>
       {!selectedLatinHAM && (
-        <>
-          <DifficultyFilters
-            difficultyFilter={difficultyFilter}
-            setDifficultyFilter={setDifficultyFilter}
-          />
-          <div className="text-center mb-4">
-            <Button onClick={handleRefresh}>
-              Refresh Data
-            </Button>
-          </div>
-        </>
+        <DifficultyFilters
+          difficultyFilter={difficultyFilter}
+          setDifficultyFilter={setDifficultyFilter}
+        />
       )}
       {selectedLatinHAM ? (
         <div>
-          <button 
-            onClick={handleCloseLeaderboard}
-            className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            Back to Grid
-          </button>
+          <div className="flex justify-center mb-4">
+            <Button 
+              onClick={handleCloseLeaderboard}
+              variant="outline"
+            >
+              Back to Grid
+            </Button>
+          </div>
           <LatinHAMLeaderboard
             latinHAM={selectedLatinHAM}
           />
@@ -156,4 +139,4 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   )
 }
 
-export default DiscoveredLatinHAMs
+export default DiscoveredLatinHAMs;

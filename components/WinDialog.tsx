@@ -69,7 +69,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
         onSubmit("")
         setQuoteSubmitted(true)
       }
-      onOpenChange(true)
+      onOpenChange(false)
     }
   }
 
