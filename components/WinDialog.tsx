@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
-import { Download, RefreshCw } from 'lucide-react'
+import { Download } from 'lucide-react'
 
 interface WinDialogProps {
   open: boolean
@@ -16,7 +16,6 @@ interface WinDialogProps {
   gameNumber?: number
   difficulty: 'easy' | 'medium' | 'hard'
   onStartNewGame: () => void
-  onResetGame: (initialGrid: number[][]) => void
   showQuoteInput: boolean
   isSubmitting?: boolean
 }
@@ -31,7 +30,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   gameNumber,
   difficulty,
   onStartNewGame,
-  onResetGame,
   showQuoteInput,
   isSubmitting = false
 }) => {
@@ -46,13 +44,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-    }
-  }
-
-  const handleResetGame = () => {
-    if (entry && entry.initialGrid) {
-      onResetGame(entry.initialGrid)
-      onOpenChange(false)
     }
   }
 
@@ -124,9 +115,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                 <Button onClick={() => { onStartNewGame(); onOpenChange(false); }} className="inline-flex items-center px-4 py-2">
                   Start New Game
                 </Button> 
-                <Button onClick={handleResetGame} className="inline-flex items-center p-2" aria-label="Reset and play this puzzle">
-                  <RefreshCw className="h-5 w-5" />
-                </Button>
                 <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
                   <Download className="h-5 w-5" />
                 </Button>

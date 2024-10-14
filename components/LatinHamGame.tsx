@@ -287,7 +287,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         difficulty={memoizedDifficulty}
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}
-        onResetGame={handleResetGame}
       />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
