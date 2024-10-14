@@ -342,32 +342,44 @@ export function UserProfile() {
           {/* Performance Trends graph */}
           <div className="mb-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-              <div ref={chartRef} className="overflow-x-auto flex-grow w-full md:w-4/5">
-                <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey={xAxisView === 'game' ? 'game' : 'date'} 
-                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }} 
-                        reversed={xAxisView === 'game'}
-                      />
-                      <YAxis yAxisId="left" label={{ value: 'Time (seconds)', angle: -90, position: 'insideLeft' }} />
-                      <YAxis yAxisId="right" orientation="right" label={{ value: 'Moves', angle: 90, position: 'insideRight' }} />
-                      <Tooltip />
-                      <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} />
-                      <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
-                      {xAxisView === 'game' && (
-                        <>
-                          <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="#ffc658" name="Avg Time" strokeWidth={3} />
-                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="#ff7300" name="Avg Moves" strokeWidth={3} />
-                        </>
-                      )}
-                    </LineChart>
-                  </ResponsiveContainer>
+              <div className="w-full relative">
+                <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
+                  <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
+                    Time (seconds)
+                  </div>
+                </div>
+                <div className="absolute top-0 bottom-0 right-0 flex flex-col justify-center">
+                  <div className="transform rotate-90 origin-center translate-x-[50%] whitespace-nowrap text-sm text-gray-500">
+                    Moves
+                  </div>
+                </div>
+                <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
+                  <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey={xAxisView === 'game' ? 'game' : 'date'} 
+                          label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom',   offset: -5 }} 
+                          reversed={xAxisView === 'game'}
+                        />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <Tooltip />
+                        <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} />
+                        <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
+                        {xAxisView === 'game' && (
+                          <>
+                            <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="#ffc658" name="Avg Time" strokeWidth={3} />
+                            <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="#ff7300" name="Avg Moves" strokeWidth={3} />
+                          </>
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
-              {/* Color indicators */}
+              {/* Color indicators moved below the graph */}
               <div className="flex flex-wrap justify-center mt-4 w-full">
                 <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
