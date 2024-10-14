@@ -73,8 +73,8 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [difficulty, setDifficulty] = useState<"all" | "easy" | "medium" | "hard">(initialDifficulty)
-  const [sortColumn, setSortColumn] = useState<'date' | 'time' | 'moves' | 'hints' | 'duration' | 'difficulty'>('date')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [sortColumn, setSortColumn] = useState<'moves' | 'date' | 'time' | 'hints' | 'duration' | 'difficulty'>('moves')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(null)
   const entriesPerPage = 10
@@ -107,12 +107,12 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const handleSort = (column: 'date' | 'time' | 'moves' | 'hints' | 'duration' | 'difficulty') => {
+  const handleSort = (column: 'moves' | 'date' | 'time' | 'hints' | 'duration' | 'difficulty') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
       setSortColumn(column)
-      setSortDirection('desc')
+      setSortDirection('asc')
     }
   }
 
@@ -124,15 +124,15 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     return [...filteredEntries].sort((a, b) => {
       let compareValue: number;
       switch (sortColumn) {
+        case 'moves':
+          compareValue = a.moves - b.moves;
+          break;
         case 'date':
           compareValue = new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
           break;
         case 'time':
           compareValue = new Date(b.timestamp).getHours() * 60 + new Date(b.timestamp).getMinutes() - 
                          (new Date(a.timestamp).getHours() * 60 + new Date(a.timestamp).getMinutes());
-          break;
-        case 'moves':
-          compareValue = a.moves - b.moves;
           break;
         case 'hints':
           compareValue = (a.hints || 0) - (b.hints || 0);
@@ -254,27 +254,28 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             </div>
           </div>
 
-          <Table className="w-full table-fixed">
+          <Table className="w-full">
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">Rank</TableHead>
                 <TableHead className="w-16">Minigrid</TableHead>
                 <TableHead className="w-20">Difficulty</TableHead>
                 <TableHead className="w-24">User</TableHead>
-                <TableHead 
-                  className="w-24 cursor-pointer"
-                  onClick={() => handleSort('duration')}
-                >
-                  Duration
-                  {sortColumn === 'duration' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
                 <TableHead 
                   className="w-16 cursor-pointer"
                   onClick={() => handleSort('moves')}
                 >
                   Moves
                   {sortColumn === 'moves' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="w-24 cursor-pointer"
+                  onClick={() => handleSort('duration')}
+                >
+                  Duration
+                  {sortColumn === 'duration' && (
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
@@ -288,7 +289,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-16 cursor-pointer"
+                  className="w-20 cursor-pointer"
                   onClick={() => handleSort('time')}
                 >
                   Time
@@ -308,8 +309,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedEntries.map((entry) => (
+              {paginatedEntries.map((entry, index) => (
                 <TableRow key={entry.id}>
+                  <TableCell className="p-2 text-center">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
                   <TableCell className="p-2">
                     <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
                   </TableCell>
@@ -327,9 +329,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell className="p-1 text-sm  text-center">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
-                  <TableCell  className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
                   <TableCell className="p-1 text-sm">{formatTime(entry.timestamp)}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(entry.timestamp)}</TableCell>
                 </TableRow>

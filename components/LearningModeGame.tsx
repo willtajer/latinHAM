@@ -76,9 +76,6 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
           <Button onClick={handleRestart} variant="default" size="sm">
             {isComplete ? "Play Again" : "Restart"}
           </Button>
-          <Link href="/" passHref>
-            <Button variant="destructive" size="sm">Back to Main Game</Button>
-          </Link>
         </div>
       </CardContent>
       {isClient && showConfetti && (
