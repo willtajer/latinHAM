@@ -77,17 +77,21 @@ const formatDate = (dateString: string) => {
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)}`;
 }
 
+const formatTime = (dateString: string) => {
+  const date = new Date(dateString);
+  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
+
 export function UserProfile() {
   const { user } = useUser()
   const [profileData, setProfileData] = useState<UserProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [sortColumn, setSortColumn] = useState<'date' | 'moves' | 'hints' | 'duration' | 'quote'>('date')
+  const [sortColumn, setSortColumn] = useState<'date' | 'moves' | 'time' | 'hints' | 'duration' | 'quote'>('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<GameEntry | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
-  const [totalGames, setTotalGames] = useState(0)
   const entriesPerPage = 10
 
   useEffect(() => {
@@ -95,21 +99,20 @@ export function UserProfile() {
       if (!user) return
 
       try {
-        const response = await fetch(`/api/user-profile?userId=${user.id}&page=${currentPage}&limit=${entriesPerPage}&sortColumn=${sortColumn}&sortDirection=${sortDirection}&difficulty=${difficultyFilter}`)
+        const response = await fetch(`/api/user-profile?userId=${user.id}`)
         if (!response.ok) {
           throw new Error('Failed to fetch user profile')
         }
-        const data: { profileData: UserProfileData; totalGames: number } = await response.json()
+        const data: UserProfileData = await response.json()
         const processedData: UserProfileData = {
-          ...data.profileData,
-          games: data.profileData.games.map((game: GameEntry) => ({
+          ...data,
+          games: data.games.map((game: GameEntry) => ({
             ...game,
             grid: ensureGrid2D(game.grid),
             initialGrid: ensureGrid2D(game.initialGrid),
           }))
         }
         setProfileData(processedData)
-        setTotalGames(data.totalGames)
       } catch (err) {
         setError('Error loading profile data')
         console.error(err)
@@ -119,7 +122,7 @@ export function UserProfile() {
     }
 
     fetchUserProfile()
-  }, [user, currentPage, sortColumn, sortDirection, difficultyFilter])
+  }, [user])
 
   const ensureGrid2D = (grid: number[] | number[][]): number[][] => {
     if (Array.isArray(grid[0])) {
@@ -136,14 +139,13 @@ export function UserProfile() {
     return result
   }
 
-  const handleSort = (column: 'date' | 'moves' | 'hints' | 'duration' | 'quote') => {
+  const handleSort = (column: 'date' | 'moves' | 'time' | 'hints' | 'duration' | 'quote') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
       setSortColumn(column)
       setSortDirection('desc')
     }
-    setCurrentPage(1)
   }
 
   const formatDuration = (seconds: number) => {
@@ -158,10 +160,12 @@ export function UserProfile() {
 
   const averages = useMemo(() => {
     if (!profileData || profileData.games.length === 0) return null;
-    const filteredGames = profileData.games;
+    const filteredGames = difficultyFilter === 'all' 
+    ? profileData.games 
+    : profileData.games.filter(game => game.difficulty === difficultyFilter);
     const totalMoves = filteredGames.reduce((sum, game) => sum + game.moves, 0)
     const totalDuration = filteredGames.reduce((sum, game) => sum + game.time, 0)
-    const totalHints = filteredGames.reduce((sum, game) => sum + (game.hints || 0), 0)
+    const totalHints = filteredGames.reduce((sum, game) => sum + game.hints, 0)
     const count = filteredGames.length
 
     return count > 0 ? {
@@ -169,9 +173,47 @@ export function UserProfile() {
       duration: totalDuration / count,
       hints: totalHints / count,
     } : null;
-  }, [profileData])
+  }, [profileData, difficultyFilter])
 
-  const totalPages = Math.ceil(totalGames / entriesPerPage)
+  const filteredAndSortedGames = useMemo(() => {
+    let filtered = profileData ? profileData.games : [];
+    if (difficultyFilter !== 'all') {
+      filtered = filtered.filter(game => game.difficulty === difficultyFilter);
+    }
+    return filtered.sort((a, b) => {
+      let compareValue: number;
+      switch (sortColumn) {
+        case 'date':
+          compareValue = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        case 'moves':
+          compareValue = a.moves - b.moves;
+          break;
+        case 'time':
+          compareValue = new Date(a.created_at).getHours() * 60 + new Date(a.created_at).getMinutes() - 
+                         (new Date(b.created_at).getHours() * 60 + new Date(b.created_at).getMinutes());
+          break;
+        case 'hints':
+          compareValue = a.hints - b.hints;
+          break;
+        case 'duration':
+          compareValue = a.time - b.time;
+          break;
+        case 'quote':
+          compareValue = a.quote.localeCompare(b.quote);
+          break;
+        default:
+          compareValue = 0;
+      }
+      return sortDirection === 'asc' ? compareValue : -compareValue
+    });
+  }, [profileData, difficultyFilter, sortColumn, sortDirection]);
+
+  const totalPages = Math.ceil(filteredAndSortedGames.length / entriesPerPage)
+  const paginatedGames = filteredAndSortedGames.slice(
+    (currentPage - 1) * entriesPerPage,
+    currentPage * entriesPerPage
+  )
 
   if (isLoading) {
     return <LoadingSkeleton />
@@ -198,30 +240,30 @@ export function UserProfile() {
         <CardContent>
           <div className="text-center mb-6">
             <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-            <p className="text-sm text-muted-foreground">Total games played: {totalGames}</p>
+            <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
 
           <div className="mb-4 flex justify-center space-x-2">
             <Button
-              onClick={() => {setDifficultyFilter('all'); setCurrentPage(1);}}
+              onClick={() => setDifficultyFilter('all')}
               variant={difficultyFilter === 'all' ? 'default' : 'outline'}
             >
               All
             </Button>
             <Button
-              onClick={() => {setDifficultyFilter('easy'); setCurrentPage(1);}}
+              onClick={() => setDifficultyFilter('easy')}
               variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
             >
               Easy
             </Button>
             <Button
-              onClick={() => {setDifficultyFilter('medium'); setCurrentPage(1);}}
+              onClick={() => setDifficultyFilter('medium')}
               variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
             >
               Medium
             </Button>
             <Button
-              onClick={() => {setDifficultyFilter('hard'); setCurrentPage(1);}}
+              onClick={() => setDifficultyFilter('hard')}
               variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
             >
               Hard
@@ -266,6 +308,15 @@ export function UserProfile() {
                 </TableHead>
                 <TableHead 
                   className="w-16 cursor-pointer"
+                  onClick={() => handleSort('time')}
+                >
+                  Time
+                  {sortColumn === 'time' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="w-16 cursor-pointer"
                   onClick={() => handleSort('moves')}
                 >
                   Moves
@@ -298,12 +349,13 @@ export function UserProfile() {
                   Quote
                   {sortColumn === 'quote' && (
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  
                   )}
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {profileData.games.map((game) => (
+              {paginatedGames.map((game) => (
                 <TableRow key={game.id}>
                   <TableCell className="p-2">
                     <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
@@ -322,9 +374,10 @@ export function UserProfile() {
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
+                  <TableCell  className="p-1 text-sm">{formatTime(game.created_at)}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
-                  <TableCell className="p-1 text-sm  text-center">{game.hints}</TableCell>
-                  <TableCell className="p-1  text-sm">{formatDuration(game.time)}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
+                  <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>
                   <TableCell className="p-1 text-sm truncate">{game.quote}</TableCell>
                 </TableRow>
               ))}
@@ -339,7 +392,6 @@ export function UserProfile() {
                     className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
-                
                 {[...Array(totalPages)].map((_, i) => (
                   <PaginationItem key={i}>
                     <PaginationLink
