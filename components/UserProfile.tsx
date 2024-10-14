@@ -345,18 +345,17 @@ export function UserProfile() {
                       <XAxis 
                         dataKey={xAxisView === 'game' ? 'game' : 'date'} 
                         label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }} 
-                
                         reversed={xAxisView === 'game'}
                       />
-                      <YAxis yAxisId="left" label={{ value: 'Moves', angle: -90, position: 'insideLeft' }} />
-                      <YAxis yAxisId="right" orientation="right" label={{ value: 'Time (seconds)', angle: 90, position: 'insideRight' }} />
+                      <YAxis yAxisId="left" label={{ value: 'Time (seconds)', angle: -90, position: 'insideLeft' }} />
+                      <YAxis yAxisId="right" orientation="right" label={{ value: 'Moves', angle: 90, position: 'insideRight' }} />
                       <Tooltip />
-                      <Line yAxisId="left" type="monotone" dataKey="moves" stroke="#8884d8" name="Moves" strokeWidth={3} />
-                      <Line yAxisId="right" type="monotone" dataKey="time" stroke="#82ca9d" name="Time" strokeWidth={3} />
+                      <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} />
+                      <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
                       {xAxisView === 'game' && (
                         <>
-                          <Line yAxisId="left" type="monotone" dataKey="avgMoves" stroke="#ffc658" name="Avg Moves" strokeWidth={3} />
-                          <Line yAxisId="right" type="monotone" dataKey="avgTime" stroke="#ff7300" name="Avg Time" strokeWidth={3} />
+                          <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="#ffc658" name="Avg Time" strokeWidth={3} />
+                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="#ff7300" name="Avg Moves" strokeWidth={3} />
                         </>
                       )}
                     </LineChart>
@@ -367,23 +366,23 @@ export function UserProfile() {
               <div className="flex flex-wrap justify-center mt-4 w-full">
                 <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
-                  <span>Moves</span>
-                </div>
-                <div className="flex items-center mr-4 mb-2">
-                  <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
                   <span>Time</span>
                 </div>
                 {xAxisView === 'game' && (
-                  <>
-                    <div className="flex items-center mr-4 mb-2">
-                      <div className="w-4 h-4 bg-[#ffc658] mr-2"></div>
-                      <span>Avg Moves</span>
-                    </div>
-                    <div className="flex items-center mb-2">
-                      <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
-                      <span>Avg Time</span>
-                    </div>
-                  </>
+                  <div className="flex items-center mr-4 mb-2">
+                    <div className="w-4 h-4 bg-[#ffc658] mr-2"></div>
+                    <span>Avg Time</span>
+                  </div>
+                )}
+                <div className="flex items-center mr-4 mb-2">
+                  <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
+                  <span>Moves</span>
+                </div>
+                {xAxisView === 'game' && (
+                  <div className="flex items-center mb-2">
+                    <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
+                    <span>Avg Moves</span>
+                  </div>
                 )}
               </div>
             </div>
