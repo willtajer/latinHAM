@@ -156,11 +156,11 @@ export function UserProfile() {
   const averages = useMemo(() => {
     if (!profileData || profileData.games.length === 0) return null;
     const filteredGames = difficultyFilter === 'all' 
-    ? profileData.games 
-    : profileData.games.filter(game => game.difficulty === difficultyFilter);
+      ? profileData.games 
+      : profileData.games.filter(game => game.difficulty === difficultyFilter);
     const totalMoves = filteredGames.reduce((sum, game) => sum + game.moves, 0)
     const totalDuration = filteredGames.reduce((sum, game) => sum + game.time, 0)
-    const totalHints = filteredGames.reduce((sum, game) => sum + game.hints, 0)
+    const totalHints = filteredGames.reduce((sum, game) => sum + (game.hints || 0), 0)
     const count = filteredGames.length
 
     return count > 0 ? {
@@ -356,7 +356,7 @@ export function UserProfile() {
                   </TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
+                  <TableCell className="p-1 text-sm  text-center">{game.hints}</TableCell>
                   <TableCell className="p-1  text-sm">{formatDuration(game.time)}</TableCell>
                   <TableCell className="p-1 text-sm truncate">{game.quote}</TableCell>
                 </TableRow>
