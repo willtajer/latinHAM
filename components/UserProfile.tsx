@@ -218,10 +218,10 @@ export function UserProfile() {
 
   return (
     <>
-      <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
+      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh]">
         <CardHeader>
           <div className="text-center">
-            <CardTitle>Player Profile: {profileData.username}</CardTitle>
+            <CardTitle>Player: {profileData.username}</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
