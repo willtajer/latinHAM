@@ -61,6 +61,7 @@ export function LearningModeGame({ onComplete, onRestart }: LearningModeGameProp
                 className={`w-full aspect-square rounded-lg flex items-center justify-center text-4xl font-bold transition-all duration-300
                   ${locked[rowIndex][colIndex] ? 'cursor-not-allowed' : 'cursor-pointer'}
                   ${showColors ? getColorClass(cell) : 'bg-transparent'}
+                  ${isComplete ? 'text-white' : ''}
                   border-4 border-gray-700 hover:border-gray-500`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 disabled={locked[rowIndex][colIndex] || isComplete}
