@@ -41,7 +41,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     handleReset,
     handleTrashToggle,
     checkWin,
-    resetGame,
   } = useGameLogic()
 
   const memoizedDifficulty = useMemo(() => difficulty, [difficulty])
@@ -174,21 +173,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
     clearGameState()
   }, [clearGameState])
-
-  const handleResetGame = useCallback((newInitialGrid: number[][]) => {
-    console.log("Received Initial Grid in LatinHamGame:", newInitialGrid)
-    resetGame(newInitialGrid)
-    setHasSubmittedQuote(false)
-    setShowQuoteDialog(false)
-    setShowConfetti(false)
-    setShowWinCard(false)
-    setWinQuote("")
-    localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
-    
-    if (checkWin(newInitialGrid)) {
-      handleWin()
-    }
-  }, [resetGame, checkWin, handleWin])
 
   const handleNewGame = useCallback(() => {
     if (gameState === 'playing' && !showDifficultySelector) {
