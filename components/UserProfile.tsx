@@ -271,7 +271,7 @@ export function UserProfile() {
   return (
     <>
       <div className="text-center mb-6 text-white">
-        <h1 className="text-3xl font-bold mb-4">{profileData.username}</h1>
+        <h1 className="text-6xl font-bold mb-4">{profileData.username}</h1>
         <div className="flex flex-col items-center justify-center">
           <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
             <GamePreview />
