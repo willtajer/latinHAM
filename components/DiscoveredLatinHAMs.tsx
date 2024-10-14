@@ -6,6 +6,8 @@ import LatinHAMLeaderboard from './LatinHAMLeaderboard'
 import { LatinHAM } from '@/types'
 import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
+import { useUser } from '@clerk/nextjs'
+import { Badge } from "@/components/ui/badge"
 
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';
@@ -45,11 +47,17 @@ export const DiscoveredLatinHAMs: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
+  const { user } = useUser()
 
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}`)
+      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -69,6 +77,14 @@ export const DiscoveredLatinHAMs: React.FC = () => {
 
   useEffect(() => {
     fetchLatinHAMs()
+  }, [fetchLatinHAMs, user]) // Re-fetch when user changes
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchLatinHAMs()
+    }, 60000) // Fetch every minute
+
+    return () => clearInterval(intervalId)
   }, [fetchLatinHAMs])
 
   const handleLatinHAMClick = (latinHAM: LatinHAM) => {
@@ -77,6 +93,11 @@ export const DiscoveredLatinHAMs: React.FC = () => {
 
   const handleCloseLeaderboard = () => {
     setSelectedLatinHAM(null)
+    fetchLatinHAMs() // Re-fetch data when closing leaderboard
+  }
+
+  const handleRefresh = () => {
+    fetchLatinHAMs()
   }
 
   if (isLoading) {
@@ -101,10 +122,17 @@ export const DiscoveredLatinHAMs: React.FC = () => {
       </div>
       <p className="text-center mb-6 text-white">Explore player-identified gameboard layouts.</p>
       {!selectedLatinHAM && (
-        <DifficultyFilters
-          difficultyFilter={difficultyFilter}
-          setDifficultyFilter={setDifficultyFilter}
-        />
+        <>
+          <DifficultyFilters
+            difficultyFilter={difficultyFilter}
+            setDifficultyFilter={setDifficultyFilter}
+          />
+          <div className="text-center mb-4">
+            <Button onClick={handleRefresh}>
+              Refresh Data
+            </Button>
+          </div>
+        </>
       )}
       {selectedLatinHAM ? (
         <div>

@@ -1,0 +1,126 @@
+Date : 2024-10-13 14:20:29
+Directory : /Users/knahtuoy/Documents/36/36slicesgame
+Total : 75 files,  12106 codes, 52 comments, 625 blanks, all 12783 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |          4 |      6,859 |          0 |          3 |      6,862 |
+| TypeScript JSX     |         41 |      3,632 |         14 |        386 |      4,032 |
+| TypeScript         |         22 |      1,277 |         36 |        147 |      1,460 |
+| Markdown           |          2 |        221 |          0 |         60 |        281 |
+| CSS                |          1 |         56 |          0 |         22 |         78 |
+| JSON with Comments |          1 |         26 |          0 |          1 |         27 |
+| JavaScript         |          3 |         23 |          2 |          6 |         31 |
+| SQL                |          1 |         12 |          0 |          0 |         12 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                               | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                  |         75 |     12,106 |         52 |        625 |     12,783 |
+| . (Files)                                                                          |         14 |      7,260 |          4 |         76 |      7,340 |
+| app                                                                                |         11 |        737 |         11 |         97 |        845 |
+| app (Files)                                                                        |          3 |        153 |          0 |         27 |        180 |
+| app/api                                                                            |          8 |        584 |         11 |         70 |        665 |
+| app/api/completed-puzzels                                                          |          1 |         93 |          1 |         13 |        107 |
+| app/api/completed-puzzels/[id]                                                     |          1 |         93 |          1 |         13 |        107 |
+| app/api/discovered                                                                 |          1 |         99 |          0 |          8 |        107 |
+| app/api/leaderboard                                                                |          1 |         85 |          0 |          9 |         94 |
+| app/api/leaderboard-entries                                                        |          1 |         74 |          0 |          9 |         83 |
+| app/api/save-game                                                                  |          1 |         34 |          2 |          4 |         40 |
+| app/api/unique-solves                                                              |          1 |         94 |          0 |          7 |        101 |
+| app/api/user-profile                                                               |          1 |         48 |          0 |          6 |         54 |
+| app/api/webhooks                                                                   |          1 |         57 |          8 |         14 |         79 |
+| app/api/webhooks/clerk                                                             |          1 |         57 |          8 |         14 |         79 |
+| components                                                                         |         39 |      3,535 |         14 |        381 |      3,930 |
+| components (Files)                                                                 |         28 |      2,765 |         14 |        285 |      3,064 |
+| components/ui                                                                      |         11 |        770 |          0 |         96 |        866 |
+| hooks                                                                              |          4 |        388 |         17 |         41 |        446 |
+| lib                                                                                |          2 |          7 |          0 |          3 |         10 |
+| utils                                                                              |          5 |        179 |          6 |         27 |        212 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                           | language           | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| /Users/knahtuoy/Documents/36/36slicesgame/.eslintrc.json                           | JSON               |          3 |          0 |          1 |          4 |
+| /Users/knahtuoy/Documents/36/36slicesgame/README.md                                | Markdown           |        173 |          0 |         60 |        233 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/completed-puzzels/[id]/route.ts  | TypeScript         |         93 |          1 |         13 |        107 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/discovered/route.ts              | TypeScript         |         99 |          0 |          8 |        107 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/leaderboard-entries/route.ts     | TypeScript         |         74 |          0 |          9 |         83 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/leaderboard/route.ts             | TypeScript         |         85 |          0 |          9 |         94 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/save-game/route.ts               | TypeScript         |         34 |          2 |          4 |         40 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/unique-solves/route.ts           | TypeScript         |         94 |          0 |          7 |        101 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/user-profile/route.ts            | TypeScript         |         48 |          0 |          6 |         54 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/api/webhooks/clerk/route.ts          | TypeScript         |         57 |          8 |         14 |         79 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/globals.css                          | CSS                |         56 |          0 |         22 |         78 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/layout.tsx                           | TypeScript JSX     |         92 |          0 |          3 |         95 |
+| /Users/knahtuoy/Documents/36/36slicesgame/app/page.tsx                             | TypeScript JSX     |          5 |          0 |          2 |          7 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components.json                          | JSON               |         20 |          0 |          0 |         20 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/CompletedPuzzleCard.tsx       | TypeScript JSX     |        174 |          0 |         39 |        213 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/DifficultySelector.tsx        | TypeScript JSX     |         14 |          0 |          2 |         16 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/DiscoveredLatinHAMs.tsx       | TypeScript JSX     |        120 |          0 |         12 |        132 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/GameBoard.tsx                 | TypeScript JSX     |         71 |          0 |          6 |         77 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/GameContext.tsx               | TypeScript JSX     |         24 |          2 |          8 |         34 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/GameControls.tsx              | TypeScript JSX     |         34 |          1 |          2 |         37 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/GameHeader.tsx                | TypeScript JSX     |         25 |          0 |          2 |         27 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/GamePreview.tsx               | TypeScript JSX     |         61 |          3 |         12 |         76 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/GameStats.tsx                 | TypeScript JSX     |         27 |          1 |          2 |         30 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/HomeButton.tsx                | TypeScript JSX     |         29 |          1 |          4 |         34 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/LatinHAMGrid.tsx              | TypeScript JSX     |         72 |          1 |         10 |         83 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/LatinHAMLeaderboard.tsx       | TypeScript JSX     |        291 |          0 |         27 |        318 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/LatinHamGame.tsx              | TypeScript JSX     |        269 |          0 |         26 |        295 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/Leaderboard.tsx               | TypeScript JSX     |        305 |          0 |         16 |        321 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/LeaderboardWrapper.tsx        | TypeScript JSX     |         97 |          0 |         13 |        110 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/LearningModeGame.tsx          | TypeScript JSX     |         85 |          0 |          9 |         94 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/LoginHandler.tsx              | TypeScript JSX     |         45 |          0 |          9 |         54 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ModeToggle.tsx                | TypeScript JSX     |         36 |          1 |          4 |         41 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/NewGameDialog.tsx             | TypeScript JSX     |         36 |          0 |          2 |         38 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ParentComponent.tsx           | TypeScript JSX     |         26 |          0 |          5 |         31 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ProgressBar.tsx               | TypeScript JSX     |         31 |          0 |          4 |         35 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/StickyButtonBar.tsx           | TypeScript JSX     |        229 |          0 |         22 |        251 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ThemeBackground.tsx           | TypeScript JSX     |         26 |          3 |          5 |         34 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/UserProfile.tsx               | TypeScript JSX     |        425 |          0 |         28 |        453 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ViewCompletedPuzzleDialog.tsx | TypeScript JSX     |         60 |          0 |          5 |         65 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/WillTajerButton.tsx           | TypeScript JSX     |         14 |          0 |          1 |         15 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/WinDialog.tsx                 | TypeScript JSX     |        132 |          1 |          7 |        140 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/theme-provider.tsx            | TypeScript JSX     |          7 |          0 |          3 |         10 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/alert.tsx                  | TypeScript JSX     |         53 |          0 |          7 |         60 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/badge.tsx                  | TypeScript JSX     |         31 |          0 |          6 |         37 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/button.tsx                 | TypeScript JSX     |         51 |          0 |          6 |         57 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/card.tsx                   | TypeScript JSX     |         71 |          0 |          9 |         80 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/checkbox.tsx               | TypeScript JSX     |         26 |          0 |          5 |         31 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/dialog.tsx                 | TypeScript JSX     |        109 |          0 |         14 |        123 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/dropdown-menu.tsx          | TypeScript JSX     |        182 |          0 |         19 |        201 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/input.tsx                  | TypeScript JSX     |         20 |          0 |          5 |         25 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/pagination.tsx             | TypeScript JSX     |        107 |          0 |         11 |        118 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/skeleton.tsx               | TypeScript JSX     |         13 |          0 |          3 |         16 |
+| /Users/knahtuoy/Documents/36/36slicesgame/components/ui/table.tsx                  | TypeScript JSX     |        107 |          0 |         11 |        118 |
+| /Users/knahtuoy/Documents/36/36slicesgame/fileStructure.md                         | Markdown           |         48 |          0 |          0 |         48 |
+| /Users/knahtuoy/Documents/36/36slicesgame/hooks/useGameLogic.ts                    | TypeScript         |        231 |          4 |         22 |        257 |
+| /Users/knahtuoy/Documents/36/36slicesgame/hooks/useLeaderboard.ts                  | TypeScript         |         67 |          0 |          7 |         74 |
+| /Users/knahtuoy/Documents/36/36slicesgame/hooks/useLearningGameLogic.ts            | TypeScript         |         53 |          0 |          8 |         61 |
+| /Users/knahtuoy/Documents/36/36slicesgame/hooks/useLocalStorage.ts                 | TypeScript         |         37 |         13 |          4 |         54 |
+| /Users/knahtuoy/Documents/36/36slicesgame/lib/db.ts                                | TypeScript         |          2 |          0 |          1 |          3 |
+| /Users/knahtuoy/Documents/36/36slicesgame/lib/utils.ts                             | TypeScript         |          5 |          0 |          2 |          7 |
+| /Users/knahtuoy/Documents/36/36slicesgame/middleware.ts                            | TypeScript         |          8 |          2 |          2 |         12 |
+| /Users/knahtuoy/Documents/36/36slicesgame/next.config.mjs                          | JavaScript         |          2 |          1 |          2 |          5 |
+| /Users/knahtuoy/Documents/36/36slicesgame/package-lock.json                        | JSON               |      6,790 |          0 |          1 |      6,791 |
+| /Users/knahtuoy/Documents/36/36slicesgame/package.json                             | JSON               |         46 |          0 |          1 |         47 |
+| /Users/knahtuoy/Documents/36/36slicesgame/postcss.config.mjs                       | JavaScript         |          6 |          1 |          2 |          9 |
+| /Users/knahtuoy/Documents/36/36slicesgame/schema.sql                               | SQL                |         12 |          0 |          0 |         12 |
+| /Users/knahtuoy/Documents/36/36slicesgame/server.js                                | JavaScript         |         15 |          0 |          2 |         17 |
+| /Users/knahtuoy/Documents/36/36slicesgame/tailwind.config.ts                       | TypeScript         |         79 |          0 |          2 |         81 |
+| /Users/knahtuoy/Documents/36/36slicesgame/tsconfig.json                            | JSON with Comments |         26 |          0 |          1 |         27 |
+| /Users/knahtuoy/Documents/36/36slicesgame/types.ts                                 | TypeScript         |         32 |          0 |          2 |         34 |
+| /Users/knahtuoy/Documents/36/36slicesgame/utils/formatTime.ts                      | TypeScript         |          5 |          1 |          1 |          7 |
+| /Users/knahtuoy/Documents/36/36slicesgame/utils/gameLogic.ts                       | TypeScript         |         53 |          0 |          8 |         61 |
+| /Users/knahtuoy/Documents/36/36slicesgame/utils/gridEncoding.ts                    | TypeScript         |         27 |          1 |          2 |         30 |
+| /Users/knahtuoy/Documents/36/36slicesgame/utils/leaderboardUtils.ts                | TypeScript         |         35 |          2 |          5 |         42 |
+| /Users/knahtuoy/Documents/36/36slicesgame/utils/learningGameLogic.ts               | TypeScript         |         59 |          2 |         11 |         72 |
+| Total                                                                              |                    |     12,106 |         52 |        625 |     12,783 |
++------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

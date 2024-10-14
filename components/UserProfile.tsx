@@ -349,6 +349,7 @@ export function UserProfile() {
                   Quote
                   {sortColumn === 'quote' && (
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  
                   )}
                 </TableHead>
               </TableRow>
@@ -360,7 +361,15 @@ export function UserProfile() {
                     <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
                   </TableCell>
                   <TableCell className="p-2">
-                    <Badge variant={game.difficulty === 'easy' ? 'default' : game.difficulty === 'medium' ? 'secondary' : 'destructive'}>
+                    <Badge 
+                      className={
+                        game.difficulty === 'easy' 
+                          ? 'bg-green-500 hover:bg-green-600' 
+                          : game.difficulty === 'medium' 
+                            ? 'bg-orange-500 hover:bg-orange-600' 
+                            : 'bg-red-500 hover:bg-red-600'
+                      }
+                    >
                       {game.difficulty}
                     </Badge>
                   </TableCell>

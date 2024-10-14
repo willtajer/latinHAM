@@ -1,7 +1,9 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import {
   Pagination,
@@ -13,12 +15,17 @@ import {
 } from "@/components/ui/pagination"
 import { LeaderboardEntry } from '@/types'
 import { Button } from "@/components/ui/button"
+import { CompletedPuzzleCard } from './CompletedPuzzleCard'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 interface LeaderboardProps {
-  entries: LeaderboardEntry[];
-  difficulty: "all" | "easy" | "medium" | "hard";
-  onViewCompletedBoard: (entry: LeaderboardEntry) => void;
-  onDifficultyChange: (difficulty: "all" | "easy" | "medium" | "hard") => void;
+  initialDifficulty?: "all" | "easy" | "medium" | "hard";
 }
 
 const colorClasses = [
@@ -38,27 +45,74 @@ const MiniProgressBar: React.FC<{ grid: number[][], onClick: () => void }> = ({ 
 
   return (
     <button onClick={onClick} className="w-full">
-      <div className="grid grid-cols-6 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner">
-        {grid.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex">
-            {row.map((cell, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={`w-6 h-6 ${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500'}`}
-              />
-            ))}
-          </div>
+      <div className="grid grid-cols-6 gap-px bg-gray-200 dark:bg-gray-700 p-0.5 rounded-lg shadow-inner" style={{ aspectRatio: '1 / 1', width: '48px' }}>
+        {grid.flat().map((cell, index) => (
+          <div
+            key={index}
+            className={`${cell !== 0 ? colorClasses[cell - 1] : 'bg-white dark:bg-gray-600'}`}
+          />
         ))}
       </div>
     </button>
   )
 }
 
-export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, onDifficultyChange }: LeaderboardProps) {
-  const [sortColumn, setSortColumn] = useState<'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration' | 'difficulty'>('rank')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)}`;
+}
+
+const formatTime = (dateString: string) => {
+  const date = new Date(dateString);
+  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
+
+export function Leaderboard({ initialDifficulty = "all" }: LeaderboardProps) {
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [difficulty, setDifficulty] = useState<"all" | "easy" | "medium" | "hard">(initialDifficulty)
+  const [sortColumn, setSortColumn] = useState<'date' | 'time' | 'moves' | 'hints' | 'duration' | 'difficulty'>('date')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
+  const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(null)
   const entriesPerPage = 10
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setIsLoading(true)
+      try {
+        let data: LeaderboardEntry[] = []
+        if (difficulty === 'all') {
+          const easyResponse = await fetch('/api/leaderboard?difficulty=easy')
+          const mediumResponse = await fetch('/api/leaderboard?difficulty=medium')
+          const hardResponse = await fetch('/api/leaderboard?difficulty=hard')
+          
+          const [easyData, mediumData, hardData] = await Promise.all([
+            easyResponse.json(),
+            mediumResponse.json(),
+            hardResponse.json()
+          ])
+          
+          data = [...easyData, ...mediumData, ...hardData]
+        } else {
+          const response = await fetch(`/api/leaderboard?difficulty=${difficulty}`)
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+          data = await response.json()
+        }
+        setEntries(data)
+      } catch (err) {
+        setError('Failed to fetch leaderboard data')
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchLeaderboard()
+  }, [difficulty])
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -66,42 +120,44 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const handleSort = (column: 'rank' | 'user' | 'moves' | 'time' | 'hints' | 'duration' | 'difficulty') => {
+  const handleSort = (column: 'date' | 'time' | 'moves' | 'hints' | 'duration' | 'difficulty') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
       setSortColumn(column)
-      setSortDirection('asc')
+      setSortDirection('desc')
     }
   }
 
-  const sortedEntries = [...entries].sort((a, b) => {
-    let compareValue: number;
-    switch (sortColumn) {
-      case 'rank':
-      case 'moves':
-        compareValue = a.moves - b.moves;
-        break;
-      case 'user':
-        compareValue = (a.username || '').localeCompare(b.username || '');
-        break;
-      case 'time':
-        compareValue = new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-        break;
-      case 'hints':
-        compareValue = (a.hints || 0) - (b.hints || 0);
-        break;
-      case 'duration':
-        compareValue = a.time - b.time;
-        break;
-      case 'difficulty':
-        compareValue = a.difficulty.localeCompare(b.difficulty);
-        break;
-      default:
-        compareValue = 0;
-    }
-    return sortDirection === 'asc' ? compareValue : -compareValue
-  })
+  const sortedEntries = useMemo(() => {
+    return [...entries].sort((a, b) => {
+      let compareValue: number;
+      switch (sortColumn) {
+        case 'date':
+          compareValue = new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          break;
+        case 'time':
+          compareValue = new Date(b.timestamp).getHours() * 60 + new Date(b.timestamp).getMinutes() - 
+                         (new Date(a.timestamp).getHours() * 60 + new Date(a.timestamp).getMinutes());
+          break;
+        case 'moves':
+          compareValue = a.moves - b.moves;
+          break;
+        case 'hints':
+          compareValue = (a.hints || 0) - (b.hints || 0);
+          break;
+        case 'duration':
+          compareValue = a.time - b.time;
+          break;
+        case 'difficulty':
+          compareValue = a.difficulty.localeCompare(b.difficulty);
+          break;
+        default:
+          compareValue = 0;
+      }
+      return sortDirection === 'asc' ? compareValue : -compareValue
+    });
+  }, [entries, sortColumn, sortDirection]);
 
   const totalPages = Math.ceil(sortedEntries.length / entriesPerPage)
   const paginatedEntries = sortedEntries.slice(
@@ -123,199 +179,223 @@ export function Leaderboard({ entries = [], difficulty, onViewCompletedBoard, on
     }
   }, [entries, difficulty])
 
+  const handleViewCompletedBoard = (entry: LeaderboardEntry) => {
+    setSelectedGame(entry)
+  }
+
+  const handleDifficultyChange = (newDifficulty: "all" | "easy" | "medium" | "hard") => {
+    setDifficulty(newDifficulty)
+    setCurrentPage(1) // Reset to first page when changing difficulty
+  }
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading leaderboard entries...</div>
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>
+  }
+
   if (entries.length === 0) {
     return (
-      <div className="w-full max-w-5xl mx-auto px-4 mb-20">
-        <h2 className="text-2xl font-bold mb-4 text-center">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} latinHAM Leaderboard</h2>
-        <p className="text-center">No entries available {difficulty === 'all' ? 'across all difficulties' : `for ${difficulty} difficulty`}. </p>
-        <p className="text-center">Sign in to rank on the leaderboard.</p>
-      </div>
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardContent className="pt-6">
+          <p className="text-center">No entries available {difficulty === 'all' ? 'across all difficulties' : `for ${difficulty} difficulty`}. </p>
+          <p className="text-center">Sign in to rank on the leaderboard.</p>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 mb-20">
-      <h2 className="text-2xl font-bold mb-4 text-center text-white mx-auto">
-        {difficulty === 'all' ? 'All Difficulties' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} latinHAM Leaderboard
-      </h2>
-      <div className="mb-4 flex justify-center space-x-2">
-        <Button
-          onClick={() => onDifficultyChange('all')}
-          variant={difficulty === 'all' ? 'default' : 'outline'}
-        >
-          All
-        </Button>
-        <Button
-          onClick={() => onDifficultyChange('easy')}
-          variant={difficulty === 'easy' ? 'default' : 'outline'}
-        >
-          Easy
-        </Button>
-        <Button
-          onClick={() => onDifficultyChange('medium')}
-          variant={difficulty === 'medium' ? 'default' : 'outline'}
-        >
-          Medium
-        </Button>
-        <Button
-          onClick={() => onDifficultyChange('hard')}
-          variant={difficulty === 'hard' ? 'default' : 'outline'}
-        >
-          Hard
-        </Button>
-      </div>
-      <p className="text-center mb-4 text-white">Sign in to rank on the leaderboard.</p>
+    <>
+      <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
+        <CardHeader>
+          <div className="text-center">
+            <CardTitle>latinHAM Leaderboard</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 flex justify-center space-x-2">
+            <Button
+              onClick={() => handleDifficultyChange('all')}
+              variant={difficulty === 'all' ? 'default' : 'outline'}
+            >
+              All
+            </Button>
+            <Button
+              onClick={() => handleDifficultyChange('easy')}
+              variant={difficulty === 'easy' ? 'default' : 'outline'}
+            >
+              Easy
+            </Button>
+            <Button
+              onClick={() => handleDifficultyChange('medium')}
+              variant={difficulty === 'medium' ? 'default' : 'outline'}
+            >
+              Medium
+            </Button>
+            <Button
+              onClick={() => handleDifficultyChange('hard')}
+              variant={difficulty === 'hard' ? 'default' : 'outline'}
+            >
+              Hard
+            </Button>
+          </div>
 
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-        <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
-          {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
-        </h3>
-        <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
-          <div>
-            <p className="text-sm text-gray-800 dark:text-gray-400">Avg. Moves</p>
-            <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+            <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+              {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
+            </h3>
+            <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-800 dark:text-gray-400">Avg. Duration</p>
-            <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-800 dark:text-gray-400">Avg. Hints</p>
-            <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
-          </div>
-        </div>
-      </div>
 
-      <div className="overflow-x-auto">
-        <Table className="w-full">
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                className="w-16 text-center text-white cursor-pointer"
-                onClick={() => handleSort('rank')}
-              >
-                Rank
-                {sortColumn === 'rank' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead className="w-[calc(6*3rem+5*0.75rem)] text-center text-white">latinHAM</TableHead>
-              <TableHead
-                className="w-32 text-center text-white cursor-pointer"
-                onClick={() => handleSort('user')}
-              >
-                User
-                {sortColumn === 'user' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead
-                className="w-24 text-center text-white cursor-pointer"
-                onClick={() => handleSort('moves')}
-              >
-                Moves
-                {sortColumn === 'moves' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead
-                className="w-24 text-center text-white cursor-pointer"
-                onClick={() => handleSort('time')}
-              >
-                Time
-                {sortColumn === 'time' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead
-                className="w-24 text-center text-white cursor-pointer"
-                onClick={() => handleSort('hints')}
-              >
-                Hints
-                {sortColumn === 'hints' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead
-                className="w-32 text-center text-white cursor-pointer"
-                onClick={() => handleSort('duration')}
-              >
-                Duration
-                {sortColumn === 'duration' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-              <TableHead
-                className="w-24 text-center text-white cursor-pointer"
-                onClick={() => handleSort('difficulty')}
-              >
-                Difficulty
-                {sortColumn === 'difficulty' && (
-                  sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                )}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedEntries.map((entry, index) => {
-              const entryNumber = (currentPage - 1) * entriesPerPage + index + 1
-              return (
-                <TableRow key={entry.id}>
-                  <TableCell className="font-medium text-center align-middle">{entryNumber}</TableCell>
-                  <TableCell className="text-center py-2">
-                    {entry.grid ? (
-                      <MiniProgressBar
-                        grid={entry.grid}
-                        onClick={() => onViewCompletedBoard(entry)}
-                      />
-                    ) : (
-                      <div>No grid data</div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center text-gray-50 align-middle">{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell className="text-center text-gray-50 align-middle">{entry.moves}</TableCell>
-                  <TableCell className="text-center text-gray-50 align-middle">
-                    {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-                  </TableCell>
-                  <TableCell className="text-center text-gray-50 align-middle">{entry.hints || 0}</TableCell>
-                  <TableCell className="text-center text-gray-50 align-middle">{formatDuration(entry.time)}</TableCell>
-                  <TableCell className="text-center text-gray-50 align-middle">
-                    {entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1)}
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </div>
-      {totalPages > 1 && (
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  onClick={() => setCurrentPage(i + 1)}
-                  isActive={currentPage === i + 1}
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-16">Minigrid</TableHead>
+                <TableHead className="w-20">Difficulty</TableHead>
+                <TableHead className="w-24">User</TableHead>
+                <TableHead 
+                  className="w-24 cursor-pointer"
+                  onClick={() => handleSort('duration')}
                 >
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
-    </div>
+                  Duration
+                  {sortColumn === 'duration' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="w-16 cursor-pointer"
+                  onClick={() => handleSort('moves')}
+                >
+                  Moves
+                  {sortColumn === 'moves' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="w-16 cursor-pointer"
+                  onClick={() => handleSort('hints')}
+                >
+                  Hints
+                  {sortColumn === 'hints' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="w-16 cursor-pointer"
+                  onClick={() => handleSort('time')}
+                >
+                  Time
+                  {sortColumn === 'time' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="w-24 cursor-pointer"
+                  onClick={() => handleSort('date')}
+                >
+                  Date
+                  {sortColumn === 'date' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedEntries.map((entry) => (
+                <TableRow key={entry.id}>
+                  <TableCell className="p-2">
+                    <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
+                  </TableCell>
+                  <TableCell className="p-2">
+                    <Badge 
+                      className={
+                        entry.difficulty === 'easy' 
+                          ? 'bg-green-500 hover:bg-green-600' 
+                          : entry.difficulty === 'medium' 
+                            ? 'bg-orange-500 hover:bg-orange-600' 
+                            : 'bg-red-500 hover:bg-red-600'
+                      }
+                    >
+                      {entry.difficulty}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
+                  <TableCell className="p-1  text-sm">{formatTime(entry.timestamp)}</TableCell>
+                  <TableCell className="p-1  text-sm">{formatDate(entry.timestamp)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          
+          {totalPages > 1 && (
+            <Pagination className="mt-4">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+                {[...Array(totalPages)].map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(i + 1)}
+                      isActive={currentPage === i + 1}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </CardContent>
+      </Card>
+      <Dialog open={!!selectedGame} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedGame(null);
+        }
+      }}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Completed latinHAM</DialogTitle>
+            <DialogDescription>
+              Details of the completed game
+            </DialogDescription>
+          </DialogHeader>
+          {selectedGame && (
+            <CompletedPuzzleCard
+              entry={selectedGame}
+              difficulty={selectedGame.difficulty}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
