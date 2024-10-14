@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -277,13 +277,11 @@ export function UserProfile() {
             <GamePreview />
           </div>
         </div>
-        <p className="text-xl mb-1">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
+        <p className="text-xl mb-6">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
         <p className="text-xl mb-6">
-          Total games played: {
-            difficultyFilter === 'all'
-              ? profileData.games.length
-              : profileData.games.filter(game => game.difficulty === difficultyFilter).length
-          }
+          {difficultyFilter === 'all'
+            ? `Total games played: ${profileData.games.length}`
+            : `${difficultyFilter.charAt(0).toUpperCase() + difficultyFilter.slice(1)} games played: ${profileData.games.filter(game => game.difficulty === difficultyFilter).length}`}
         </p>
         <div className="flex justify-center space-x-2 mb-6">
           <Button
@@ -343,7 +341,6 @@ export function UserProfile() {
 
           {/* Performance Trends graph */}
           <div className="mb-6">
-            <h3 className="text-xl text-center font-semibold mb-4">Performance Trends</h3>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
               <div ref={chartRef} className="overflow-x-auto flex-grow w-full md:w-4/5">
                 <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
@@ -555,6 +552,11 @@ export function UserProfile() {
           )}
         </DialogContent>
       </Dialog>
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
+          <GamePreview />
+        </div>
+      </div>
     </>
   )
 }
