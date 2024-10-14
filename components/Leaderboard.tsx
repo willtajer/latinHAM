@@ -67,7 +67,7 @@ const formatTime = (dateString: string) => {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-export function Leaderboard({ initialDifficulty = "all" }: LeaderboardProps) {
+export default function Leaderboard({ initialDifficulty = "all" }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -337,7 +337,7 @@ export function Leaderboard({ initialDifficulty = "all" }: LeaderboardProps) {
                   </TableCell>
                   <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
+                  <TableCell className="p-1 text-sm  text-center">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
                   <TableCell className="p-1  text-sm">{formatTime(entry.timestamp)}</TableCell>
                   <TableCell className="p-1  text-sm">{formatDate(entry.timestamp)}</TableCell>
