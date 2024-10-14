@@ -379,8 +379,8 @@ export function UserProfile() {
                   </div>
                 </div>
               </div>
-              {/* Color indicators moved below the graph */}
-              <div className="flex flex-wrap justify-center mt-4 w-full">
+              {/* Color indicators moved below the graph and centered */}
+              <div className="flex flex-wrap justify-center mt-4">
                 <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
                   <span>Time</span>

@@ -53,7 +53,7 @@ const formatDate = (dateString: string) => {
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)}`;
 }
 
-export default function Leaderboard({ initialDifficulty = "all", onDifficultyChange }: LeaderboardProps) {
+export default function Component({ initialDifficulty = "all", onDifficultyChange }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -281,7 +281,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
 
           {/* Performance Trends graph */}
           <div className="mb-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+            <div className="flex flex-col items-center">
               <div className="w-full relative">
                 <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
                   <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
@@ -300,13 +300,13 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
                           dataKey={xAxisView === 'game' ? 'game' : 'date'} 
-                          label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom',   offset: -5 }} 
+                          label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }} 
                           reversed={xAxisView === 'game'}
                         />
                         <YAxis yAxisId="left" />
                         <YAxis yAxisId="right" orientation="right" />
                         <Tooltip />
-                        <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} />
+                        <Line yAxisId="left" type="monotone" dataKey="time"   stroke="#8884d8" name="Time" strokeWidth={3} />
                         <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
                         {xAxisView === 'game' && (
                           <>
@@ -319,8 +319,8 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   </div>
                 </div>
               </div>
-              {/* Color indicators moved below the graph */}
-              <div className="flex flex-wrap justify-center mt-4 w-full">
+              {/* Color indicators moved below the graph and centered */}
+              <div className="flex flex-wrap justify-center mt-4">
                 <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
                   <span>Time</span>
