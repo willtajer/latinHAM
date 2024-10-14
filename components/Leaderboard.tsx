@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,7 +10,9 @@ import { LeaderboardEntry } from '@/types'
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
 
 interface LeaderboardProps {
   initialDifficulty?: "all" | "easy" | "medium" | "hard";
@@ -60,7 +62,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(null)
+  const [xAxisView, setXAxisView] = useState<'game' | 'daily'>('game')
   const entriesPerPage = 10
+  const chartRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -129,6 +133,46 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     });
   }, [filteredEntries, sortColumn, sortDirection]);
 
+  const chartData = useMemo(() => {
+    if (xAxisView === 'game') {
+      let movesSum = 0
+      let timeSum = 0
+      return sortedEntries.map((entry, index) => {
+        movesSum += entry.moves
+        timeSum += entry.time
+        return {
+          game: index + 1,
+          moves: entry.moves,
+          time: entry.time,
+          avgMoves: movesSum / (index + 1),
+          avgTime: timeSum / (index + 1),
+        }
+      }).reverse() // Reverse to show most recent games first
+    } else {
+      const dailyData: { [key: string]: { moves: number, time: number, count: number } } = {}
+      sortedEntries.forEach((entry) => {
+        const date = new Date(entry.timestamp).toLocaleDateString()
+        if (!dailyData[date]) {
+          dailyData[date] = { moves: 0, time: 0, count: 0 }
+        }
+        dailyData[date].moves += entry.moves
+        dailyData[date].time += entry.time
+        dailyData[date].count++
+      })
+      return Object.entries(dailyData).map(([date, data]) => ({
+        date,
+        moves: data.moves / data.count,
+        time: data.time / data.count,
+      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    }
+  }, [sortedEntries, xAxisView])
+
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.scrollLeft = chartRef.current.scrollWidth;
+    }
+  }, [chartData, xAxisView])
+
   const totalPages = Math.ceil(sortedEntries.length / entriesPerPage)
   const paginatedEntries = sortedEntries.slice(
     (currentPage - 1) * entriesPerPage,
@@ -158,13 +202,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     onDifficultyChange(newDifficulty)
   }, [onDifficultyChange])
 
-  const chartData = useMemo(() => {
-    return sortedEntries.map((entry, index) => ({
-      game: index + 1,
-      moves: entry.moves,
-      time: entry.time,
-    }));
-  }, [sortedEntries]);
 
   if (isLoading) {
     return <div className="text-center py-8">Loading leaderboard entries...</div>
@@ -189,7 +226,99 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     <>
       <Card className="w-full max-w-6xl pt-4 mx-auto overflow-auto max-h-[80vh]">
         <CardContent>
-          <div className="mb-4 flex justify-center space-x-2">
+          {/* Overall Averages */}
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+            <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+              {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
+            </h3>
+            <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Performance Trends graph */}
+          <div className="mb-6">
+            <h3 className="text-xl text-center font-semibold mb-4">Performance Trends</h3>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <div ref={chartRef} className="overflow-x-auto flex-grow w-full md:w-4/5">
+                <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey={xAxisView === 'game' ? 'game' : 'date'} 
+                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }} 
+                        reversed={xAxisView === 'game'}
+                      />
+                      <YAxis yAxisId="left" label={{ value: 'Moves', angle: -90, position: 'insideLeft' }} />
+                      <YAxis yAxisId="right" orientation="right" label={{ value: 'Time (seconds)', angle: 90, position: 'insideRight' }} />
+                      <Tooltip />
+                      <Line yAxisId="left" type="monotone" dataKey="moves" stroke="#8884d8" name="Moves" strokeWidth={3} />
+                      <Line yAxisId="right"   type="monotone" dataKey="time" stroke="#82ca9d" name="Time" strokeWidth={3} />
+                      {xAxisView === 'game' && (
+                        <>
+                          <Line yAxisId="left" type="monotone" dataKey="avgMoves" stroke="#ffc658" name="Avg Moves" strokeWidth={3} />
+                          <Line yAxisId="right" type="monotone" dataKey="avgTime" stroke="#ff7300" name="Avg Time" strokeWidth={3} />
+                        </>
+                      )}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              {/* Color indicators moved next to the graph */}
+              <div className="flex flex-wrap justify-center mt-4 w-full"> {/* Updated className */}
+                <div className="flex items-center mr-4 mb-2">
+                  <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
+                  <span>Moves</span>
+                </div>
+                <div className="flex items-center mr-4 mb-2">
+                  <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
+                  <span>Time</span>
+                </div>
+                {xAxisView === 'game' && (
+                  <>
+                    <div className="flex items-center mr-4 mb-2">
+                      <div className="w-4 h-4 bg-[#ffc658] mr-2"></div>
+                      <span>Avg Moves</span>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
+                      <span>Avg Time</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* X-axis toggle */}
+          <div className="flex justify-center mb-6">
+            <RadioGroup defaultValue="game" onValueChange={(value) => setXAxisView(value as 'game' | 'daily')} className="flex justify-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="game" id="game" />
+                <Label htmlFor="game">Game View</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="daily" id="daily" />
+                <Label htmlFor="daily">Daily View</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+
+          {/* Difficulty selector */}
+          <div className="mb-6 flex justify-center space-x-2">
             <Button
               onClick={() => handleDifficultyChange('all')}
               variant={difficulty === 'all' ? 'default' : 'outline'}
@@ -216,43 +345,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             </Button>
           </div>
 
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-            <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
-              {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
-            </h3>
-            <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* New chart section */}
-          <div className="mb-6">
-            <h3 className="text-xl text-center font-semibold mb-4">Performance Trends</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="game" label={{ value: 'Game Rank', position: 'insideBottom', offset: -5 }} />
-                <YAxis yAxisId="left" label={{ value: 'Moves', angle: -90, position: 'insideLeft' }} />
-                <YAxis yAxisId="right" orientation="right" label={{ value: 'Time (seconds)', angle: 90, position: 'insideRight' }} />
-                <Tooltip />
-                <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="moves" stroke="#8884d8" name="Moves" />
-                <Line yAxisId="right" type="monotone" dataKey="time" stroke="#82ca9d" name="Time" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
+          {/* Leaderboard table */}
           <Table className="w-full">
             <TableHeader>
               <TableRow>
@@ -312,7 +405,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                 <TableRow key={entry.id}>
                   <TableCell className="p-2 text-center">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(entry.timestamp)}</TableCell>
-                  <TableCell  className="p-2">
+                  <TableCell className="p-2">
                     <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
                   </TableCell>
                   <TableCell className="p-2">
