@@ -7,7 +7,6 @@ import { LatinHAM } from '@/types'
 import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
 import { useUser } from '@clerk/nextjs'
-import { Badge } from "@/components/ui/badge"
 
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';

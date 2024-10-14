@@ -196,7 +196,7 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
               </div>
               <div>
                 <p><strong>Avg. Moves:</strong> {averages.moves.toFixed(2)}</p>
-                <p><strong>Avg. Duration:</strong> {formatTime(Math.round(averages.duration))}</p>
+                <p><strong>Avg. Time:</strong> {formatTime(Math.round(averages.duration))}</p>
                 <p><strong>Avg. Hints:</strong> {averages.hints.toFixed(2)}</p>
               </div>
             </div>
