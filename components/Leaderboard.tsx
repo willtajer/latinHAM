@@ -181,26 +181,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
       <Card className="w-full max-w-6xl pt-4 mx-auto overflow-auto max-h-[80vh]">
         <CardContent>
 
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-            <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
-              {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
-            </h3>
-            <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-
           <div className="mb-4 flex justify-center space-x-2">
             <Button
               onClick={() => handleDifficultyChange('all')}
@@ -226,6 +206,26 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             >
               Hard
             </Button>
+          </div>
+
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+            <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+              {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
+            </h3>
+            <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
+              </div>
+            </div>
           </div>
 
           <Table className="w-full">

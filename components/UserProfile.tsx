@@ -145,17 +145,11 @@ export function UserProfile() {
     setSelectedGame(game)
   }
 
-  const filteredGames = useMemo(() => {
-    if (!profileData) return [];
-    return difficultyFilter === 'all' 
-      ? profileData.games 
-      : profileData.games.filter(game => game.difficulty === difficultyFilter);
-  }, [profileData, difficultyFilter]);
-
-  const totalGamesPlayed = filteredGames.length;
-
   const averages = useMemo(() => {
-    if (filteredGames.length === 0) return null;
+    if (!profileData || profileData.games.length === 0) return null;
+    const filteredGames = difficultyFilter === 'all' 
+    ? profileData.games 
+    : profileData.games.filter(game => game.difficulty === difficultyFilter);
     const totalMoves = filteredGames.reduce((sum, game) => sum + game.moves, 0)
     const totalDuration = filteredGames.reduce((sum, game) => sum + game.time, 0)
     const totalHints = filteredGames.reduce((sum, game) => sum + game.hints, 0)
@@ -166,10 +160,14 @@ export function UserProfile() {
       duration: totalDuration / count,
       hints: totalHints / count,
     } : null;
-  }, [filteredGames]);
+  }, [profileData, difficultyFilter])
 
   const filteredAndSortedGames = useMemo(() => {
-    return filteredGames.sort((a, b) => {
+    let filtered = profileData ? profileData.games : [];
+    if (difficultyFilter !== 'all') {
+      filtered = filtered.filter(game => game.difficulty === difficultyFilter);
+    }
+    return filtered.sort((a, b) => {
       let compareValue: number;
       switch (sortColumn) {
         case 'date':
@@ -196,7 +194,7 @@ export function UserProfile() {
       }
       return sortDirection === 'asc' ? compareValue : -compareValue
     });
-  }, [filteredGames, sortColumn, sortDirection]);
+  }, [profileData, difficultyFilter, sortColumn, sortDirection]);
 
   const totalPages = Math.ceil(filteredAndSortedGames.length / entriesPerPage)
   const paginatedGames = filteredAndSortedGames.slice(
@@ -220,7 +218,7 @@ export function UserProfile() {
 
   return (
     <>
-      <Card className="w-full max-w-6 xl mx-auto overflow-auto max-h-[80vh]">
+      <Card className="w-full max-w-4xl mx-auto overflow-auto max-h-[80vh]">
         <CardHeader>
           <div className="text-center">
             <CardTitle>Player Profile: {profileData.username}</CardTitle>
@@ -229,32 +227,8 @@ export function UserProfile() {
         <CardContent>
           <div className="text-center mb-6">
             <p className="text-sm text-muted-foreground">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-            <p className="text-sm text-muted-foreground">
-              Total games played ({difficultyFilter}): {totalGamesPlayed}
-            </p>
+            <p className="text-sm text-muted-foreground">Total games played: {profileData.games.length}</p>
           </div>
-
-          {averages && (
-            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-              <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
-                {difficultyFilter === 'all' ? 'Overall' : `${difficultyFilter.charAt(0).toUpperCase() + difficultyFilter.slice(1)}`} Averages
-              </h3>
-              <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.moves.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.hints.toFixed(2)}</p>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="mb-4 flex justify-center space-x-2">
             <Button
@@ -282,6 +256,28 @@ export function UserProfile() {
               Hard
             </Button>
           </div>
+
+          {averages && (
+            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+              <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+                {difficultyFilter === 'all' ? 'Overall' : `${difficultyFilter.charAt(0).toUpperCase() + difficultyFilter.slice(1)}`} Averages
+              </h3>
+              <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.moves.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.hints.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Table className="w-full table-fixed">
             <TableHeader>
@@ -340,6 +336,7 @@ export function UserProfile() {
                   Quote
                   {sortColumn === 'quote' && (
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  
                   )}
                 </TableHead>
               </TableRow>
@@ -347,7 +344,6 @@ export function UserProfile() {
             <TableBody>
               {paginatedGames.map((game) => (
                 <TableRow key={game.id}>
-                  
                   <TableCell className="p-2">
                     <MiniProgressBar grid={game.grid as number[][]} onClick={() => handleViewCompletedBoard(game)} />
                   </TableCell>
@@ -365,7 +361,7 @@ export function UserProfile() {
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatTime(game.created_at)}</TableCell>
+                  <TableCell  className="p-1 text-sm">{formatTime(game.created_at)}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>
