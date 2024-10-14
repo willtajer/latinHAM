@@ -13,9 +13,8 @@ export function LeaderboardWrapper({ initialDifficulty = 'all' }: LeaderboardWra
   const [currentDifficulty, setCurrentDifficulty] = useState<'all' | 'easy' | 'medium' | 'hard'>(initialDifficulty)
 
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
-    console.log('Viewing completed board:', entry)
-    setViewingEntry(entry)
-    setIsViewDialogOpen(true)
+    setViewingEntry(entry);
+    setIsViewDialogOpen(true);
   }, [])
 
   const handleCloseViewDialog = useCallback(() => {
@@ -31,7 +30,6 @@ export function LeaderboardWrapper({ initialDifficulty = 'all' }: LeaderboardWra
     <>
       <Leaderboard
         initialDifficulty={currentDifficulty}
-        onViewCompletedBoard={handleViewCompletedBoard}
         onDifficultyChange={handleDifficultyChange}
       />
       <ViewCompletedPuzzleDialog
