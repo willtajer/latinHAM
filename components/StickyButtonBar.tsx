@@ -153,13 +153,13 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               </Button>
 
               {activeOverlay === 'discovered' && (
-                <div className="max-w-6xl mx-auto pt-16 pb-16">
+                <div className="max-w-6xl mx-auto pt-16 pb-20">
                   <DiscoveredLatinHAMs />
                 </div>
               )}
 
               {activeOverlay === 'leaderboard' && (
-                <div className="max-w-6xl mx-auto pt-16 pb-16">
+                <div className="max-w-6xl mx-auto pt-16 pb-20">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
                     LatinHAM Leaderboard
                   </h1>
@@ -176,7 +176,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               )}
 
               {activeOverlay === 'learning' && (
-                <div className="w-full max-w-6xl mx-auto pt-16 pb-16">
+                <div className="w-full max-w-6xl mx-auto pt-16 pb-20">
                   <div className="flex flex-col items-center justify-center w-full mb-8">
                     <div className="w-[calc(6*3rem+6*0.75rem)]">
                       <Link href="/" passHref>
@@ -230,7 +230,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               )}
 
               {activeOverlay === 'profile' && (
-                <div className="max-w-6xl mx-auto pt-16">
+                <div className="max-w-6xl mx-auto pt-16 pb-20">
                   <UserProfile />
                 </div>
               )}

@@ -564,11 +564,6 @@ export function UserProfile() {
           )}
         </DialogContent>
       </Dialog>
-      <div className="flex flex-col items-center justify-center">
-        <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
-          <GamePreview />
-        </div>
-      </div>
     </>
   )
 }
