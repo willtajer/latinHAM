@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
@@ -54,17 +54,12 @@ export const WinDialog: React.FC<WinDialogProps> = ({
     setQuoteSubmitted(true)
   }
 
-  const handleDialogClose = (newOpen: boolean) => {
-    if (!newOpen) {
-      if (showQuoteInput && !quoteSubmitted) {
-        onSubmit("")
-      }
-    }
-    onOpenChange(newOpen)
-  }
-
   return (
-    <Dialog open={open} onOpenChange={handleDialogClose}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+    if (!newOpen && (!showQuoteInput || quoteSubmitted)) {
+      onOpenChange(newOpen);
+    }
+  }}>
       <DialogContent className="sm:max-w-[425px] w-full bg-background">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
@@ -74,7 +69,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
         <div className="py-6 px-4">
           {showQuoteInput && !quoteSubmitted ? (
             <div className="space-y-4">
-              <p className="text-center">Enter a quote to commemorate your victory:</p>
+              <p className="text-center">Enter a quote to commemorate your win:</p>
               <Input
                 placeholder="Enter your quote here"
                 value={quote}
@@ -105,10 +100,10 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                   }}
                 />
               ) : (
-                <p className="text-center">Thank you for playing!</p>
+                <p className="text-center">Creating latinHAM card...</p>
               )}
               <div className="flex justify-center gap-4">
-                <Button onClick={() => { onStartNewGame(); handleDialogClose(false); }} className="px-4 py-2">
+                <Button onClick={() => { onStartNewGame(); onOpenChange(false); }} className="px-4 py-2">
                   Start New Game
                 </Button> 
                 {imageFile && (
