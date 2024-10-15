@@ -105,7 +105,8 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                     ...entry,
                     quote: quoteSubmitted ? quote : entry.quote
                   }}
-                  difficulty={difficulty} 
+                  difficulty={difficulty}
+                  gameNumber={gameNumber}
                   onImageReady={(file: File) => {
                     setImageFile(file)
                   }}

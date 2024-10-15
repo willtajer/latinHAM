@@ -306,7 +306,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey={xAxisView === 'game' ? 'game' : 'date'} 
-                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position:  'insideBottom', offset: -5 }} 
+                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }} 
                       />
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
@@ -490,6 +490,11 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             <CompletedPuzzleCard
               entry={selectedGame}
               difficulty={selectedGame.difficulty}
+              gameNumber={entries.findIndex(entry => entry.id === selectedGame.id) + 1}
+              onImageReady={(file: File) => {
+                // Handle the image file if needed
+                console.log('Image ready:', file.name);
+              }}
             />
           )}
         </DialogContent>
