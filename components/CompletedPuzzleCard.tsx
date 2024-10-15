@@ -4,7 +4,7 @@ import { LeaderboardEntry } from '../types'
 interface CompletedPuzzleCardProps {
   entry: LeaderboardEntry
   difficulty: 'easy' | 'medium' | 'hard'
-  onImageReady?: (imageDataUrl: string, fileName: string) => void
+  onImageReady?: (imageFile: File) => void
 }
 
 const BOARD_SIZE = 6
@@ -200,10 +200,42 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
       ctx.strokeRect(x, y, progressCellWidth, progressCellHeight)
     })
 
-    if (onImageReady) {
-      const imageDataUrl = canvas.toDataURL('image/png')
-      onImageReady(imageDataUrl, fileName)
-    }
+    canvas.toBlob(async (blob) => {
+      if (blob && onImageReady) {
+        const metadata = {
+          difficulty: difficulty,
+          moves: entry.moves,
+          time: entry.time,
+          hints: entry.hints,
+          quote: entry.quote,
+          timestamp: entry.timestamp,
+          url: 'https://www.latinham.com',
+        }
+
+        const metadataString = JSON.stringify(metadata)
+        const encoder = new TextEncoder()
+        const metadataArray = encoder.encode(metadataString)
+
+        const originalArray = new Uint8Array(await blob.arrayBuffer())
+        const newArrayBuffer = new ArrayBuffer(originalArray.byteLength + metadataArray.length + 4)
+        const newUint8Array = new Uint8Array(newArrayBuffer)
+
+        newUint8Array.set(originalArray)
+
+        const dataView = new DataView(newArrayBuffer)
+        dataView.setUint32(originalArray.byteLength, metadataArray.length, false)
+        newUint8Array.set(metadataArray, originalArray.byteLength + 4)
+
+        const newBlob = new Blob([newArrayBuffer], { type: 'image/png' })
+
+        const fileWithMetadata = new File([newBlob], fileName, {
+          type: 'image/png',
+          lastModified: new Date().getTime(),
+        })
+
+        onImageReady(fileWithMetadata)
+      }
+    }, 'image/png')
   }, [entry, difficulty, onImageReady])
 
   return (

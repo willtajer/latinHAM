@@ -41,7 +41,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
       const url = URL.createObjectURL(imageFile)
       const link = document.createElement('a')
       link.href = url
-      link.download = `latinHAM_${difficulty}_game${gameNumber}.png`
+      link.download = imageFile.name
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
