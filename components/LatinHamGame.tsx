@@ -14,7 +14,6 @@ import { NewGameDialog } from './NewGameDialog'
 import { DifficultySelector } from './DifficultySelector'
 import Confetti from 'react-confetti'
 import { LeaderboardEntry } from '../types'
-import { WillTajerButton } from './WillTajerButton'
 
 interface LatinHamGameProps {
   onTriggerNewGame: (trigger: () => void) => void
@@ -196,9 +195,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
             Fill the grid with colors so that each color appears exactly once in each row and column.
           </p>
           <DifficultySelector onSelectDifficulty={handleDifficultySelect} />
-        </div>
-        <div className="fixed bottom-16 items-center p-6">
-          <WillTajerButton />
         </div>
       </div>
     )
