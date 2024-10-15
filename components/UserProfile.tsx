@@ -328,7 +328,7 @@ export function UserProfile() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                  <p className="text-lg font-bold text-gray-950  dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+                  <p className="text-lg font-bold text-gray-950    dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
                 </div>
                 
                 <div>
@@ -339,7 +339,7 @@ export function UserProfile() {
             </div>
           )}
 
-<div className="flex flex-col items-center">
+          <div className="flex flex-col items-center">
             <div className="w-full relative">
               <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
                 <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
@@ -363,12 +363,12 @@ export function UserProfile() {
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
                       <Tooltip />
-                      <Line  yAxisId="left" type="monotone" dataKey="time"      stroke="#8884d8" name="Time" strokeWidth={3} />
-                      <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
+                      <Line yAxisId="left"   type="monotone" dataKey="time"     stroke="#8884d8" name="Time"      strokeWidth={3} />
+                      <Line yAxisId="right" type="monotone" dataKey="moves"    stroke="#82ca9d" name="Moves"     strokeWidth={3} />
                       {xAxisView === 'game' && (
                         <>
-                          <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="#ffc658" name="Avg Time" strokeWidth={3} />
-                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="#ff7300" name="Avg Moves" strokeWidth={3} />
+                          <Line yAxisId="left"  type="monotone" dataKey="avgTime"  stroke="rgba(136, 132, 216, 0.5)" name="Avg Time"  strokeWidth={3} strokeDasharray="5 5" />
+                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="rgba(130, 202, 157, 0.5)" name="Avg Moves" strokeWidth={3} strokeDasharray="5 5" />
                         </>
                       )}
                     </LineChart>
@@ -383,7 +383,7 @@ export function UserProfile() {
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mr-4 mb-2">
-                  <div className="w-4 h-4 bg-[#ffc658] mr-2"></div>
+                  <div className="w-4 h-4 bg-[rgba(136,132,216,0.5)] mr-2"></div>
                   <span>Avg Time</span>
                 </div>
               )}
@@ -393,7 +393,7 @@ export function UserProfile() {
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mb-2">
-                  <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
+                  <div className="w-4 h-4 bg-[rgba(130,202,157,0.5)] mr-2"></div>
                   <span>Avg Moves</span>
                 </div>
               )}

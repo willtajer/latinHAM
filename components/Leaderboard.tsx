@@ -311,12 +311,12 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
                       <Tooltip />
-                      <Line  yAxisId="left" type="monotone" dataKey="time"      stroke="#8884d8" name="Time" strokeWidth={3} />
-                      <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
+                      <Line yAxisId="left"   type="monotone" dataKey="time"     stroke="#8884d8" name="Time"      strokeWidth={3} />
+                      <Line yAxisId="right" type="monotone" dataKey="moves"    stroke="#82ca9d" name="Moves"     strokeWidth={3} />
                       {xAxisView === 'game' && (
                         <>
-                          <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="#ffc658" name="Avg Time" strokeWidth={3} />
-                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="#ff7300" name="Avg Moves" strokeWidth={3} />
+                          <Line yAxisId="left"  type="monotone" dataKey="avgTime"  stroke="rgba(136, 132, 216, 0.5)" name="Avg Time"  strokeWidth={3} />
+                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="rgba(130, 202, 157, 0.5)" name="Avg Moves" strokeWidth={3} />
                         </>
                       )}
                     </LineChart>
@@ -331,7 +331,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mr-4 mb-2">
-                  <div className="w-4 h-4 bg-[#ffc658] mr-2"></div>
+                  <div className="w-4 h-4 bg-[rgba(136,132,216,0.5)] mr-2"></div>
                   <span>Avg Time</span>
                 </div>
               )}
@@ -341,7 +341,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mb-2">
-                  <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
+                  <div className="w-4 h-4 bg-[rgba(130,202,157,0.5)] mr-2"></div>
                   <span>Avg Moves</span>
                 </div>
               )}
