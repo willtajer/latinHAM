@@ -263,7 +263,6 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
         quote={winQuote}
         setQuote={setWinQuote}
         entry={hasSubmittedQuote ? createLeaderboardEntry() : undefined}
-        gameNumber={leaderboard[memoizedDifficulty].length + 1}
         difficulty={memoizedDifficulty}
         onStartNewGame={handleStartNewGame}
         showQuoteInput={!hasSubmittedQuote}

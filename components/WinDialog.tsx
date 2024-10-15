@@ -13,7 +13,6 @@ interface WinDialogProps {
   quote: string
   setQuote: (quote: string) => void
   entry?: LeaderboardEntry
-  gameNumber?: number
   difficulty: 'easy' | 'medium' | 'hard'
   onStartNewGame: () => void
   showQuoteInput: boolean
@@ -27,21 +26,20 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   quote,
   setQuote,
   entry,
-  gameNumber,
   difficulty,
   onStartNewGame,
   showQuoteInput,
   isSubmitting = false
 }) => {
-  const [imageDataUrl, setImageDataUrl] = useState<File | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [quoteSubmitted, setQuoteSubmitted] = useState(false)
 
   const handleDownload = () => {
-    if (imageDataUrl) {
-      const url = URL.createObjectURL(imageDataUrl)
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile)
       const link = document.createElement('a')
       link.href = url
-      link.download = imageDataUrl.name
+      link.download = imageFile.name
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -107,7 +105,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                   }}
                   difficulty={difficulty} 
                   onImageReady={(file: File) => {
-                    setImageDataUrl(file)
+                    setImageFile(file)
                   }}
                 />
               )}
