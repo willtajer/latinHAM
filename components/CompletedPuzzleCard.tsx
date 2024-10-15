@@ -201,7 +201,8 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     })
 
     if (onImageReady) {
-      onImageReady(canvas.toDataURL('image/png'), fileName)
+      const imageDataUrl = canvas.toDataURL('image/png')
+      onImageReady(imageDataUrl, fileName)
     }
   }, [entry, difficulty, onImageReady])
 

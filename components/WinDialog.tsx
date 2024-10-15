@@ -33,19 +33,18 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   showQuoteInput,
   isSubmitting = false
 }) => {
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
+  const [fileName, setFileName] = useState<string | null>(null)
   const [quoteSubmitted, setQuoteSubmitted] = useState(false)
 
   const handleDownload = () => {
-    if (imageFile) {
-      const url = URL.createObjectURL(imageFile)
+    if (imageDataUrl && fileName) {
       const link = document.createElement('a')
-      link.href = url
+      link.href = imageDataUrl
       link.download = `latinHAM_${difficulty}_game${gameNumber}.png`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      URL.revokeObjectURL(url)
     }
   }
 
@@ -106,8 +105,9 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                     quote: quoteSubmitted ? quote : entry.quote
                   }}
                   difficulty={difficulty} 
-                  onImageReady={(file: File) => {
-                    setImageFile(file)
+                  onImageReady={(imageDataUrl: string, fileName: string) => {
+                    setImageDataUrl(imageDataUrl)
+                    setFileName(fileName)
                   }}
                 />
               )}
