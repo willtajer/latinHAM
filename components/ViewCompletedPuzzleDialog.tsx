@@ -48,9 +48,9 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
       <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         {/* Dialog Header with Title and Description */}
         <DialogHeader className="text-center">
-          <DialogTitle className="text-2xl font-bold">LATINham Identified!</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">LatinHAM Identified!</DialogTitle>
           <DialogDescription className="mt-2">
-            View your LATINham puzzle and game statistics.
+            View your LatinHAM puzzle and game statistics.
           </DialogDescription>
         </DialogHeader>
         

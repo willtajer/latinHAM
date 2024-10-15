@@ -119,14 +119,14 @@ export function DiscoveredLatinHAMs() {
 
   // Render a message if no LatinHAMs are found
   if (latinHAMs.length === 0) {
-    return <div className="text-center py-8 text-white">No Discovered LATINhams found. Start playing to create some!</div>
+    return <div className="text-center py-8 text-white">No Discovered LatinHAMs found. Start playing to create some!</div>
   }
 
   // Main render of the component
   return (
     <div className="container mx-auto">
       {/* Header for the page */}
-      <h1 className="text-6xl font-bold text-center mb-6 text-white">Discovered LATINhams</h1>
+      <h1 className="text-6xl font-bold text-center mb-6 text-white">Discovered LatinHAMs</h1>
       <div className="flex flex-col items-center justify-center">
         {/* Game preview section */}
         <div className="w-[calc(6*3rem+6*0.75rem)]">

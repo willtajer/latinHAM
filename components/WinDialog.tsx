@@ -111,7 +111,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                 />
               ) : (
                 // If no entry exists, display a loading message
-                <p className="text-center">Creating latinHAM card...</p>
+                <p className="text-center">Creating LatinHAM card...</p>
               )}
               {/* Action buttons for starting a new game and downloading the completed puzzle */}
               <div className="flex justify-center gap-4">

@@ -12,7 +12,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ gameState, isGameWon }) 
     <div className="w-[calc(6*3rem+6*0.75rem)] mt-16 mb-6">
       <Link href="/" passHref>
         <h1 className="text-6xl font-bold mb-6 text-center cursor-pointer hover:text-primary transition-colors duration-200">
-          LATINham
+          LatinHAM
         </h1>
       </Link>
       <p className="text-center mt-4">
