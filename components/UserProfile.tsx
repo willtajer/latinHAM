@@ -211,40 +211,42 @@ export function UserProfile() {
   const chartData = useMemo(() => {
     if (!profileData) return [];
     if (xAxisView === 'game') {
-      let movesSum = 0
-      let timeSum = 0
+      let movesSum = 0;
+      let timeSum = 0;
       return profileData.games
         .filter(game => difficultyFilter === 'all' || game.difficulty === difficultyFilter)
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) // Sort from oldest to newest
         .map((game, index) => {
-          movesSum += game.moves
-          timeSum += game.time
+          movesSum += game.moves;
+          timeSum += game.time;
           return {
-            game: profileData.games.length - index,
+            game: index + 1, // Start from 1 for the oldest game
             moves: game.moves,
             time: game.time,
             avgMoves: movesSum / (index + 1),
             avgTime: timeSum / (index + 1),
-          }
-        })
+          };
+        });
     } else {
-      const dailyData: { [key: string]: { moves: number, time: number, count: number } } = {}
+      const dailyData: { [key: string]: { moves: number, time: number, count: number } } = {};
       profileData.games
         .filter(game => difficultyFilter === 'all' || game.difficulty === difficultyFilter)
         .forEach((game) => {
-          const date = new Date(game.created_at).toLocaleDateString()
+          const date = new Date(game.created_at).toLocaleDateString();
           if (!dailyData[date]) {
-            dailyData[date] = { moves: 0, time: 0, count: 0 }
+            dailyData[date] = { moves: 0, time: 0, count: 0 };
           }
-          dailyData[date].moves += game.moves
-          dailyData[date].time += game.time
-          dailyData[date].count++
-        })
-      return Object.entries(dailyData).map(([date, data]) => ({
-        date,
-        moves: data.moves / data.count,
-        time: data.time / data.count,
-      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+          dailyData[date].moves += game.moves;
+          dailyData[date].time += game.time;
+          dailyData[date].count++;
+        });
+      return Object.entries(dailyData)
+        .map(([date, data]) => ({
+          date,
+          moves: data.moves / data.count,
+          time: data.time / data.count,
+        }))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // This sort was already correct
     }
   }, [profileData, difficultyFilter, xAxisView]);
 
