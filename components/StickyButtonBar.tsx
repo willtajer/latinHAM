@@ -223,7 +223,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                       {/* Link to home with the latinHAM title */}
                       <Link href="/" passHref>
                         <h1 className="text-6xl font-bold mb-6 text-center text-white cursor-pointer hover:text-primary transition-colors duration-200">
-                          latinHAM
+                          LATINham
                         </h1>
                       </Link>
                       <GamePreview /> {/* Render the GamePreview component */}
@@ -271,7 +271,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                         <ul className="list-disc pl-5 space-y-2 text-lg">
                           <li>Start with the rows or columns that have the most numbers filled in.</li>
                           <li>If a number appears twice in a row or column, one of them must be incorrect.</li>
-                          <li>Remember, the same principles apply to the full 6x6 latinHAM game!</li>
+                          <li>Remember, the same principles apply to the full 6x6 LATINham game!</li>
                         </ul>
                       </CardContent>
                     </Card>

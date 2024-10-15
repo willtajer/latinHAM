@@ -196,9 +196,8 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const completionDate = new Date(entry.timestamp)
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
     
-    // Create a filename based on difficulty and game number
+    // Create a difficulty indicator
     const difficultyIndicator = difficulty.charAt(0).toUpperCase()
-    const fileName = `latinHAM.com-latinHAM_${difficulty}_game${gameNumber}.png`
     
     // Set text alignment and styles for the footer
     ctx.fillStyle = '#000000'
@@ -206,13 +205,16 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     
     // Draw "latinHAM" text
     ctx.font = `bold ${11 * scale}px Arial`
-    const latinHAMText = 'latinHAM'
+    const latinHAMText = 'LATINham'
     const latinHAMWidth = ctx.measureText(latinHAMText).width
     
     // Draw the timestamp with difficulty indicator
     ctx.font = `${11 * scale}px Arial`
     const timestampText = `#${formattedDateTime}${difficultyIndicator}`
     const timestampWidth = ctx.measureText(timestampText).width
+
+    // Create a filename based on difficulty and game number
+    const fileName = `LATINham.com-${ctx.measureText(timestampText).width}.png`
     
     // Calculate positions to center the footer text
     const totalWidth = latinHAMWidth + timestampWidth + 10 * scale

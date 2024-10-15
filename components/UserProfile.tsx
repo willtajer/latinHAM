@@ -449,7 +449,7 @@ export function UserProfile() {
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-16">latinHAM</TableHead>
+                <TableHead className="w-16">LATINham</TableHead>
                 <TableHead className="w-20">Difficulty</TableHead>
                 <TableHead 
                   className="w-24 cursor-pointer"
@@ -576,7 +576,7 @@ export function UserProfile() {
       }}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Completed latinHAM</DialogTitle>
+            <DialogTitle>Completed LATINham</DialogTitle>
             <DialogDescription>
               Details of the completed game
             </DialogDescription>

@@ -420,7 +420,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-16">Minigrid</TableHead>
+                <TableHead className="w-16">LATINham</TableHead>
                 <TableHead 
                   className="w-20 cursor-pointer"
                   onClick={() => handleSort('difficulty')}
@@ -544,7 +544,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
       }}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Completed latinHAM</DialogTitle>
+            <DialogTitle>Completed LATINham</DialogTitle>
             <DialogDescription>
               Details of the completed game
             </DialogDescription>
