@@ -77,7 +77,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                 closeOverlays()
                 handleNewGame()
               }}
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-red-500 hover:bg-gray-700 text-white hover:text-red-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-red-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-red-500"
               aria-label="Start New Game"
             >
               <Play className="h-6 w-6" />
@@ -85,7 +85,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-orange-500 hover:bg-gray-700 text-white hover:text-oragne-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-orange-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-orange-500"
               onClick={() => toggleOverlay('discovered')}
               aria-label="View Discovered LatinHAMs"
             >
@@ -94,7 +94,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 hover:bg-gray-700 text-white hover:text-yellow-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-yellow-500"
               onClick={() => toggleOverlay('quests')}
               aria-label="Achievements"
             >
@@ -103,7 +103,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-green-500 hover:bg-gray-700 text-white hover:text-green-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-green-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-green-500"
               onClick={() => toggleOverlay('leaderboard')}
               aria-label="View Leaderboard"
             >
@@ -112,7 +112,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-blue-500 hover:bg-gray-700 text-white hover:text-blue-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-blue-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-blue-500"
               onClick={() => toggleOverlay('profile')}
               aria-label="View User Profile"
             >
@@ -121,7 +121,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-purple-500 hover:bg-gray-700 text-white hover:text-purple-500"
+              className="rounded-full p-2 shadow-md transition-colors duration-200 bg-purple-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-purple-500"
               onClick={() => toggleOverlay('learning')}
               aria-label="Go to Learning Mode"
             >
