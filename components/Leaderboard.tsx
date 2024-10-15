@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import { LeaderboardEntry, CompletedPuzzleCardProps } from '../types'
+import { LeaderboardEntry } from '../types'
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"

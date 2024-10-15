@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { LeaderboardEntry, CompletedPuzzleCardProps } from '../types'
+import { CompletedPuzzleCardProps } from '../types'
 
 const BOARD_SIZE = 6
 
