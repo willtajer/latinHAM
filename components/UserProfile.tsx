@@ -215,18 +215,18 @@ export function UserProfile() {
       let timeSum = 0
       return profileData.games
         .filter(game => difficultyFilter === 'all' || game.difficulty === difficultyFilter)
-        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .map((game, index) => {
           movesSum += game.moves
           timeSum += game.time
           return {
-            game: index + 1,
+            game: profileData.games.length - index,
             moves: game.moves,
             time: game.time,
             avgMoves: movesSum / (index + 1),
             avgTime: timeSum / (index + 1),
           }
-        }).reverse() // Reverse to show most recent games first
+        })
     } else {
       const dailyData: { [key: string]: { moves: number, time: number, count: number } } = {}
       profileData.games
@@ -367,8 +367,8 @@ export function UserProfile() {
                       <Line yAxisId="right" type="monotone" dataKey="moves"    stroke="#82ca9d" name="Moves"     strokeWidth={3} />
                       {xAxisView === 'game' && (
                         <>
-                          <Line yAxisId="left"  type="monotone" dataKey="avgTime"  stroke="rgba(136, 132, 216, 0.5)" name="Avg Time"  strokeWidth={3} strokeDasharray="5 5" />
-                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="rgba(130, 202, 157, 0.5)" name="Avg Moves" strokeWidth={3} strokeDasharray="5 5" />
+                          <Line yAxisId="left"  type="monotone" dataKey="avgTime"  stroke="rgba(136, 132, 216, 0.5)" name="Avg Time" strokeWidth={3} />
+                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="rgba(130, 202, 157, 0.5)" name="Avg Moves" strokeWidth={3} />
                         </>
                       )}
                     </LineChart>

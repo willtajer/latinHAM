@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { useUser } from '@clerk/nextjs'
 
 interface LeaderboardProps {
   initialDifficulty?: "all" | "easy" | "medium" | "hard";
@@ -54,6 +55,7 @@ const formatDate = (dateString: string) => {
 }
 
 export default function Component({ initialDifficulty = "all", onDifficultyChange }: LeaderboardProps) {
+  const { user } = useUser()
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -133,7 +135,21 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     });
   }, [filteredEntries, sortColumn, sortDirection]);
 
+  const calculateUserAverages = useCallback(() => {
+    const userEntries = entries.filter(entry => entry.username === user?.username)
+    if (userEntries.length === 0) return null
+
+    const totalMoves = userEntries.reduce((sum, entry) => sum + entry.moves, 0)
+    const totalTime = userEntries.reduce((sum, entry) => sum + entry.time, 0)
+
+    return {
+      moves: totalMoves / userEntries.length,
+      time: totalTime / userEntries.length
+    }
+  }, [entries, user?.username])
+
   const chartData = useMemo(() => {
+    const userAverages = calculateUserAverages()
     if (xAxisView === 'game') {
       let movesSum = 0
       let timeSum = 0
@@ -155,6 +171,8 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           avgMoves: movesSum / (index + 1),
           avgTime: timeSum / (index + 1),
           date: entry.date,
+          userAvgMoves: userAverages?.moves,
+          userAvgTime: userAverages?.time,
         }
       })
     } else {
@@ -172,9 +190,11 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
         date,
         moves: data.moves / data.count,
         time: data.time / data.count,
+        userAvgMoves: userAverages?.moves,
+        userAvgTime: userAverages?.time,
       })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }
-  }, [sortedEntries, xAxisView])
+  }, [sortedEntries, xAxisView, calculateUserAverages])
 
   useEffect(() => {
     if (chartRef.current) {
@@ -299,7 +319,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   Moves
                 </div>
               </div>
-              <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
+              <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)'   }}>
                 <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
@@ -311,12 +331,18 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
                       <Tooltip />
-                      <Line yAxisId="left"   type="monotone" dataKey="time"     stroke="#8884d8" name="Time"      strokeWidth={3} />
-                      <Line yAxisId="right" type="monotone" dataKey="moves"    stroke="#82ca9d" name="Moves"     strokeWidth={3} />
+                      <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} />
+                      <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
                       {xAxisView === 'game' && (
                         <>
-                          <Line yAxisId="left"  type="monotone" dataKey="avgTime"  stroke="rgba(136, 132, 216, 0.5)" name="Avg Time"  strokeWidth={3} />
-                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="rgba(130, 202, 157, 0.5)" name="Avg Moves" strokeWidth={3} />
+                          <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="rgba(136, 132, 216, 0.5)" name="Avg Time"  strokeWidth={3}/>
+                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="rgba(130, 202, 157, 0.5)" name="Avg Moves"  strokeWidth={3}/>
+                        </>
+                      )}
+                      {calculateUserAverages() && (
+                        <>
+                          <Line yAxisId="left" type="monotone" dataKey="userAvgTime" stroke="#ff7300" name="Your Avg Time" strokeWidth={3} />
+                          <Line yAxisId="right" type="monotone" dataKey="userAvgMoves" stroke="#ff4500" name="Your Avg Moves" strokeWidth={3} />
                         </>
                       )}
                     </LineChart>
@@ -340,10 +366,22 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                 <span>Moves</span>
               </div>
               {xAxisView === 'game' && (
-                <div className="flex items-center mb-2">
+                <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[rgba(130,202,157,0.5)] mr-2"></div>
                   <span>Avg Moves</span>
                 </div>
+              )}
+              {calculateUserAverages() && (
+                <>
+                  <div className="flex items-center mr-4 mb-2">
+                    <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
+                    <span>Your Avg Time</span>
+                  </div>
+                  <div className="flex items-center mb-2">
+                    <div className="w-4 h-4 bg-[#ff4500] mr-2"></div>
+                    <span>Your Avg Moves</span>
+                  </div>
+                </>
               )}
             </div>
           </div>
