@@ -18,16 +18,22 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
   entry,
   difficulty
 }) => {
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+
+  const handleImageReady = (file: File) => {
+    setImageFile(file)
+  }
 
   const handleDownload = () => {
-    if (imageDataUrl && entry) {
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile)
       const link = document.createElement('a')
-      link.href = imageDataUrl
-      link.download = `latinHAM_${difficulty}_game${entry.id}.png`
+      link.href = url
+      link.download = imageFile.name
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     }
   }
 
@@ -45,8 +51,9 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
         <div className="py-4 flex justify-center">
           <CompletedPuzzleCard 
             entry={entry} 
-            difficulty={difficulty} 
-            onImageReady={setImageDataUrl}
+            difficulty={difficulty}
+            gameNumber={parseInt(entry.id)}
+            onImageReady={handleImageReady}
           />
         </div>
         <DialogFooter className="flex flex-col items-center gap-4">
@@ -54,6 +61,7 @@ export const ViewCompletedPuzzleDialog: React.FC<ViewCompletedPuzzleDialogProps>
             onClick={handleDownload} 
             className="w-full bg-blue-500 hover:bg-blue-600 text-white" 
             aria-label="Download completed puzzle"
+            disabled={!imageFile}
           >
             <Download className="h-5 w-5 mr-2" />
             Download
