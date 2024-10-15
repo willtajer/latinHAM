@@ -36,6 +36,8 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [quoteSubmitted, setQuoteSubmitted] = useState(false)
 
+  console.log('WinDialog rendered', { open, showQuoteInput, quoteSubmitted });
+
   const handleDownload = () => {
     if (imageFile) {
       const url = URL.createObjectURL(imageFile)
@@ -66,7 +68,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-background">
         <DialogHeader>
           <DialogTitle className={`text-center ${showQuoteInput && !quoteSubmitted ? "" : "text-2xl font-bold"}`}>
             {showQuoteInput && !quoteSubmitted ? "Enter Your Victory Quote" : "Congratulations!"}
@@ -122,6 +124,11 @@ export const WinDialog: React.FC<WinDialogProps> = ({
               </div>
             </DialogFooter>
           </>
+        )}
+        {!showQuoteInput && quoteSubmitted && !entry && (
+          <div className="py-4 text-center">
+            <p>Thank you for playing!</p>
+          </div>
         )}
       </DialogContent>
     </Dialog>
