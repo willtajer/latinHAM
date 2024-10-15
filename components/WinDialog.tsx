@@ -13,6 +13,7 @@ interface WinDialogProps {
   quote: string
   setQuote: (quote: string) => void
   entry?: LeaderboardEntry
+  gameNumber: number
   difficulty: 'easy' | 'medium' | 'hard'
   onStartNewGame: () => void
   showQuoteInput: boolean
@@ -26,6 +27,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   quote,
   setQuote,
   entry,
+  gameNumber,
   difficulty,
   onStartNewGame,
   showQuoteInput,
@@ -39,7 +41,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
       const url = URL.createObjectURL(imageFile)
       const link = document.createElement('a')
       link.href = url
-      link.download = imageFile.name
+      link.download = `latinHAM_${difficulty}_game${gameNumber}.png`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
