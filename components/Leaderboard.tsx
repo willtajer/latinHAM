@@ -88,7 +88,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     fetchLeaderboard()
   }, [])
 
-  const formatDuration = (seconds: number) => {
+  const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}m ${remainingSeconds}s`
@@ -143,13 +143,13 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           moves: entry.moves,
           time: entry.time,
         }))
-        .sort((a, b) => a.date - b.date) // Sort by date, oldest first
+        .sort((a, b) => a.date - b.date)
 
       return sortedData.map((entry, index) => {
         movesSum += entry.moves
         timeSum += entry.time
         return {
-          game: index + 1, // Sequential game number
+          game: index + 1,
           moves: entry.moves,
           time: entry.time,
           avgMoves: movesSum / (index + 1),
@@ -207,7 +207,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
 
   const handleDifficultyChange = useCallback((newDifficulty: "all" | "easy" | "medium" | "hard") => {
     setDifficulty(newDifficulty)
-    setCurrentPage(1) // Reset to first page when changing difficulty
+    setCurrentPage(1)
     onDifficultyChange(newDifficulty)
   }, [onDifficultyChange])
 
@@ -278,7 +278,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
               </div>
               <div>
                 <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatTime(Math.round(averages.duration))}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
@@ -311,7 +311,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
                       <Tooltip />
-                      <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} />
+                      <Line  yAxisId="left" type="monotone" dataKey="time"   stroke="#8884d8" name="Time" strokeWidth={3} />
                       <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
                       {xAxisView === 'game' && (
                         <>
@@ -438,7 +438,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatDuration(entry.time)}</TableCell>
+                  <TableCell className="p-1 text-sm">{formatTime(entry.time)}</TableCell>
                   <TableCell className="p-1 text-sm truncate max-w-xs">{entry.quote || 'No quote'}</TableCell>
                 </TableRow>
               ))}
@@ -490,7 +490,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             <CompletedPuzzleCard
               entry={selectedGame}
               difficulty={selectedGame.difficulty}
-              gameNumber={entries.findIndex(entry => entry.id === selectedGame.id) + 1}
+              gameNumber={sortedEntries.findIndex(entry => entry.id === selectedGame.id) + 1}
               onImageReady={(file: File) => {
                 // Handle the image file if needed
                 console.log('Image ready:', file.name);
