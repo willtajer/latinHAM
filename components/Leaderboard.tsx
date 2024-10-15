@@ -137,17 +137,26 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     if (xAxisView === 'game') {
       let movesSum = 0
       let timeSum = 0
-      return sortedEntries.map((entry, index) => {
+      const sortedData = sortedEntries
+        .map((entry) => ({
+          date: new Date(entry.timestamp).getTime(),
+          moves: entry.moves,
+          time: entry.time,
+        }))
+        .sort((a, b) => a.date - b.date) // Sort by date, oldest first
+
+      return sortedData.map((entry, index) => {
         movesSum += entry.moves
         timeSum += entry.time
         return {
-          game: index + 1,
+          game: index + 1, // Sequential game number
           moves: entry.moves,
           time: entry.time,
           avgMoves: movesSum / (index + 1),
           avgTime: timeSum / (index + 1),
+          date: entry.date,
         }
-      }).reverse() // Reverse to show most recent games first
+      })
     } else {
       const dailyData: { [key: string]: { moves: number, time: number, count: number } } = {}
       sortedEntries.forEach((entry) => {
@@ -258,7 +267,6 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
       </div>
       <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6">
         <CardContent>
-          {/* Overall Averages */}
           <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
             <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
               {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
@@ -279,73 +287,67 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             </div>
           </div>
 
-          {/* Performance Trends graph */}
-          <div className="mb-6">
-            <div className="flex flex-col items-center">
-              <div className="w-full relative">
-                <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
-                  <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
-                    Time (seconds)
-                  </div>
-                </div>
-                <div className="absolute top-0 bottom-0 right-0 flex flex-col justify-center">
-                  <div className="transform rotate-90 origin-center translate-x-[50%] whitespace-nowrap text-sm text-gray-500">
-                    Moves
-                  </div>
-                </div>
-                <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
-                  <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey={xAxisView === 'game' ? 'game' : 'date'} 
-                          label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }} 
-                          reversed={xAxisView === 'game'}
-                        />
-                        <YAxis yAxisId="left" />
-                        <YAxis yAxisId="right" orientation="right" />
-                        <Tooltip />
-                        <Line yAxisId="left" type="monotone" dataKey="time"   stroke="#8884d8" name="Time" strokeWidth={3} />
-                        <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
-                        {xAxisView === 'game' && (
-                          <>
-                            <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="#ffc658" name="Avg Time" strokeWidth={3} />
-                            <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="#ff7300" name="Avg Moves" strokeWidth={3} />
-                          </>
-                        )}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+          <div className="flex flex-col items-center">
+            <div className="w-full relative">
+              <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
+                <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
+                  Time (seconds)
                 </div>
               </div>
-              {/* Color indicators moved below the graph and centered */}
-              <div className="flex flex-wrap justify-center mt-4">
-                <div className="flex items-center mr-4 mb-2">
-                  <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
-                  <span>Time</span>
+              <div className="absolute top-0 bottom-0 right-0 flex flex-col justify-center">
+                <div className="transform rotate-90 origin-center translate-x-[50%] whitespace-nowrap text-sm text-gray-500">
+                  Moves
                 </div>
-                {xAxisView === 'game' && (
-                  <div className="flex items-center mr-4 mb-2">
-                    <div className="w-4 h-4 bg-[#ffc658] mr-2"></div>
-                    <span>Avg Time</span>
-                  </div>
-                )}
-                <div className="flex items-center mr-4 mb-2">
-                  <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
-                  <span>Moves</span>
-                </div>
-                {xAxisView === 'game' && (
-                  <div className="flex items-center mb-2">
-                    <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
-                    <span>Avg Moves</span>
-                  </div>
-                )}
               </div>
+              <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
+                <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey={xAxisView === 'game' ? 'game' : 'date'} 
+                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position:  'insideBottom', offset: -5 }} 
+                      />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} />
+                      <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
+                      {xAxisView === 'game' && (
+                        <>
+                          <Line yAxisId="left" type="monotone" dataKey="avgTime" stroke="#ffc658" name="Avg Time" strokeWidth={3} />
+                          <Line yAxisId="right" type="monotone" dataKey="avgMoves" stroke="#ff7300" name="Avg Moves" strokeWidth={3} />
+                        </>
+                      )}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center mt-4">
+              <div className="flex items-center mr-4 mb-2">
+                <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
+                <span>Time</span>
+              </div>
+              {xAxisView === 'game' && (
+                <div className="flex items-center mr-4 mb-2">
+                  <div className="w-4 h-4 bg-[#ffc658] mr-2"></div>
+                  <span>Avg Time</span>
+                </div>
+              )}
+              <div className="flex items-center mr-4 mb-2">
+                <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
+                <span>Moves</span>
+              </div>
+              {xAxisView === 'game' && (
+                <div className="flex items-center mb-2">
+                  <div className="w-4 h-4 bg-[#ff7300] mr-2"></div>
+                  <span>Avg Moves</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* X-axis toggle */}
           <div className="flex justify-center mb-6">
             <RadioGroup defaultValue="game" onValueChange={(value) => setXAxisView(value as 'game' | 'daily')} className="flex justify-center space-x-4">
               <div className="flex items-center space-x-2">
@@ -359,7 +361,6 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             </RadioGroup>
           </div>
 
-          {/* Leaderboard table */}
           <Table className="w-full">
             <TableHeader>
               <TableRow>
