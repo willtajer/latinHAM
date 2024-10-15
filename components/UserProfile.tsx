@@ -316,7 +316,6 @@ export function UserProfile() {
       </div>
       <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6">
         <CardContent>
-          {/* Overall Averages */}
           {averages && (
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
               <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
@@ -329,8 +328,9 @@ export function UserProfile() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                  <p className="text-lg font-bold text-gray-950 dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
+                  <p className="text-lg font-bold text-gray-950  dark:text-white">{formatDuration(Math.round(averages.duration))}</p>
                 </div>
+                
                 <div>
                   <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
                   <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
@@ -339,7 +339,6 @@ export function UserProfile() {
             </div>
           )}
 
-          {/* Performance Trends graph */}
           <div className="mb-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
               <div className="w-full relative">
@@ -379,7 +378,6 @@ export function UserProfile() {
                   </div>
                 </div>
               </div>
-              {/* Color indicators moved below the graph and centered */}
               <div className="flex flex-wrap justify-center mt-4">
                 <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
@@ -405,7 +403,6 @@ export function UserProfile() {
             </div>
           </div>
 
-          {/* X-axis toggle */}
           <div className="flex justify-center mb-6">
             <RadioGroup defaultValue="game" onValueChange={(value) => setXAxisView(value as 'game' | 'daily')} className="flex justify-center space-x-4">
               <div className="flex items-center space-x-2">
@@ -419,7 +416,6 @@ export function UserProfile() {
             </RadioGroup>
           </div>
 
-          {/* Game history table */}
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
@@ -560,6 +556,11 @@ export function UserProfile() {
                 timestamp: selectedGame.created_at,
               }}
               difficulty={selectedGame.difficulty}
+              gameNumber={profileData.games.findIndex(game => game.id === selectedGame.id) + 1}
+              onImageReady={(file: File) => {
+                // Handle the image file if needed
+                console.log('Image ready:', file.name);
+              }}
             />
           )}
         </DialogContent>

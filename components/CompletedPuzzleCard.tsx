@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { CompletedPuzzleCardProps } from '../types'
 
 const BOARD_SIZE = 6
 
@@ -20,6 +19,23 @@ const colorMap: { [key: string]: string } = {
   'bg-purple-500': '#a855f7',
   'bg-orange-500': '#f97316',
   'bg-white': '#ffffff',
+}
+
+interface CompletedPuzzleCardProps {
+  entry: {
+    timestamp: string
+    id: string
+    difficulty: 'easy' | 'medium' | 'hard'
+    moves: number
+    time: number
+    hints: number
+    grid: number[][]
+    initialGrid: number[][]
+    quote: string
+  }
+  difficulty: 'easy' | 'medium' | 'hard'
+  gameNumber: number
+  onImageReady: (file: File) => void
 }
 
 export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry, difficulty, gameNumber, onImageReady }) => {
