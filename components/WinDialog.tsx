@@ -36,8 +36,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [quoteSubmitted, setQuoteSubmitted] = useState(false)
 
-  console.log('WinDialog rendered', { open, showQuoteInput, quoteSubmitted });
-
   const handleDownload = () => {
     if (imageFile) {
       const url = URL.createObjectURL(imageFile)
@@ -59,7 +57,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   const handleDialogClose = (newOpen: boolean) => {
     if (!newOpen) {
       if (showQuoteInput && !quoteSubmitted) {
-        // If closing without submitting a quote, submit an empty quote
         onSubmit("")
       }
     }
@@ -68,16 +65,16 @@ export const WinDialog: React.FC<WinDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="sm:max-w-[425px] bg-background">
+      <DialogContent className="sm:max-w-[425px] w-full bg-background">
         <DialogHeader>
-          <DialogTitle className={`text-center ${showQuoteInput && !quoteSubmitted ? "" : "text-2xl font-bold"}`}>
+          <DialogTitle className="text-center text-2xl font-bold">
             {showQuoteInput && !quoteSubmitted ? "Enter Your Victory Quote" : "Congratulations!"}
           </DialogTitle>
         </DialogHeader>
-        {showQuoteInput && !quoteSubmitted ? (
-          <>
-            <div className="py-4">
-              <p className="text-center mb-4">Enter a quote to commemorate your victory:</p>
+        <div className="py-6 px-4">
+          {showQuoteInput && !quoteSubmitted ? (
+            <div className="space-y-4">
+              <p className="text-center">Enter a quote to commemorate your victory:</p>
               <Input
                 placeholder="Enter your quote here"
                 value={quote}
@@ -85,21 +82,17 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                 aria-label="Victory quote"
                 className="w-full"
               />
-            </div>
-            <DialogFooter className="flex justify-center">
               <Button 
                 onClick={handleSubmitQuote}
-                className="w-full sm:w-auto bg-red-500 text-white hover:bg-red-600"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : (quote.trim() ? "Submit" : "Skip")}
               </Button>
-            </DialogFooter>
-          </>
-        ) : (
-          <>
-            <div className="py-4">
-              {entry && (
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {entry ? (
                 <CompletedPuzzleCard 
                   entry={{
                     ...entry,
@@ -111,25 +104,22 @@ export const WinDialog: React.FC<WinDialogProps> = ({
                     setImageFile(file)
                   }}
                 />
+              ) : (
+                <p className="text-center">Thank you for playing!</p>
               )}
-            </div>
-            <DialogFooter className="flex flex-col items-center gap-4 justify-center">
-              <div className="flex justify-center w-full gap-4">
-                <Button onClick={() => { onStartNewGame(); handleDialogClose(false); }} className="inline-flex items-center px-4 py-2">
+              <div className="flex justify-center gap-4">
+                <Button onClick={() => { onStartNewGame(); handleDialogClose(false); }} className="px-4 py-2">
                   Start New Game
                 </Button> 
-                <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
-                  <Download className="h-5 w-5" />
-                </Button>
+                {imageFile && (
+                  <Button onClick={handleDownload} className="p-2" aria-label="Download completed puzzle">
+                    <Download className="h-5 w-5" />
+                  </Button>
+                )}
               </div>
-            </DialogFooter>
-          </>
-        )}
-        {!showQuoteInput && quoteSubmitted && !entry && (
-          <div className="py-4 text-center">
-            <p>Thank you for playing!</p>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )
