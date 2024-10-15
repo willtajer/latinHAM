@@ -171,7 +171,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
     
     const difficultyIndicator = difficulty.charAt(0).toUpperCase()
-    const fileName = `latinHAM_${difficulty}_game${gameNumber}.png`
+    const fileName = `latinHAM.com-latinHAM_${difficulty}_game${gameNumber}.png`
     
     ctx.fillStyle = '#000000'
     ctx.textAlign = 'center'
