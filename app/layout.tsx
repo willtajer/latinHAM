@@ -1,3 +1,5 @@
+// app/layout.tsx
+
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
@@ -14,8 +16,10 @@ import {
 } from '@clerk/nextjs'
 import './globals.css'
 
+// Import the Inter font with Latin subset
 const inter = Inter({ subsets: ['latin'] })
 
+// Metadata configuration for the application, used for SEO and social sharing
 export const metadata: Metadata = {
   title: 'latinHAM',
   description: 'A challenging puzzle game based on Latin squares inspired by HAMMING codes.',
@@ -42,37 +46,45 @@ export const metadata: Metadata = {
   },
 }
 
+// RootLayout component serves as the root layout for all pages
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
+    // ClerkProvider manages authentication state for the application
     <ClerkProvider>
+      {/* Define the HTML structure and language */}
       <html lang="en" suppressHydrationWarning>
         <body className={`bg-background text-foreground ${inter.className}`}>
+          {/* ThemeProvider manages theming (light/dark) across the application */}
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
+            {/* Header containing authentication buttons */}
             <header className="fixed left-0 right-0 z-50 w-full">
               <div className="flex justify-between items-center p-4">
                 <div>
+                  {/* Display Sign In button when user is signed out */}
                   <SignedOut>
                     <SignInButton>
-                    <button className="px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors">
+                      {/* Styled Sign In button */}
+                      <button className="px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors">
                         Sign In
                       </button>
                     </SignInButton>
                   </SignedOut>
+                  {/* Display UserButton when user is signed in */}
                   <SignedIn>
                     <UserButton 
-                      afterSignOutUrl="/"
+                      afterSignOutUrl="/" // Redirect to home after sign out
                       appearance={{
                         elements: {
-                          avatarBox: "w-10 h-10"
+                          avatarBox: "w-10 h-10" // Customize avatar size
                         }
                       }}
                     />
@@ -80,12 +92,15 @@ export default function RootLayout({
                 </div>
               </div>
             </header>
+            {/* Main content area */}
             <main>
-              <LoginHandler />
-              <ThemeBackground />
-              {children}
+              <LoginHandler /> {/* Handles login-related logic */}
+              <ThemeBackground /> {/* Renders themed background */}
+              {children} {/* Render the child components/pages */}
             </main>
+            {/* Vercel Analytics for tracking */}
             <Analytics />
+            {/* Vercel Speed Insights for performance monitoring */}
             <SpeedInsights />
           </ThemeProvider>
         </body>

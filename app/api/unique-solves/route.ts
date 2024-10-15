@@ -1,6 +1,11 @@
+// app/api/latinham-stats/route.ts
+
 import { NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
 
+/**
+ * Interface representing the structure of LatinHAM statistics to be returned.
+ */
 interface LatinHAMStats {
   initialGrid: number[][];
   difficulty: 'easy' | 'medium' | 'hard';
@@ -12,6 +17,9 @@ interface LatinHAMStats {
   bestTimePlayer: string;
 }
 
+/**
+ * Interface representing the structure of a database entry from the leaderboard_entries table.
+ */
 interface DatabaseEntry {
   initial_grid: string;
   difficulty: 'easy' | 'medium' | 'hard';
@@ -23,21 +31,32 @@ interface DatabaseEntry {
   best_time_player: string;
 }
 
+/**
+ * Parses a JSON field that is expected to be a 2D array of numbers.
+ * @param field - The field to parse, either a JSON string or a number[][].
+ * @returns A number[][] if parsing is successful, otherwise an empty array.
+ */
 function parseJsonField(field: string): number[][] {
   try {
     const parsed = JSON.parse(field);
+    // Ensure the parsed result is a 2D array
     if (Array.isArray(parsed) && parsed.every(row => Array.isArray(row))) {
       return parsed;
     }
     throw new Error('Parsed value is not a 2D array');
   } catch (error) {
     console.error('Error parsing JSON field:', error);
-    return [];
+    return []; // Return an empty array if parsing fails
   }
 }
 
+/**
+ * GET handler to fetch LatinHAM statistics from the leaderboard.
+ * @returns A JSON response containing an array of LatinHAMStats objects or an error message.
+ */
 export async function GET() {
   try {
+    // Execute SQL query to aggregate statistics for each unique initial grid and difficulty
     const result = await sql<DatabaseEntry>`
       WITH ranked_entries AS (
         SELECT 
@@ -68,12 +87,13 @@ export async function GET() {
       ORDER BY solve_count DESC, best_moves ASC, best_time ASC
     `
 
+    // Map the database entries to LatinHAMStats objects, filtering out any invalid entries
     const formattedLatinHAMStats = result.rows.map(entry => {
       try {
         const initialGrid = parseJsonField(entry.initial_grid);
         if (initialGrid.length === 0) {
           console.error('Invalid initial_grid:', entry.initial_grid);
-          return null;
+          return null; // Skip entries with invalid initial grids
         }
         return {
           initialGrid: initialGrid,
@@ -87,15 +107,18 @@ export async function GET() {
         } as LatinHAMStats
       } catch (parseError) {
         console.error('Error parsing entry:', entry, parseError)
-        return null
+        return null // Return null if there's an error parsing the entry
       }
-    }).filter((entry): entry is LatinHAMStats => entry !== null)
+    }).filter((entry): entry is LatinHAMStats => entry !== null) // Filter out any null entries resulting from parsing errors
 
-    console.log('Fetched latinHAM stats:', JSON.stringify(formattedLatinHAMStats))
+    console.log('Fetched LatinHAM stats:', JSON.stringify(formattedLatinHAMStats))
 
+    // Return the formatted LatinHAM statistics as a JSON response
     return NextResponse.json(formattedLatinHAMStats)
   } catch (error) {
-    console.error('Failed to fetch latinHAM stats:', error)
-    return NextResponse.json({ error: 'Failed to fetch latinHAM stats' }, { status: 500 })
+    // Log any errors that occur during the fetch process
+    console.error('Failed to fetch LatinHAM stats:', error)
+    // Return a 500 Internal Server Error response with an error message
+    return NextResponse.json({ error: 'Failed to fetch LatinHAM stats' }, { status: 500 })
   }
 }

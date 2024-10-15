@@ -1,54 +1,61 @@
 // hooks/useLocalStorage.ts
 import { useState, useEffect } from 'react'
 
+/**
+ * Custom hook to manage state synchronized with localStorage.
+ * @param key - The key in localStorage to store the value.
+ * @param initialValue - The initial value to use if none is found in localStorage.
+ * @returns An array containing the stored value and a setter function.
+ */
 export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
-  // State to store our value
-  // Pass initial state function to useState so logic is only executed once
+  // Initialize state with value from localStorage or the initial value
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
-      return initialValue;
+      return initialValue; // Return initialValue during server-side rendering
     }
     try {
-      // Get from local storage by key
+      // Retrieve the item from localStorage by key
       const item = window.localStorage.getItem(key);
-      // Parse stored json or if none return initialValue
+      // Parse the JSON string or return the initial value if not found
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      // If error also return initialValue
       console.log(error);
-      return initialValue;
+      return initialValue; // Return initialValue if parsing fails
     }
   });
 
-  // useEffect to update local storage when the state changes
+  // Update localStorage whenever the key or storedValue changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
+        // Convert the stored value to a JSON string and save it to localStorage
         window.localStorage.setItem(key, JSON.stringify(storedValue));
       } catch (error) {
-        console.log(error);
+        console.log(error); // Log any errors that occur during saving
       }
     }
   }, [key, storedValue]);
 
-  // Return a wrapped version of useState's setter function that ...
-  // ... persists the new value to localStorage.
+  /**
+   * Sets the value both in state and in localStorage.
+   * @param value - The new value to store.
+   */
   const setValue = (value: T) => {
     try {
-      // Allow value to be a function so we have same API as useState
+      // If value is a function, execute it with the current storedValue
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;
-      // Save state
+      // Update the state with the new value
       setStoredValue(valueToStore);
-      // Save to local storage
+      // Also update the value in localStorage
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
-      // A more advanced implementation would handle the error case
-      console.log(error);
+      console.log(error); // Log any errors that occur during setting the value
     }
   };
 
+  // Return the stored value and the setter function
   return [storedValue, setValue];
 }
