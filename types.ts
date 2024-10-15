@@ -1,3 +1,5 @@
+// file: types.ts
+
 export interface LeaderboardEntry {
   id: string;
   username?: string; // Username is optional
@@ -31,4 +33,12 @@ export interface CompletedPuzzle {
   initialGrid: number[][];
   hints: number;
   quote: string;
+}
+
+// Add this new interface
+export interface CompletedPuzzleCardProps {
+  entry: LeaderboardEntry;
+  difficulty: 'easy' | 'medium' | 'hard';
+  gameNumber: number;
+  onImageReady?: (imageFile: File) => void;
 }

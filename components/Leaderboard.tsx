@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import { LeaderboardEntry } from '@/types'
+import { LeaderboardEntry, CompletedPuzzleCardProps } from '../types'
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -311,7 +311,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
                       <Tooltip />
-                      <Line  yAxisId="left" type="monotone" dataKey="time"   stroke="#8884d8" name="Time" strokeWidth={3} />
+                      <Line  yAxisId="left" type="monotone" dataKey="time"      stroke="#8884d8" name="Time" strokeWidth={3} />
                       <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} />
                       {xAxisView === 'game' && (
                         <>
@@ -492,7 +492,6 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
               difficulty={selectedGame.difficulty}
               gameNumber={sortedEntries.findIndex(entry => entry.id === selectedGame.id) + 1}
               onImageReady={(file: File) => {
-                // Handle the image file if needed
                 console.log('Image ready:', file.name);
               }}
             />
