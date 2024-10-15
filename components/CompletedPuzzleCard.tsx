@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { LeaderboardEntry } from '../types'
-
-interface CompletedPuzzleCardProps {
-  entry: LeaderboardEntry
-  difficulty: 'easy' | 'medium' | 'hard'
-  onImageReady?: (imageFile: File) => void
-}
+import { LeaderboardEntry, CompletedPuzzleCardProps } from '../types'
 
 const BOARD_SIZE = 6
 
@@ -28,7 +22,7 @@ const colorMap: { [key: string]: string } = {
   'bg-white': '#ffffff',
 }
 
-export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry, difficulty, onImageReady }) => {
+export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry, difficulty, gameNumber, onImageReady }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const formatTime = (seconds: number) => {
@@ -161,7 +155,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
     
     const difficultyIndicator = difficulty.charAt(0).toUpperCase()
-    const fileName = `latinHAM#${formattedDateTime}${difficultyIndicator}.png`
+    const fileName = `latinHAM_${difficulty}_game${gameNumber}.png`
     
     ctx.fillStyle = '#000000'
     ctx.textAlign = 'center'
@@ -236,7 +230,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         onImageReady(fileWithMetadata)
       }
     }, 'image/png')
-  }, [entry, difficulty, onImageReady])
+  }, [entry, difficulty, gameNumber, onImageReady])
 
   return (
     <div className="flex justify-center items-center w-full h-full">
