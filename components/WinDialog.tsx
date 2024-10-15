@@ -52,7 +52,6 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   const handleSubmitQuote = () => {
     onSubmit(quote)
     setQuoteSubmitted(true)
-    onOpenChange(false)
   }
 
   const handleDialogClose = (newOpen: boolean) => {
@@ -60,10 +59,9 @@ export const WinDialog: React.FC<WinDialogProps> = ({
       if (showQuoteInput && !quoteSubmitted) {
         // If closing without submitting a quote, submit an empty quote
         onSubmit("")
-        setQuoteSubmitted(true)
       }
-      onOpenChange(false)
     }
+    onOpenChange(newOpen)
   }
 
   return (
@@ -115,7 +113,7 @@ export const WinDialog: React.FC<WinDialogProps> = ({
             </div>
             <DialogFooter className="flex flex-col items-center gap-4 justify-center">
               <div className="flex justify-center w-full gap-4">
-                <Button onClick={() => { onStartNewGame(); onOpenChange(false); }} className="inline-flex items-center px-4 py-2">
+                <Button onClick={() => { onStartNewGame(); handleDialogClose(false); }} className="inline-flex items-center px-4 py-2">
                   Start New Game
                 </Button> 
                 <Button onClick={handleDownload} className="inline-flex items-center p-2" aria-label="Download completed puzzle">
