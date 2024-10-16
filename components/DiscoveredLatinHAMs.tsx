@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
 import LatinHAMLeaderboard from './LatinHAMLeaderboard'
-import { LatinHAM } from '@/types'
+import { DiscoveredLatinHAM } from '@/types'
 import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
 import { useUser } from '@clerk/nextjs'
@@ -46,11 +46,11 @@ interface DiscoveredLatinHAMsProps {
   onCloseOverlays: () => void;
 }
 
-export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
-  const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
+export default function Component({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
+  const [latinHAMs, setLatinHAMs] = useState<DiscoveredLatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
+  const [selectedLatinHAM, setSelectedLatinHAM] = useState<DiscoveredLatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
   const { user } = useUser()
 
@@ -66,7 +66,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const data = await response.json()
+      const data: DiscoveredLatinHAM[] = await response.json()
       if (Array.isArray(data)) {
         const latinHAMsWithSolveCount = data.map(latinHAM => ({
           ...latinHAM,
@@ -88,7 +88,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     fetchLatinHAMs()
   }, [fetchLatinHAMs, difficultyFilter, user])
 
-  const handleLatinHAMClick = (latinHAM: LatinHAM) => {
+  const handleLatinHAMClick = (latinHAM: DiscoveredLatinHAM) => {
     setSelectedLatinHAM(latinHAM)
   }
 
@@ -154,5 +154,3 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     </div>
   )
 }
-
-export default DiscoveredLatinHAMs
