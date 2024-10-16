@@ -8,7 +8,6 @@ import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
 import { useUser } from '@clerk/nextjs'
 import { calculateSolveCount } from '../utils/solveCountLogic'
-import { useRouter } from 'next/navigation'
 
 // DifficultyFilters component (unchanged)
 const DifficultyFilters: React.FC<{
@@ -43,14 +42,18 @@ const DifficultyFilters: React.FC<{
   </div>
 )
 
-export function DiscoveredLatinHAMs() {
+interface DiscoveredLatinHAMsProps {
+  onPlayAgain: (initialGrid: number[][]) => void;
+  onCloseOverlays: () => void;
+}
+
+export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
   const [latinHAMs, setLatinHAMs] = useState<LatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
   const { user } = useUser()
-  const router = useRouter()
 
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
@@ -94,12 +97,12 @@ export function DiscoveredLatinHAMs() {
   const handleCloseLeaderboard = () => {
     setSelectedLatinHAM(null)
     fetchLatinHAMs()
+    onCloseOverlays()
   }
 
   const handlePlayAgain = useCallback((initialGrid: number[][]) => {
-    const encodedGrid = encodeURIComponent(JSON.stringify(initialGrid))
-    router.push(`/?preset=${encodedGrid}`)
-  }, [router])
+    onPlayAgain(initialGrid)
+  }, [onPlayAgain])
 
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>
@@ -141,7 +144,7 @@ export function DiscoveredLatinHAMs() {
           <LatinHAMLeaderboard
             latinHAM={selectedLatinHAM}
             onPlayAgain={handlePlayAgain}
-            onCloseOverlays={handleCloseLeaderboard}
+            onCloseOverlays={onCloseOverlays}
           />
         </div>
       ) : (
