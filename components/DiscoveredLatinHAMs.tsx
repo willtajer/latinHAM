@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { useUser } from '@clerk/nextjs'
 import { calculateSolveCount } from '../utils/solveCountLogic'
 
-// DifficultyFilters component (unchanged)
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';
   setDifficultyFilter: React.Dispatch<React.SetStateAction<'all' | 'easy' | 'medium' | 'hard'>>;
@@ -43,7 +42,7 @@ const DifficultyFilters: React.FC<{
 )
 
 interface DiscoveredLatinHAMsProps {
-  onPlayAgain: (initialGrid: number[][]) => void;
+  onPlayAgain: (initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => void;
   onCloseOverlays: () => void;
 }
 
@@ -69,7 +68,6 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
       }
       const data = await response.json()
       if (Array.isArray(data)) {
-        // Calculate solve count for each LatinHAM
         const latinHAMsWithSolveCount = data.map(latinHAM => ({
           ...latinHAM,
           possibleSolveCount: calculateSolveCount(latinHAM.initialGrid)
@@ -100,8 +98,8 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     onCloseOverlays()
   }
 
-  const handlePlayAgain = useCallback((initialGrid: number[][]) => {
-    onPlayAgain(initialGrid)
+  const handlePlayAgain = useCallback((initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => {
+    onPlayAgain(initialGrid, difficulty)
   }, [onPlayAgain])
 
   if (isLoading) {
@@ -143,7 +141,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
           </div>
           <LatinHAMLeaderboard
             latinHAM={selectedLatinHAM}
-            onPlayAgain={handlePlayAgain}
+            onPlayAgain={(initialGrid) => handlePlayAgain(initialGrid, selectedLatinHAM.difficulty)}
             onCloseOverlays={onCloseOverlays}
           />
         </div>

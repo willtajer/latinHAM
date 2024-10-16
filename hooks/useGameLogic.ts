@@ -215,8 +215,8 @@ export const useGameLogic = (initialGridParam?: number[][]) => {
     }
   }, [])
 
-  const resetGame = useCallback((newInitialGrid: number[][]) => {
-    console.log("Resetting game with initial grid:", newInitialGrid)
+  const resetGame = useCallback((newInitialGrid: number[][], newDifficulty?: 'easy' | 'medium' | 'hard') => {
+    console.log("Resetting game with initial grid:", newInitialGrid, "and difficulty:", newDifficulty)
     setGrid(newInitialGrid.map(row => [...row]))
     setInitialGrid(newInitialGrid)
     setLocked(newInitialGrid.map(row => row.map(cell => cell !== 0)))
@@ -230,6 +230,9 @@ export const useGameLogic = (initialGridParam?: number[][]) => {
     setElapsedTime(0)
     setGameState('playing')
     setHintsActive(false)
+    if (newDifficulty) {
+      setDifficulty(newDifficulty)
+    }
 
     if (checkWin(newInitialGrid)) {
       setGameState('won')

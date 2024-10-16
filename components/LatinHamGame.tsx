@@ -17,7 +17,7 @@ import { LeaderboardEntry } from '../types'
 import { useSearchParams } from 'next/navigation'
 
 interface LatinHamGameProps {
-  onTriggerNewGame: (trigger: (initialGrid?: number[][]) => void) => void
+  onTriggerNewGame: (trigger: (initialGrid?: number[][], initialDifficulty?: 'easy' | 'medium' | 'hard') => void) => void
 }
 
 export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
@@ -179,9 +179,9 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     clearGameState()
   }, [clearGameState])
 
-  const handleNewGame = useCallback((initialGrid?: number[][]) => {
+  const handleNewGame = useCallback((initialGrid?: number[][], initialDifficulty?: 'easy' | 'medium' | 'hard') => {
     if (initialGrid) {
-      resetGame(initialGrid)
+      resetGame(initialGrid, initialDifficulty)
       setShowDifficultySelector(false)
     } else if (gameState === 'playing' && !showDifficultySelector) {
       setShowNewGameConfirmation(true)
