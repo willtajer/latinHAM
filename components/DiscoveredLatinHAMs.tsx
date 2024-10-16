@@ -8,6 +8,7 @@ import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
 import { useUser } from '@clerk/nextjs'
 import { calculateSolveCount } from '../utils/solveCountLogic'
+import useSWR from 'swr'
 
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';
@@ -46,47 +47,36 @@ interface DiscoveredLatinHAMsProps {
   onCloseOverlays: () => void;
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json())
+
 export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
-  const [latinHAMs, setLatinHAMs] = useState<DiscoveredLatinHAM[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<DiscoveredLatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
+  const [key, setKey] = useState(0)
   const { user } = useUser()
 
-  const fetchLatinHAMs = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&t=${Date.now()}`, {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data: DiscoveredLatinHAM[] = await response.json()
-      if (Array.isArray(data)) {
-        const latinHAMsWithSolveCount = data.map(latinHAM => ({
-          ...latinHAM,
-          possibleSolveCount: calculateSolveCount(latinHAM.initialGrid)
-        }))
-        setLatinHAMs(latinHAMsWithSolveCount)
-      } else {
-        throw new Error('Invalid data format')
-      }
-    } catch (error) {
-      console.error('Error fetching latinHAMs:', error)
-      setError('Failed to load Discovered LatinHAMs. Please try again later.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [difficultyFilter])
+  const { data: latinHAMs, error, isLoading, mutate } = useSWR<DiscoveredLatinHAM[]>(
+    `/api/discovered?difficulty=${difficultyFilter}&t=${Date.now()}`,
+    fetcher,
+    { revalidateOnFocus: false, revalidateOnReconnect: false }
+  )
 
   useEffect(() => {
-    fetchLatinHAMs()
-  }, [fetchLatinHAMs, difficultyFilter, user])
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        mutate()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [mutate])
+
+  useEffect(() => {
+    setKey(prevKey => prevKey + 1)
+  }, [user])
 
   const handleLatinHAMClick = (latinHAM: DiscoveredLatinHAM) => {
     setSelectedLatinHAM(latinHAM)
@@ -94,7 +84,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
 
   const handleCloseLeaderboard = () => {
     setSelectedLatinHAM(null)
-    fetchLatinHAMs()
+    mutate()
   }
 
   const handlePlayAgain = useCallback((initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => {
@@ -107,22 +97,27 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-500">{error}</div>
+    return <div className="text-center py-8 text-red-500">Failed to load Discovered LatinHAMs. Please try again later.</div>
   }
 
-  if (latinHAMs.length === 0) {
+  if (!latinHAMs || latinHAMs.length === 0) {
     return <div className="text-center py-8 text-white">No Discovered LatinHAMs found. Start playing to create some!</div>
   }
 
+  const latinHAMsWithSolveCount = latinHAMs.map(latinHAM => ({
+    ...latinHAM,
+    possibleSolveCount: calculateSolveCount(latinHAM.initialGrid)
+  }))
+
   return (
-    <div className="container mx-auto">
+    <div key={key} className="container mx-auto">
       <h1 className="text-6xl font-bold text-center mb-6 text-white">Discovered LatinHAMs</h1>
       <div className="flex flex-col items-center justify-center">
         <div className="w-[calc(6*3rem+6*0.75rem)]">
           <GamePreview />
         </div>
       </div>
-      <p className="text-center mb-6 text-white">Explore player-identified complete and incomplete LatinHAMs.</p>
+      <p className="text-center mb-6 text-white">Explore player-identified gameboard layouts.</p>
       {!selectedLatinHAM && (
         <DifficultyFilters
           difficultyFilter={difficultyFilter}
@@ -147,7 +142,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
         </div>
       ) : (
         <LatinHAMGrid 
-          latinHAMs={latinHAMs} 
+          latinHAMs={latinHAMsWithSolveCount} 
           onLatinHAMClick={handleLatinHAMClick}
           difficultyFilter={difficultyFilter}
         />
