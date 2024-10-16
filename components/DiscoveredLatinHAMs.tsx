@@ -57,7 +57,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}`, {
+      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&t=${Date.now()}`, {
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
@@ -99,7 +99,8 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
 
   const handlePlayAgain = useCallback((initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => {
     onPlayAgain(initialGrid, difficulty)
-  }, [onPlayAgain])
+    onCloseOverlays()
+  }, [onPlayAgain, onCloseOverlays])
 
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>
@@ -121,7 +122,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
           <GamePreview />
         </div>
       </div>
-      <p className="text-center mb-6 text-white">Explore player-identified gameboard layouts.</p>
+      <p className="text-center mb-6 text-white">Explore player-identified complete and incomplete LatinHAMs.</p>
       {!selectedLatinHAM && (
         <DifficultyFilters
           difficultyFilter={difficultyFilter}
