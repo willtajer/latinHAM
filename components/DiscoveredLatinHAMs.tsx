@@ -8,6 +8,7 @@ import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
 import { useUser } from '@clerk/nextjs'
 import { calculateSolveCount } from '../utils/solveCountLogic'
+import { useRouter } from 'next/navigation'
 
 // DifficultyFilters component (unchanged)
 const DifficultyFilters: React.FC<{
@@ -49,6 +50,7 @@ export function DiscoveredLatinHAMs() {
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<LatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
   const { user } = useUser()
+  const router = useRouter()
 
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
@@ -94,6 +96,11 @@ export function DiscoveredLatinHAMs() {
     fetchLatinHAMs()
   }
 
+  const handlePlayAgain = useCallback((initialGrid: number[][]) => {
+    const encodedGrid = encodeURIComponent(JSON.stringify(initialGrid))
+    router.push(`/?preset=${encodedGrid}`)
+  }, [router])
+
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>
   }
@@ -133,6 +140,8 @@ export function DiscoveredLatinHAMs() {
           </div>
           <LatinHAMLeaderboard
             latinHAM={selectedLatinHAM}
+            onPlayAgain={handlePlayAgain}
+            onCloseOverlays={handleCloseLeaderboard}
           />
         </div>
       ) : (

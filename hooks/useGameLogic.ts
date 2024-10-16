@@ -1,90 +1,78 @@
 import { useState, useCallback, useEffect } from 'react'
 import { createLatinSquare, prefillCells, checkWin } from '../utils/gameLogic'
 
-// Custom hook to manage the game logic for latinHAM
-export const useGameLogic = () => {
-  // Initialize the game grid from localStorage or as an empty array
+export const useGameLogic = (initialGridParam?: number[][]) => {
   const [grid, setGrid] = useState<number[][]>(() => {
+    if (initialGridParam) return initialGridParam
     const savedGrid = localStorage.getItem('latinHamGrid')
     return savedGrid ? JSON.parse(savedGrid) : []
   })
 
-  // Initialize locked cells from localStorage or as an empty array
   const [locked, setLocked] = useState<boolean[][]>(() => {
+    if (initialGridParam) return initialGridParam.map(row => row.map(cell => cell !== 0))
     const savedLocked = localStorage.getItem('latinHamLocked')
     return savedLocked ? JSON.parse(savedLocked) : []
   })
 
-  // Initialize edited cells from localStorage or as an empty array
   const [edited, setEdited] = useState<boolean[][]>(() => {
     const savedEdited = localStorage.getItem('latinHamEdited')
-    return savedEdited ? JSON.parse(savedEdited) : []
+    return savedEdited ? JSON.parse(savedEdited) : Array(6).fill(false).map(() => Array(6).fill(false))
   })
 
-  // Initialize game state from localStorage or default to 'start'
   const [gameState, setGameState] = useState<'start' | 'playing' | 'won' | 'viewing'>(() => {
+    if (initialGridParam) return 'playing'
     const savedGameState = localStorage.getItem('latinHamGameState') as 'start' | 'playing' | 'won' | 'viewing'
     return savedGameState || 'start'
   })
 
-  // Initialize difficulty from localStorage or default to 'easy'
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>(() => {
     const savedDifficulty = localStorage.getItem('latinHamDifficulty') as 'easy' | 'medium' | 'hard'
     return savedDifficulty || 'easy'
   })
 
-  // Initialize hints from localStorage or as an empty array
   const [hints, setHints] = useState<boolean[][]>(() => {
     const savedHints = localStorage.getItem('latinHamHints')
-    return savedHints ? JSON.parse(savedHints) : []
+    return savedHints ? JSON.parse(savedHints) : Array(6).fill(false).map(() => Array(6).fill(false))
   })
 
-  // State to toggle the visibility of numbers
   const [showNumbers, setShowNumbers] = useState<boolean>(false)
 
-  // Initialize the solution grid from localStorage or as an empty array
   const [solution, setSolution] = useState<number[][]>(() => {
     const savedSolution = localStorage.getItem('latinHamSolution')
     return savedSolution ? JSON.parse(savedSolution) : []
   })
 
-  // Initialize the initial grid from localStorage or as an empty array
   const [initialGrid, setInitialGrid] = useState<number[][]>(() => {
+    if (initialGridParam) return initialGridParam
     const savedInitialGrid = localStorage.getItem('latinHamInitialGrid')
     return savedInitialGrid ? JSON.parse(savedInitialGrid) : []
   })
 
-  // State to toggle trash mode
   const [isTrashMode, setIsTrashMode] = useState<boolean>(false)
 
-  // Initialize move count from localStorage or default to 0
   const [moveCount, setMoveCount] = useState<number>(() => {
     const savedMoveCount = localStorage.getItem('latinHamMoveCount')
     return savedMoveCount ? parseInt(savedMoveCount) : 0
   })
 
-  // Initialize hint count from localStorage or default to 0
   const [hintCount, setHintCount] = useState<number>(() => {
     const savedHintCount = localStorage.getItem('latinHamHintCount')
     return savedHintCount ? parseInt(savedHintCount) : 0
   })
 
-  // Initialize start time from localStorage or as null
   const [startTime, setStartTime] = useState<number | null>(() => {
+    if (initialGridParam) return Date.now()
     const savedStartTime = localStorage.getItem('latinHamStartTime')
     return savedStartTime ? parseInt(savedStartTime) : null
   })
 
-  // Initialize elapsed time from localStorage or default to 0
   const [elapsedTime, setElapsedTime] = useState<number>(() => {
     const savedElapsedTime = localStorage.getItem('latinHamElapsedTime')
     return savedElapsedTime ? parseInt(savedElapsedTime) : 0
   })
 
-  // State to track if hints are currently active
   const [hintsActive, setHintsActive] = useState<boolean>(false)
 
-  // Persist relevant state variables to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('latinHamGrid', JSON.stringify(grid))
     localStorage.setItem('latinHamLocked', JSON.stringify(locked))
@@ -100,84 +88,72 @@ export const useGameLogic = () => {
     localStorage.setItem('latinHamElapsedTime', elapsedTime.toString())
   }, [grid, locked, edited, gameState, difficulty, hints, solution, initialGrid, moveCount, hintCount, startTime, elapsedTime])
 
-  // Handler for clicking a cell in the grid
   const handleCellClick = useCallback((row: number, col: number) => {
-    if (gameState !== 'playing' || locked[row][col]) return // Do nothing if game isn't in 'playing' state or cell is locked
+    if (gameState !== 'playing' || locked[row][col]) return
 
     setGrid(prevGrid => {
-      const newGrid = prevGrid.map(r => [...r]) // Create a copy of the grid
+      const newGrid = prevGrid.map(r => [...r])
 
       if (isTrashMode) {
-        // If trash mode is active, remove the number if it's been edited and not zero
         if (edited[row][col] && newGrid[row][col] !== 0) {
           newGrid[row][col] = 0
-          setMoveCount(prevCount => prevCount + 1) // Increment move count
+          setMoveCount(prevCount => prevCount + 1)
         }
       } else {
-        // Cycle the number in the cell between 1 and 6
         newGrid[row][col] = (newGrid[row][col] % 6) + 1
-        setMoveCount(prevCount => prevCount + 1) // Increment move count
+        setMoveCount(prevCount => prevCount + 1)
       }
 
-      // Check if the new grid meets the win condition
       if (checkWin(newGrid)) {
-        setGameState('won') // Update game state to 'won'
-        setStartTime(null) // Stop the timer
+        setGameState('won')
+        setStartTime(null)
       }
 
       return newGrid
     })
 
     setEdited(prevEdited => {
-      const newEdited = prevEdited.map(r => [...r]) // Create a copy of the edited array
-      // Update the edited status based on trash mode and cell value
+      const newEdited = prevEdited.map(r => [...r])
       newEdited[row][col] = !isTrashMode || (isTrashMode && grid[row][col] !== 0)
       return newEdited
     })
 
-    // Reset hints and visibility settings
     setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
     setShowNumbers(false)
     setHintsActive(false)
     setIsTrashMode(false)
   }, [gameState, locked, isTrashMode, edited, grid])
 
-  // Handler to select game difficulty and initialize the game
   const handleSelectDifficulty = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
-    setDifficulty(selectedDifficulty) // Update difficulty state
-    initializeGame(selectedDifficulty) // Initialize the game with the selected difficulty
+    setDifficulty(selectedDifficulty)
+    initializeGame(selectedDifficulty)
   }, [])
 
-  // Handler to start a new game with the current difficulty
   const handleNewGame = useCallback(() => {
-    initializeGame(difficulty) // Initialize the game
+    initializeGame(difficulty)
   }, [difficulty])
 
-  // Handler to provide hints to the player
   const handleHint = useCallback(() => {
     if (checkWin(grid)) {
-      setGameState('won') // If already won, set game state to 'won'
+      setGameState('won')
       return
     }
 
     if (hintsActive) {
-      // If hints are active, deactivate them
       setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
       setHintsActive(false)
     } else {
-      // Generate hints based on the current grid and edited cells
       const newHints = grid.map((row, rowIndex) =>
         row.map((cell, colIndex) => {
-          if (!edited[rowIndex][colIndex] || cell === 0) return false // No hint for unedited or empty cells
+          if (!edited[rowIndex][colIndex] || cell === 0) return false
           for (let i = 0; i < 6; i++) {
-            if (i !== colIndex && grid[rowIndex][i] === cell) return true // Check row for duplicates
-            if (i !== rowIndex && grid[i][colIndex] === cell) return true // Check column for duplicates
+            if (i !== colIndex && grid[rowIndex][i] === cell) return true
+            if (i !== rowIndex && grid[i][colIndex] === cell) return true
           }
           return false
         })
       )
 
-      // If any hints are found, activate them and increment hint count
       if (newHints.some(row => row.some(cell => cell))) {
         setHints(newHints)
         setHintsActive(true)
@@ -186,101 +162,91 @@ export const useGameLogic = () => {
     }
   }, [grid, edited, hintsActive])
 
-  // Handler to reset the game to the initial state
   const handleReset = useCallback(() => {
-    setGrid(initialGrid.map(row => [...row])) // Reset grid to initial state
-    setEdited(Array(6).fill(false).map(() => Array(6).fill(false))) // Reset edited cells
-    setHints(Array(6).fill(false).map(() => Array(6).fill(false))) // Reset hints
-    setShowNumbers(false) // Hide numbers
-    setIsTrashMode(false) // Deactivate trash mode
-    setMoveCount(0) // Reset move count
-    setHintCount(0) // Reset hint count
-    setStartTime(Date.now()) // Restart the timer
-    setElapsedTime(0) // Reset elapsed time
-    setGameState('playing') // Set game state to 'playing'
-    setHintsActive(false) // Deactivate hints
+    setGrid(initialGrid.map(row => [...row]))
+    setEdited(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setShowNumbers(false)
+    setIsTrashMode(false)
+    setMoveCount(0)
+    setHintCount(0)
+    setStartTime(Date.now())
+    setElapsedTime(0)
+    setGameState('playing')
+    setHintsActive(false)
 
-    // Check for win condition after resetting the game
     if (checkWin(initialGrid)) {
-      setGameState('won') // If initial grid meets win condition, set game state to 'won'
-      setStartTime(null) // Stop the timer
+      setGameState('won')
+      setStartTime(null)
     }
   }, [initialGrid])
 
-  // Handler to toggle trash mode
   const handleTrashToggle = useCallback(() => {
-    setIsTrashMode(prevMode => !prevMode) // Toggle the trash mode state
+    setIsTrashMode(prevMode => !prevMode)
   }, [])
 
-  // Function to initialize the game with a selected difficulty
   const initializeGame = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
-    const newSolution = createLatinSquare() // Create a new Latin square solution
-    setSolution(newSolution) // Set the solution state
+    const newSolution = createLatinSquare()
+    setSolution(newSolution)
 
-    // Initialize a new empty grid
     const newGrid = Array(6).fill(0).map(() => Array(6).fill(0))
-    const newLocked = Array(6).fill(false).map(() => Array(6).fill(false)) // Initialize locked cells as false
-    const newEdited = Array(6).fill(false).map(() => Array(6).fill(false)) // Initialize edited cells as false
+    const newLocked = Array(6).fill(false).map(() => Array(6).fill(false))
+    const newEdited = Array(6).fill(false).map(() => Array(6).fill(false))
 
-    prefillCells(newGrid, newLocked, selectedDifficulty) // Prefill cells based on difficulty
-    setGrid(newGrid) // Set the new grid
-    setInitialGrid(newGrid.map(row => [...row])) // Save the initial grid
-    setLocked(newLocked) // Set the locked cells
-    setEdited(newEdited) // Set the edited cells
-    setHints(Array(6).fill(false).map(() => Array(6).fill(false))) // Reset hints
-    setShowNumbers(false) // Hide numbers
-    setIsTrashMode(false) // Deactivate trash mode
-    setMoveCount(0) // Reset move count
-    setHintCount(0) // Reset hint count
-    setStartTime(Date.now()) // Start the timer
-    setElapsedTime(0) // Reset elapsed time
-    setGameState('playing') // Set game state to 'playing'
-    setHintsActive(false) // Deactivate hints
-    setDifficulty(selectedDifficulty) // Update difficulty state
+    prefillCells(newGrid, newLocked, selectedDifficulty)
+    setGrid(newGrid)
+    setInitialGrid(newGrid.map(row => [...row]))
+    setLocked(newLocked)
+    setEdited(newEdited)
+    setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setShowNumbers(false)
+    setIsTrashMode(false)
+    setMoveCount(0)
+    setHintCount(0)
+    setStartTime(Date.now())
+    setElapsedTime(0)
+    setGameState('playing')
+    setHintsActive(false)
+    setDifficulty(selectedDifficulty)
 
-    // Check for win condition after initializing the game
     if (checkWin(newGrid)) {
-      setGameState('won') // If the new grid meets the win condition, set game state to 'won'
-      setStartTime(null) // Stop the timer
+      setGameState('won')
+      setStartTime(null)
     }
   }, [])
 
-  // Function to reset the game with a new initial grid
   const resetGame = useCallback((newInitialGrid: number[][]) => {
-    console.log("Resetting game with initial grid:", newInitialGrid) // Log the reset action
-    setGrid(newInitialGrid.map(row => [...row])) // Set the grid to the new initial grid
-    setInitialGrid(newInitialGrid) // Update the initial grid state
-    setLocked(newInitialGrid.map(row => row.map(cell => cell !== 0))) // Lock cells that are non-zero
-    setEdited(Array(6).fill(false).map(() => Array(6).fill(false))) // Reset edited cells
-    setHints(Array(6).fill(false).map(() => Array(6).fill(false))) // Reset hints
-    setShowNumbers(false) // Hide numbers
-    setIsTrashMode(false) // Deactivate trash mode
-    setMoveCount(0) // Reset move count
-    setHintCount(0) // Reset hint count
-    setStartTime(Date.now()) // Start the timer
-    setElapsedTime(0) // Reset elapsed time
-    setGameState('playing') // Set game state to 'playing'
-    setHintsActive(false) // Deactivate hints
+    console.log("Resetting game with initial grid:", newInitialGrid)
+    setGrid(newInitialGrid.map(row => [...row]))
+    setInitialGrid(newInitialGrid)
+    setLocked(newInitialGrid.map(row => row.map(cell => cell !== 0)))
+    setEdited(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setHints(Array(6).fill(false).map(() => Array(6).fill(false)))
+    setShowNumbers(false)
+    setIsTrashMode(false)
+    setMoveCount(0)
+    setHintCount(0)
+    setStartTime(Date.now())
+    setElapsedTime(0)
+    setGameState('playing')
+    setHintsActive(false)
 
-    // Check for win condition after resetting the game
     if (checkWin(newInitialGrid)) {
-      setGameState('won') // If the new initial grid meets the win condition, set game state to 'won'
-      setStartTime(null) // Stop the timer
+      setGameState('won')
+      setStartTime(null)
     }
   }, [])
 
-  // Effect to handle the game timer
   useEffect(() => {
     let timer: NodeJS.Timeout
     if (gameState === 'playing' && startTime !== null) {
       timer = setInterval(() => {
-        setElapsedTime(prevTime => prevTime + 1) // Increment elapsed time every second
+        setElapsedTime(prevTime => prevTime + 1)
       }, 1000)
     }
-    return () => clearInterval(timer) // Clean up the timer on component unmount or when dependencies change
+    return () => clearInterval(timer)
   }, [gameState, startTime])
 
-  // Return all relevant state and handler functions for use in components
   return {
     grid,
     locked,

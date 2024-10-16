@@ -3,26 +3,31 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { LatinHAM, LeaderboardEntry } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { NewGameDialog } from './NewGameDialog'
+import { ChevronUp, ChevronDown, RefreshCw } from 'lucide-react'
 import { calculateSolveCount } from '../utils/solveCountLogic'
+import { useGameLogic } from '../hooks/useGameLogic'
 
 interface LatinHAMLeaderboardProps {
   latinHAM: LatinHAM;
+  onPlayAgain: (initialGrid: number[][]) => void;
+  onCloseOverlays: () => void;
 }
 
-type SortField = 'username' | 'moves' | 'time' | 'quote' | 'timestamp';
-type SortOrder = 'asc' | 'desc';
-
-export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardProps) {
+export default function LatinHAMLeaderboard({ latinHAM, onPlayAgain, onCloseOverlays }: LatinHAMLeaderboardProps) {
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedPuzzle, setSelectedPuzzle] = useState<LeaderboardEntry | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [sortField, setSortField] = useState<SortField>('timestamp')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+  const [sortField, setSortField] = useState<'username' | 'moves' | 'time' | 'quote' | 'timestamp'>('timestamp')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [possibleSolves, setPossibleSolves] = useState<number | null>(null)
+  const [showNewGameConfirmation, setShowNewGameConfirmation] = useState(false)
+
+  const { gameState } = useGameLogic()
 
   useEffect(() => {
     const fetchLeaderboardEntries = async () => {
@@ -69,6 +74,25 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
   const handleViewCompletedBoard = (entry: LeaderboardEntry) => {
     setSelectedPuzzle(entry)
     setIsDialogOpen(true)
+  }
+
+  const handlePlayAgain = () => {
+    console.log("Play Again button clicked")
+    if (gameState === 'playing') {
+      setShowNewGameConfirmation(true)
+    } else {
+      startNewGame()
+    }
+  }
+
+  const startNewGame = () => {
+    onCloseOverlays()
+    onPlayAgain(latinHAM.initialGrid)
+  }
+
+  const confirmNewGame = () => {
+    setShowNewGameConfirmation(false)
+    startNewGame()
   }
 
   const MiniGameBoard: React.FC<{ initialGrid: number[][] }> = ({ initialGrid }) => {
@@ -169,7 +193,7 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
     });
   }, [leaderboardEntries, sortField, sortOrder]);
 
-  const handleSort = (field: SortField) => {
+  const handleSort = (field: 'username' | 'moves' | 'time' | 'quote' | 'timestamp') => {
     if (field === sortField) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
@@ -205,6 +229,13 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
               </div>
             </div>
           </div>
+          <Button 
+            onClick={handlePlayAgain}
+            className="w-full mt-4 inline-flex items-center justify-center"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Play This LatinHAM
+          </Button>
         </div>
         <div className="w-full md:flex-1 overflow-x-auto">
           {uniqueSortedEntries.length > 0 ? (
@@ -267,6 +298,11 @@ export default function LatinHAMLeaderboard({ latinHAM }: LatinHAMLeaderboardPro
           difficulty={latinHAM.difficulty}
         />
       )}
+      <NewGameDialog
+        open={showNewGameConfirmation}
+        onOpenChange={setShowNewGameConfirmation}
+        onConfirm={confirmNewGame}
+      />
     </div>
   )
 }
