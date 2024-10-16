@@ -233,7 +233,7 @@ export default function Component({ latinHAM, onPlayAgain, onCloseOverlays }: La
           </div>
           <Button 
             onClick={handlePlayAgain}
-            className="w-full mt-4 inline-flex items-center justify-center"
+            className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Play This LatinHAM

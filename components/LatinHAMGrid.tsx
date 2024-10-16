@@ -3,6 +3,8 @@
 import React from 'react'
 import { DiscoveredLatinHAM } from '@/types'
 import { calculateSolveCount } from '../utils/solveCountLogic';
+import { Button } from "@/components/ui/button"
+import { Eye } from "lucide-react"
 
 interface LatinHAMGridProps {
   latinHAMs: DiscoveredLatinHAM[]
@@ -65,27 +67,40 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
       {filteredLatinHAMs.map((latinHAM, index) => (
         <div 
           key={`latinHAM-${index}`}
-          className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] cursor-pointer hover:opacity-80 transition-opacity duration-200"
-          onClick={() => onLatinHAMClick(latinHAM)}
+          className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px]"
         >
-          <MiniGameBoard initialGrid={latinHAM.initialGrid} />
-          <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
-            <p>
-              <strong>Difficulty: </strong>{`${latinHAM.difficulty.charAt(0).toUpperCase() + latinHAM.difficulty.slice(1)}`}
-            </p>
-            <p>
-              <strong>Total Plays: </strong>{latinHAM.solveCount}
-            </p>
-            <p>
-              <strong>Solved : </strong>{latinHAM.uniqueSolves} / {calculateSolveCount(latinHAM.initialGrid)}
-            </p>
-            <p>
-              <strong>Best Moves: </strong>{latinHAM.bestMoves}
-            </p>
-            <p>
-              <strong>Best Time: </strong>{formatTime(latinHAM.bestTime)}
-            </p>
+          <div 
+            className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
+            onClick={() => onLatinHAMClick(latinHAM)}
+          >
+            <MiniGameBoard initialGrid={latinHAM.initialGrid} />
+            <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
+              <p>
+                <strong>Difficulty: </strong>{`${latinHAM.difficulty.charAt(0).toUpperCase() + latinHAM.difficulty.slice(1)}`}
+              </p>
+              <p>
+                <strong>Total Plays: </strong>{latinHAM.solveCount}
+              </p>
+              <p>
+                <strong>Solved : </strong>{latinHAM.uniqueSolves} / {calculateSolveCount(latinHAM.initialGrid)}
+              </p>
+              <p>
+                <strong>Best Moves: </strong>{latinHAM.bestMoves}
+              </p>
+              <p>
+                <strong>Best Time: </strong>{formatTime(latinHAM.bestTime)}
+              </p>
+            </div>
           </div>
+          <Button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onLatinHAMClick(latinHAM);
+            }}
+            className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            <Eye className="mr-2 h-4 w-4" /> View
+          </Button>
         </div>
       ))}
     </div>
