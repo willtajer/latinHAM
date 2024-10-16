@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react'
-import { LatinHAM } from '@/types'
+import { DiscoveredLatinHAM } from '@/types'
 import { calculateSolveCount } from '../utils/solveCountLogic';
 
 interface LatinHAMGridProps {
-  latinHAMs: LatinHAM[]
-  onLatinHAMClick: (latinHAM: LatinHAM) => void
+  latinHAMs: DiscoveredLatinHAM[]
+  onLatinHAMClick: (latinHAM: DiscoveredLatinHAM) => void
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard'
 }
 
@@ -74,10 +74,16 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
               <strong>Difficulty: </strong>{`${latinHAM.difficulty.charAt(0).toUpperCase() + latinHAM.difficulty.slice(1)}`}
             </p>
             <p>
-              <strong>Solved: </strong>{latinHAM.solveCount} / {calculateSolveCount(latinHAM.initialGrid)}
+              <strong>Total Plays: </strong>{latinHAM.solveCount}
             </p>
             <p>
-            <strong>{latinHAM.bestTimePlayer || 'Anonymous'}: </strong> {formatTime(latinHAM.bestTime)}
+              <strong>Solved : </strong>{latinHAM.uniqueSolves} / {calculateSolveCount(latinHAM.initialGrid)}
+            </p>
+            <p>
+              <strong>Best Moves: </strong>{latinHAM.bestMoves}
+            </p>
+            <p>
+              <strong>Best Time: </strong>{formatTime(latinHAM.bestTime)}
             </p>
           </div>
         </div>

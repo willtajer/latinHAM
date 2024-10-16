@@ -1,5 +1,3 @@
-// file: types.ts
-
 export interface LeaderboardEntry {
   id: string;
   username?: string; // Username is optional
@@ -14,14 +12,26 @@ export interface LeaderboardEntry {
 }
 
 export interface LatinHAM {
-  id: string;
-  initialGrid: number[][]
-  difficulty: 'easy' | 'medium' | 'hard'
-  solveCount: number
-  bestMoves: number
-  bestMovesPlayer?: string // New field
-  bestTime: number
-  bestTimePlayer?: string // New field
+  initialGrid: number[][];
+  difficulty: 'easy' | 'medium' | 'hard';
+  totalSolves: number;
+  uniqueSolves: number;
+  bestMoves: number;
+  bestMovesPlayer: string;
+  bestTime: number;
+  bestTimePlayer: string;
+}
+
+export interface DiscoveredLatinHAM {
+  initialGrid: number[][];
+  difficulty: 'easy' | 'medium' | 'hard';
+  solveCount: number;
+  totalSolves: number;
+  uniqueSolves: number;
+  bestMoves: number;
+  bestTime: number;
+  bestMovesPlayer: string | null;
+  bestTimePlayer: string | null;
 }
 
 export interface CompletedPuzzle {
@@ -35,7 +45,6 @@ export interface CompletedPuzzle {
   quote: string;
 }
 
-// Add this new interface
 export interface CompletedPuzzleCardProps {
   entry: LeaderboardEntry;
   difficulty: 'easy' | 'medium' | 'hard';

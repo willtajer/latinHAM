@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { LatinHAM, LeaderboardEntry } from '@/types'
+import { DiscoveredLatinHAM, LeaderboardEntry } from '@/types'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ViewCompletedPuzzleDialog } from './ViewCompletedPuzzleDialog'
@@ -11,12 +11,12 @@ import { calculateSolveCount } from '../utils/solveCountLogic'
 import { useGameLogic } from '../hooks/useGameLogic'
 
 interface LatinHAMLeaderboardProps {
-  latinHAM: LatinHAM;
+  latinHAM: DiscoveredLatinHAM;
   onPlayAgain: (initialGrid: number[][]) => void;
   onCloseOverlays: () => void;
 }
 
-export default function LatinHAMLeaderboard({ latinHAM, onPlayAgain, onCloseOverlays }: LatinHAMLeaderboardProps) {
+export default function Component({ latinHAM, onPlayAgain, onCloseOverlays }: LatinHAMLeaderboardProps) {
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -219,13 +219,15 @@ export default function LatinHAMLeaderboard({ latinHAM, onPlayAgain, onCloseOver
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-800 dark:text-gray-300">
               <div>
                 <p><strong>Difficulty:</strong> {latinHAM.difficulty}</p>
-                <p><strong>Solved:</strong> {latinHAM.solveCount} / {possibleSolves !== null ? possibleSolves.toLocaleString() : 'Calculating...'}</p>
-                <p><strong>Best Moves:</strong> {latinHAM.bestMoves}</p>
+                <p><strong>Played:</strong> {latinHAM.solveCount}</p>
+                <p><strong>Solved:</strong> {latinHAM.uniqueSolves}</p>
+                <p><strong>Possible: </strong>{possibleSolves !== null ? possibleSolves.toLocaleString() : 'Calculating...'}</p>
               </div>
               <div>
-                <p><strong>Best Time:</strong> {formatTime(latinHAM.bestTime)}</p>
-                <p><strong>Avg. Moves:</strong> {averages.moves.toFixed(2)}</p>
-                <p><strong>Avg. Time:</strong> {formatTime(Math.round(averages.duration))}</p>
+                <p><strong>Best Moves:</strong> {latinHAM.bestMoves}</p>
+                <p><strong>Avg.:</strong> {averages.moves.toFixed(2)}</p>
+                <p><strong>Best:</strong> {formatTime(latinHAM.bestTime)}</p>
+                <p><strong>Avg.:</strong> {formatTime(Math.round(averages.duration))}</p>
               </div>
             </div>
           </div>
@@ -280,6 +282,7 @@ export default function LatinHAMLeaderboard({ latinHAM, onPlayAgain, onCloseOver
                     <TableCell>{formatTime(entry.time)}</TableCell>
                     <TableCell className="max-w-xs truncate">{entry.quote || 'No quote provided'}</TableCell>
                     <TableCell>{formatTimeOfDay(entry.timestamp)}</TableCell>
+                    
                     <TableCell>{formatDate(entry.timestamp)}</TableCell>
                   </TableRow>
                 ))}
@@ -290,7 +293,7 @@ export default function LatinHAMLeaderboard({ latinHAM, onPlayAgain, onCloseOver
           )}
         </div>
       </div>
-      {selectedPuzzle && (
+      {selectedPuzzle  && (
         <ViewCompletedPuzzleDialog
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}

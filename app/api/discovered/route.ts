@@ -5,6 +5,7 @@ interface DiscoveredLatinHAM {
   initialGrid: number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   solveCount: number;
+  uniqueSolves: number;  // Added this field
   bestMoves: number;
   bestTime: number;
   bestMovesPlayer: string | null;
@@ -15,6 +16,7 @@ interface DatabaseEntry {
   initial_grid: string | number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   solve_count: number | string;
+  unique_solve_count: number | string;  // Added this field
   best_moves: number | string;
   best_time: number | string;
   best_moves_player: string | null;
@@ -49,6 +51,7 @@ export async function GET() {
           initial_grid,
           difficulty,
           COUNT(*) as solve_count,
+          COUNT(DISTINCT grid) as unique_solve_count,  -- Added this line
           MIN(moves) as best_moves,
           MIN(time) as best_time,
           -- Fetch usernames for best moves and best time
@@ -65,6 +68,7 @@ export async function GET() {
         dg.initial_grid,
         dg.difficulty,
         gs.solve_count,
+        gs.unique_solve_count,  -- Added this line
         gs.best_moves,
         gs.best_time,
         gs.best_moves_player,
@@ -85,6 +89,7 @@ export async function GET() {
           initialGrid: initialGrid,
           difficulty: entry.difficulty,
           solveCount: Number(entry.solve_count),
+          uniqueSolves: Number(entry.unique_solve_count),  // Added this line
           bestMoves: Number(entry.best_moves),
           bestTime: Number(entry.best_time),
           bestMovesPlayer: entry.best_moves_player,

@@ -95,7 +95,6 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const handleCloseLeaderboard = () => {
     setSelectedLatinHAM(null)
     fetchLatinHAMs()
-    onCloseOverlays()
   }
 
   const handlePlayAgain = useCallback((initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => {
