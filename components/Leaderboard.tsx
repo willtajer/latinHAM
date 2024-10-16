@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { TooltipProps } from 'recharts'
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
 interface LeaderboardProps {
   initialDifficulty?: "all" | "easy" | "medium" | "hard";
@@ -52,6 +54,33 @@ const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)}`;
 }
+
+interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
+  active?: boolean
+  payload?: Array<{
+    name: string
+    value: number
+    color: string
+  }>
+  label?: string
+  xAxisView: 'game' | 'daily'
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, xAxisView }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background p-2 border border-border rounded shadow">
+        <p className="label">{`${xAxisView === 'game' ? 'Game' : 'Date'}: ${label}`}</p>
+        {payload.map((pld) => (
+          <p key={pld.name} style={{ color: pld.color }}>
+            {`${pld.name}: ${Math.round(pld.value)}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function Component({ initialDifficulty = "all", onDifficultyChange }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
@@ -211,22 +240,6 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     onDifficultyChange(newDifficulty)
   }, [onDifficultyChange])
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background p-2 border border-border rounded shadow">
-          <p className="label">{`${xAxisView === 'game' ? 'Game' : 'Date'}: ${label}`}</p>
-          {payload.map((pld: any) => (
-            <p key={pld.name} style={{ color: pld.color }}>
-              {`${pld.name}: ${Math.round(pld.value)}`}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
   if (isLoading) {
     return <div className="text-center py-8">Loading leaderboard entries...</div>
   }
@@ -317,7 +330,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                 </div>
               </div>
               <div  ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
-                <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
+                <div className="w-full" style={{ minWidth:  `${Math.max(chartData.length * 50, 1000)}px` }}>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -327,7 +340,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       />
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip xAxisView={xAxisView} />} />
                       <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} dot={false} />
                       <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} dot={false} />
                       {xAxisView === 'game' && (

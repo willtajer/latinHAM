@@ -15,6 +15,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { GamePreview } from './GamePreview'
+import { TooltipProps } from 'recharts'
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
 interface GameEntry {
   id: string
@@ -72,6 +74,33 @@ const formatTime = (dateString: string) => {
   const date = new Date(dateString);
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
+
+interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+  xAxisView: 'game' | 'daily';
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, xAxisView }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background p-2 border border-border rounded shadow">
+        <p className="label">{`${xAxisView === 'game' ? 'Game' : 'Date'}: ${label}`}</p>
+        {payload.map((pld) => (
+          <p key={pld.name} style={{ color: pld.color }}>
+            {`${pld.name}: ${Math.round(pld.value)}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 export function UserProfile() {
   const { user } = useUser()
@@ -256,22 +285,6 @@ export function UserProfile() {
     }
   }, [chartData, xAxisView])
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background p-2 border border-border rounded shadow">
-          <p className="label">{`${xAxisView === 'game' ? 'Game' : 'Date'}: ${label}`}</p>
-          {payload.map((pld: any) => (
-            <p key={pld.name} style={{ color: pld.color }}>
-              {`${pld.name}: ${Math.round(pld.value)}`}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
   if (isLoading) {
     return <LoadingSkeleton />
   }
@@ -326,7 +339,7 @@ export function UserProfile() {
           <Button
             onClick={() => setDifficultyFilter('hard')}
             variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
-            className={difficultyFilter === 'hard' ? '' : 'text-foreground'}
+            className={difficultyFilter === 'hard' ? '' :   'text-foreground'}
           >
             Hard
           </Button>
@@ -383,7 +396,7 @@ export function UserProfile() {
                       />
                       <YAxis yAxisId="left" />
                       <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip xAxisView={xAxisView} />} />
                       <Line
                         yAxisId="left"
                         type="monotone"
