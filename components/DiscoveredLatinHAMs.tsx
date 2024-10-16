@@ -88,6 +88,24 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     fetchLatinHAMs()
   }, [fetchLatinHAMs, difficultyFilter, user])
 
+  // Add this new useEffect hook to fetch data every time the component is loaded
+  useEffect(() => {
+    const fetchDataOnLoad = () => {
+      fetchLatinHAMs()
+    }
+
+    // Fetch data when the component mounts
+    fetchDataOnLoad()
+
+    // Add event listener for when the page becomes visible
+    document.addEventListener('visibilitychange', fetchDataOnLoad)
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('visibilitychange', fetchDataOnLoad)
+    }
+  }, [fetchLatinHAMs])
+
   const handleLatinHAMClick = (latinHAM: DiscoveredLatinHAM) => {
     setSelectedLatinHAM(latinHAM)
   }
