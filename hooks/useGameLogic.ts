@@ -2,6 +2,19 @@ import { useState, useCallback, useEffect } from 'react'
 import { createLatinSquare, prefillCells, checkWin } from '../utils/gameLogic'
 
 export const useGameLogic = (initialGridParam?: number[][]) => {
+  const detectDifficulty = useCallback((grid: number[][] | null | undefined) => {
+    if (!grid || !Array.isArray(grid) || grid.length === 0) {
+      return 'easy' // Default to easy if grid is invalid
+    }
+    const filledCells = grid.reduce((acc, row) => {
+      if (!Array.isArray(row)) return acc;
+      return acc + row.filter(cell => cell !== 0).length;
+    }, 0);
+    if (filledCells >= 18) return 'easy'
+    if (filledCells >= 12) return 'medium'
+    return 'hard'
+  }, [])
+
   const [grid, setGrid] = useState<number[][]>(() => {
     if (initialGridParam) return initialGridParam
     const savedGrid = localStorage.getItem('latinHamGrid')
@@ -26,6 +39,9 @@ export const useGameLogic = (initialGridParam?: number[][]) => {
   })
 
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>(() => {
+    if (initialGridParam) {
+      return detectDifficulty(initialGridParam)
+    }
     const savedDifficulty = localStorage.getItem('latinHamDifficulty') as 'easy' | 'medium' | 'hard'
     return savedDifficulty || 'easy'
   })
@@ -217,6 +233,7 @@ export const useGameLogic = (initialGridParam?: number[][]) => {
 
   const resetGame = useCallback((newInitialGrid: number[][], newDifficulty?: 'easy' | 'medium' | 'hard') => {
     console.log("Resetting game with initial grid:", newInitialGrid, "and difficulty:", newDifficulty)
+    const detectedDifficulty = detectDifficulty(newInitialGrid)
     setGrid(newInitialGrid.map(row => [...row]))
     setInitialGrid(newInitialGrid)
     setLocked(newInitialGrid.map(row => row.map(cell => cell !== 0)))
@@ -230,15 +247,13 @@ export const useGameLogic = (initialGridParam?: number[][]) => {
     setElapsedTime(0)
     setGameState('playing')
     setHintsActive(false)
-    if (newDifficulty) {
-      setDifficulty(newDifficulty)
-    }
+    setDifficulty(detectedDifficulty)
 
     if (checkWin(newInitialGrid)) {
       setGameState('won')
       setStartTime(null)
     }
-  }, [])
+  }, [detectDifficulty])
 
   useEffect(() => {
     let timer: NodeJS.Timeout
@@ -274,5 +289,6 @@ export const useGameLogic = (initialGridParam?: number[][]) => {
     initializeGame,
     resetGame,
     setGameState,
+    detectDifficulty,
   }
 }

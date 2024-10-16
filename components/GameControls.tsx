@@ -1,23 +1,18 @@
-// components/GameControls.tsx
-
 import React from 'react'
-import { Button } from '@/components/ui/button' // Importing a custom Button component
-import { Trash2 } from 'lucide-react' // Importing the Trash2 icon from lucide-react
+import { Button } from "@/components/ui/button"
+import { Trash2, RotateCcw, Lightbulb } from "lucide-react"
 
-// Define the props for the GameControls component
 interface GameControlsProps {
-  handleNewGame: () => void          // Function to start a new game
-  handleHint: () => void             // Function to toggle hints
-  handleReset: () => void            // Function to reset the current game
-  handleTrashToggle: () => void      // Function to toggle trash mode
-  isGameWon: boolean                 // Flag indicating if the game has been won
-  isTrashMode: boolean               // Flag indicating if trash mode is active
-  hintsActive: boolean               // Flag indicating if hints are currently active
+  handleNewGame: () => void
+  handleHint: () => void
+  handleReset: () => void
+  handleTrashToggle: () => void
+  isGameWon: boolean
+  isTrashMode: boolean
+  hintsActive: boolean
 }
 
-// GameControls component definition
 export const GameControls: React.FC<GameControlsProps> = ({
-  handleNewGame,
   handleHint,
   handleReset,
   handleTrashToggle,
@@ -26,47 +21,44 @@ export const GameControls: React.FC<GameControlsProps> = ({
   hintsActive
 }) => {
   return (
-    // Container div with flex layout to arrange buttons horizontally with spacing
-    <div className="flex space-x-2 mb-8 pb-12">
-      
-      {/* Button to start a new game */}
-      <Button
-        onClick={handleNewGame}                       // Trigger handleNewGame on click
-        variant="ghost"                               // Button style variant
-        className="hover:bg-transparent focus:bg-transparent" // Additional styling for hover and focus states
+    <div className="flex justify-center space-x-2 mt-4">
+      {/* <Button
+        onClick={handleNewGame}
+        variant="outline"
+        size="icon"
+        aria-label="New Game"
       >
-        New Game
-      </Button>
-      
-      {/* Button to toggle hints; disabled if the game is won */}
+        <Plus className="h-4 w-4" />
+      </Button> */}
       <Button
-        onClick={handleHint}                          // Trigger handleHint on click
-        variant="ghost"                               // Button style variant
-        className="hover:bg-transparent focus:bg-transparent" // Additional styling
-        disabled={isGameWon}                          // Disable button if the game is won
+        onClick={handleHint}
+        variant="outline"
+        size="icon"
+        disabled={isGameWon}
+        aria-label="Hint"
+        className={hintsActive ? "bg-yellow-200" : ""}
       >
-        {hintsActive ? 'Hide Hints' : 'Hint'}         {/* Dynamic label based on hintsActive state */}
+        <Lightbulb className="h-4 w-4" />
       </Button>
-      
-      {/* Button to reset the current game */}
       <Button
-        onClick={handleReset}                         // Trigger handleReset on click
-        variant="ghost"                               // Button style variant
-        className="hover:bg-transparent focus:bg-transparent" // Additional styling
+        onClick={handleReset}
+        variant="outline"
+        size="icon"
+        disabled={isGameWon}
+        aria-label="Reset"
       >
-        Reset
+        <RotateCcw className="h-4 w-4" />
       </Button>
-      
-      {/* Button to toggle trash mode; changes appearance based on isTrashMode and isGameWon */}
       <Button
-        onClick={handleTrashToggle}                   // Trigger handleTrashToggle on click
-        variant={isTrashMode ? "destructive" : "ghost"} // Change variant if trash mode is active
-        className="hover:bg-transparent focus:bg-transparent" // Additional styling
-        disabled={isGameWon}                          // Disable button if the game is won
+        onClick={handleTrashToggle}
+        variant="outline"
+        size="icon"
+        disabled={isGameWon}
+        aria-label="Toggle Trash Mode"
+        className={isTrashMode ? "bg-red-200" : ""}
       >
-        <Trash2 className="w-4 h-4" />                {/* Display the Trash2 icon */}
+        <Trash2 className="h-4 w-4" />
       </Button>
-      
     </div>
   )
 }

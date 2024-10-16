@@ -46,6 +46,8 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     handleTrashToggle,
     checkWin,
     resetGame,
+    setGameState,
+    detectDifficulty,
   } = useGameLogic(decodedPreset ? JSON.parse(decodedPreset) : undefined)
 
   const memoizedDifficulty = useMemo(() => difficulty, [difficulty])
@@ -127,7 +129,8 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     setHasSubmittedQuote(false)
     setWinQuote("")
     clearGameState()
-  }, [clearGameState])
+    setGameState('start')
+  }, [clearGameState, setGameState])
 
   const handleDifficultySelect = useCallback((selectedDifficulty: 'easy' | 'medium' | 'hard') => {
     handleSelectDifficulty(selectedDifficulty)
@@ -177,18 +180,26 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     setWinQuote("")
     localStorage.setItem('latinHamHasSubmittedQuote', JSON.stringify(false))
     clearGameState()
-  }, [clearGameState])
+    setGameState('start')
+  }, [clearGameState, setGameState])
 
   const handleNewGame = useCallback((initialGrid?: number[][], initialDifficulty?: 'easy' | 'medium' | 'hard') => {
+    console.log("handleNewGame called with initialGrid:", initialGrid, "and initialDifficulty:", initialDifficulty);
     if (initialGrid) {
-      resetGame(initialGrid, initialDifficulty)
+      const detectedDifficulty = detectDifficulty(initialGrid)
+      console.log("Detected difficulty:", detectedDifficulty)
+      resetGame(initialGrid, detectedDifficulty)
       setShowDifficultySelector(false)
-    } else if (gameState === 'playing' && !showDifficultySelector) {
+      setGameState('playing')
+    } else if (gameState === 'playing') {
       setShowNewGameConfirmation(true)
+    } else if (gameState === 'won') {
+      handleStartNewGame()
     } else {
-      confirmNewGame()
+      setShowDifficultySelector(true)
+      setGameState('start')
     }
-  }, [gameState, showDifficultySelector, confirmNewGame, resetGame])
+  }, [gameState, resetGame, setGameState, detectDifficulty, handleStartNewGame])
 
   useEffect(() => {
     onTriggerNewGame(handleNewGame)
