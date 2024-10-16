@@ -15,6 +15,7 @@ export interface LatinHAM {
   initialGrid: number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   totalSolves: number;
+  solveCount: number;
   uniqueSolves: number;
   bestMoves: number;
   bestMovesPlayer: string;
@@ -26,7 +27,6 @@ export interface DiscoveredLatinHAM {
   initialGrid: number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   solveCount: number;
-  totalSolves: number;
   uniqueSolves: number;
   bestMoves: number;
   bestTime: number;
