@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -6,22 +6,20 @@ import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LeaderboardEntry } from '../types'
 import { Download } from 'lucide-react'
 
-// Props interface defining the expected properties for the WinDialog component
 interface WinDialogProps {
-  open: boolean // Controls whether the dialog is open
-  onOpenChange: (open: boolean) => void // Callback when dialog open state changes
-  onSubmit: (quote: string) => void // Function to handle quote submission
-  quote: string // Current value of the quote input
-  setQuote: (quote: string) => void // Function to update the quote state
-  entry?: LeaderboardEntry // Optional leaderboard entry data
-  gameNumber: number // Number indicating the game number
-  difficulty: 'easy' | 'medium' | 'hard' // Difficulty level of the game
-  onStartNewGame: () => void // Function to start a new game
-  showQuoteInput: boolean // Determines whether to show the quote input field
-  isSubmitting?: boolean // Indicates if the quote is being submitted
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (quote: string) => void
+  quote: string
+  setQuote: (quote: string) => void
+  entry?: LeaderboardEntry
+  gameNumber: number
+  difficulty: 'easy' | 'medium' | 'hard'
+  onStartNewGame: () => void
+  showQuoteInput: boolean
+  isSubmitting?: boolean
 }
 
-// Functional component for the WinDialog
 export const WinDialog: React.FC<WinDialogProps> = ({
   open,
   onOpenChange,
@@ -35,32 +33,39 @@ export const WinDialog: React.FC<WinDialogProps> = ({
   showQuoteInput,
   isSubmitting = false
 }) => {
-  const [imageFile, setImageFile] = useState<File | null>(null) // State to store the image file for download
-  const [quoteSubmitted, setQuoteSubmitted] = useState(false) // State to track if the quote has been submitted
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [quoteSubmitted, setQuoteSubmitted] = useState(false)
+  const [isQuoteValid, setIsQuoteValid] = useState(true)
 
-  // Handler to manage the download of the completed puzzle image
+  const MAX_QUOTE_LENGTH = 31
+
+  useEffect(() => {
+    setIsQuoteValid(quote.trim().length <= MAX_QUOTE_LENGTH)
+  }, [quote])
+
   const handleDownload = () => {
     if (imageFile) {
-      const url = URL.createObjectURL(imageFile) // Create a temporary URL for the image file
-      const link = document.createElement('a') // Create an anchor element
+      const url = URL.createObjectURL(imageFile)
+      const link = document.createElement('a')
       link.href = url
-      link.download = imageFile.name // Set the download attribute with the image file name
-      document.body.appendChild(link) // Append the link to the document body
-      link.click() // Programmatically click the link to trigger the download
-      document.body.removeChild(link) // Remove the link from the document body
-      URL.revokeObjectURL(url) // Revoke the temporary URL to free up memory
+      link.download = imageFile.name
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     }
   }
 
-  // Handler to submit the victory quote
   const handleSubmitQuote = () => {
-    onSubmit(quote) // Call the onSubmit prop with the current quote
-    setQuoteSubmitted(true) // Update the state to indicate the quote has been submitted
+    const trimmedQuote = quote.trim()
+    if (trimmedQuote.length <= MAX_QUOTE_LENGTH) {
+      onSubmit(trimmedQuote)
+      setQuoteSubmitted(true)
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={(newOpen) => {
-      // Only allow closing the dialog if quote input is not shown or the quote has been submitted
       if (!newOpen && (!showQuoteInput || quoteSubmitted)) {
         onOpenChange(newOpen)
       }
@@ -68,67 +73,65 @@ export const WinDialog: React.FC<WinDialogProps> = ({
       <DialogContent className="sm:max-w-[425px] w-full bg-background">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
-            {/* Conditionally render the title based on whether the quote input is shown and if the quote has been submitted */}
             {showQuoteInput && !quoteSubmitted ? "Enter Your Victory Quote" : "Congratulations!"}
           </DialogTitle>
         </DialogHeader>
         <div className="py-6 px-4">
           {showQuoteInput && !quoteSubmitted ? (
-            // Render the quote input form if showQuoteInput is true and the quote hasn't been submitted
             <div className="space-y-4">
               <p className="text-center">Enter a quote to commemorate your win:</p>
-              <Input
-                placeholder="Enter your quote here" // Placeholder text for the input field
-                value={quote} // Bind the input value to the quote state
-                onChange={(e) => setQuote(e.target.value)} // Update the quote state on input change
-                aria-label="Victory quote" // Accessibility label for screen readers
-                className="w-full" // Full width styling
-              />
+              <div className="space-y-2">
+                <Input
+                  placeholder="Enter your quote here"
+                  value={quote}
+                  onChange={(e) => setQuote(e.target.value)}
+                  aria-label="Victory quote"
+                  className={`w-full ${!isQuoteValid ? 'border-red-500' : ''}`}
+                  maxLength={MAX_QUOTE_LENGTH}
+                />
+                <p className={`text-sm ${isQuoteValid ? 'text-gray-500' : 'text-red-500'}`}>
+                  {quote.trim().length}/{MAX_QUOTE_LENGTH} characters
+                </p>
+              </div>
               <Button 
-                onClick={handleSubmitQuote} // Handle quote submission on button click
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90" // Tailwind CSS classes for styling
-                disabled={isSubmitting} // Disable the button if the quote is being submitted
+                onClick={handleSubmitQuote}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={isSubmitting || !isQuoteValid || quote.trim().length === 0}
               >
-                {/* Conditionally render button text based on submission state and quote content */}
                 {isSubmitting ? "Submitting..." : (quote.trim() ? "Submit" : "Skip")}
               </Button>
             </div>
           ) : (
-            // Render the completed puzzle and action buttons if not showing the quote input or if the quote has been submitted
             <div className="space-y-6">
               {entry ? (
-                // If an entry exists, display the CompletedPuzzleCard
                 <CompletedPuzzleCard 
                   entry={{
                     ...entry,
-                    quote: quoteSubmitted ? quote : entry.quote // Use the submitted quote if available
+                    quote: quoteSubmitted ? quote : entry.quote
                   }}
-                  difficulty={difficulty} // Pass the difficulty level
-                  gameNumber={gameNumber} // Pass the game number
+                  difficulty={difficulty}
+                  gameNumber={gameNumber}
                   onImageReady={(file: File) => {
-                    setImageFile(file) // Update the imageFile state when the image is ready
+                    setImageFile(file)
                   }}
                 />
               ) : (
-                // If no entry exists, display a loading message
                 <p className="text-center text-gray-900 dark:text-white">Creating LatinHAM card...</p>
               )}
-              {/* Action buttons for starting a new game and downloading the completed puzzle */}
               <div className="flex justify-center gap-4">
                 <Button 
-                  onClick={() => { onStartNewGame(); onOpenChange(false); }} // Start a new game and close the dialog on click
-                  className="px-4 py-2" // Padding for the button
+                  onClick={() => { onStartNewGame(); onOpenChange(false); }}
+                  className="px-4 py-2"
                 >
                   Start New Game
                 </Button> 
                 {imageFile && (
-                  // If the imageFile exists, show the download button
                   <Button 
-                    onClick={handleDownload} // Handle the download on button click
-                    className="p-2" // Padding for the button
-                    aria-label="Download completed puzzle" // Accessibility label
+                    onClick={handleDownload}
+                    className="p-2"
+                    aria-label="Download completed puzzle"
                   >
-                    <Download className="h-5 w-5" /> {/* Download icon from lucide-react */}
+                    <Download className="h-5 w-5" />
                   </Button>
                 )}
               </div>
