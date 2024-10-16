@@ -76,15 +76,15 @@ export async function GET() {
         COUNT(*) as solve_count,
         COUNT(DISTINCT e.grid) as unique_solve_count,
         MIN(e.moves) as best_moves,
-        bm.username as best_moves_player,
+        MIN(bm.username) as best_moves_player,
         MIN(e.time) as best_time,
-        bt.username as best_time_player
+        MIN(bt.username) as best_time_player
       FROM leaderboard_entries e
       LEFT JOIN ranked_entries bm ON e.initial_grid = bm.initial_grid AND e.difficulty = bm.difficulty AND bm.move_rank = 1
       LEFT JOIN ranked_entries bt ON e.initial_grid = bt.initial_grid AND e.difficulty = bt.difficulty AND bt.time_rank = 1
       WHERE e.grid IS NOT NULL AND e.grid != 'null'
-      GROUP BY e.initial_grid, e.difficulty, bm.username, bt.username
-      ORDER BY solve_count DESC, best_moves ASC, best_time ASC
+      GROUP BY e.initial_grid, e.difficulty
+      ORDER BY COUNT(*) DESC, MIN(e.moves) ASC, MIN(e.time) ASC
     `
 
     // Map the database entries to LatinHAMStats objects, filtering out any invalid entries
