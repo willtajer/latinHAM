@@ -71,14 +71,13 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
           <MiniGameBoard initialGrid={latinHAM.initialGrid} />
           <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
             <p>
-              <strong>{`${latinHAM.difficulty.charAt(0).toUpperCase() + latinHAM.difficulty.slice(1)}`}</strong> 
-              x {latinHAM.solveCount} / {calculateSolveCount(latinHAM.initialGrid)} times
+              <strong>Difficulty: </strong>{`${latinHAM.difficulty.charAt(0).toUpperCase() + latinHAM.difficulty.slice(1)}`}
             </p>
             <p>
-              <strong>{latinHAM.bestMoves} moves</strong> by {latinHAM.bestMovesPlayer || 'Anonymous'}
+              <strong>Solved: </strong>{latinHAM.solveCount} / {calculateSolveCount(latinHAM.initialGrid)}
             </p>
             <p>
-              <strong>{formatTime(latinHAM.bestTime)} </strong> by {latinHAM.bestTimePlayer || 'Anonymous'}
+            <strong>{latinHAM.bestTimePlayer || 'Anonymous'}: </strong> {formatTime(latinHAM.bestTime)}
             </p>
           </div>
         </div>
