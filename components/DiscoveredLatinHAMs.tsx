@@ -46,7 +46,7 @@ interface DiscoveredLatinHAMsProps {
   onCloseOverlays: () => void;
 }
 
-export default function Component({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
+export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
   const [latinHAMs, setLatinHAMs] = useState<DiscoveredLatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -154,3 +154,5 @@ export default function Component({ onPlayAgain, onCloseOverlays }: DiscoveredLa
     </div>
   )
 }
+
+export default DiscoveredLatinHAMs
