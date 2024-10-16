@@ -31,6 +31,15 @@ export const GameControls: React.FC<GameControlsProps> = ({
         <Plus className="h-4 w-4" />
       </Button> */}
       <Button
+        onClick={handleReset}
+        variant="outline"
+        size="icon"
+        disabled={isGameWon}
+        aria-label="Reset"
+      >
+        <RotateCcw className="h-4 w-4" />
+      </Button>
+      <Button
         onClick={handleHint}
         variant="outline"
         size="icon"
@@ -39,15 +48,6 @@ export const GameControls: React.FC<GameControlsProps> = ({
         className={hintsActive ? "bg-yellow-200" : ""}
       >
         <Lightbulb className="h-4 w-4" />
-      </Button>
-      <Button
-        onClick={handleReset}
-        variant="outline"
-        size="icon"
-        disabled={isGameWon}
-        aria-label="Reset"
-      >
-        <RotateCcw className="h-4 w-4" />
       </Button>
       <Button
         onClick={handleTrashToggle}
