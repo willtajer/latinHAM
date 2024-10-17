@@ -143,6 +143,7 @@ export default function Challenges() {
           )
           if (matchingPattern) {
             matchingPattern.matchedGames.push(game)
+            matchingPattern.grid = game.grid // Update the grid with the winning board
           }
         })
       })
@@ -303,7 +304,7 @@ export default function Challenges() {
                     <p><strong>Completed:</strong> {new Date(pattern.matchedGames[0].created_at).toLocaleString()}</p>
                   </>
                 ) : (
-                  <p className="text-center">Unfound LatinHAM</p>
+                  <p className="text-center">Unfound  LatinHAM</p>
                 )}
               </div>
             </CardContent>
