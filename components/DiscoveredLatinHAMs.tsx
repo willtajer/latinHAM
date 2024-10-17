@@ -140,7 +140,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
           <GamePreview />
         </div>
       </div>
-      <p className="text-center mb-6 text-white">Explore and help complete player-identified LatinHAMs.</p>
+      <p className="text-center mb-6 text-white">Explore player-identified boards and help find all possible solutions to complete the LatinHAM.</p>
       {!selectedLatinHAM && (
         <DifficultyFilters
           difficultyFilter={difficultyFilter}

@@ -214,10 +214,10 @@ export default function Challenges() {
         <p className="text-white text-lg">
           Discover unique LatinHAM patterns from your completed games!
         </p>
-        <p className="text-white text-md">
+        <p className="text-white text-md pb-8">
           Time until weekly reset: {timeUntilReset}
         </p>
-        <p className="text-white text-lg font-bold">
+        <p className="text-green-500 text-3xl font-bold">
           {getFoundCounterText()}
         </p>
       </div>
