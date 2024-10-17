@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, ReactNode } from 'react'
+import React, { useState, useEffect, ReactNode, useMemo } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -206,19 +206,7 @@ export default function Challenges() {
     generatePatterns()
   }, [games, challengeType, orderedSubsection, rainbowSubsection])
 
-  useEffect(() => {
-    console.log('Rendering Challenges. Patterns:', patterns, 'Challenge type:', challengeType, 'Ordered subsection:', orderedSubsection, 'Rainbow subsection:', rainbowSubsection)
-  }, [patterns, challengeType, orderedSubsection, rainbowSubsection])
-
-  if (isLoading) {
-    return <div className="text-center py-8 text-white">Loading...</div>
-  }
-
-  if (error) {
-    return <div className="text-center py-8 text-red-500">{error}</div>
-  }
-
-  const getFoundCounterText = () => {
+  const foundCounterText = useMemo(() => {
     const solidCount = patterns.filter(p => p.matchedGames.length > 0 && p.color !== 0).length;
     const orderedCount = patterns.filter(p => p.matchedGames.length > 0 && p.color === 0 && !p.isAscending).length;
     const rainbowCount = patterns.filter(p => p.matchedGames.length > 0 && p.color === 0 && p.isAscending !== undefined).length;
@@ -231,7 +219,19 @@ export default function Challenges() {
       rainbow: `${rainbowCount}/28`,
       total: `${totalCount}/${totalPatterns}`
     };
-  };
+  }, [patterns]);
+
+  useEffect(() => {
+    console.log('Rendering Challenges. Patterns:', patterns, 'Challenge type:', challengeType, 'Ordered subsection:', orderedSubsection, 'Rainbow subsection:', rainbowSubsection)
+  }, [patterns, challengeType, orderedSubsection, rainbowSubsection])
+
+  if (isLoading) {
+    return <div className="text-center py-8 text-white">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>
+  }
 
   const getColorClass = (color: number) => {
     switch (color) {
@@ -252,7 +252,7 @@ export default function Challenges() {
           Discover unique LatinHAM patterns from your completed games!
         </p>
         <p className="text-white text-lg font-bold">
-          Total Challenges Found: {getFoundCounterText().total}
+          Total Challenges Found: {foundCounterText.total}
         </p>
       </div>
       <div className="flex flex-col items-center space-y-4">
@@ -265,7 +265,7 @@ export default function Challenges() {
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
-            Solid - {getFoundCounterText().solid}
+            Solid - {foundCounterText.solid}
           </Button>
           <Button
             onClick={() => setChallengeType('ordered')}
@@ -275,7 +275,7 @@ export default function Challenges() {
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
-            Ordered - {getFoundCounterText().ordered}
+            Ordered - {foundCounterText.ordered}
           </Button>
           <Button
             onClick={() => setChallengeType('rainbow')}
@@ -285,7 +285,7 @@ export default function Challenges() {
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
-            Rainbow - {getFoundCounterText().rainbow}
+            Rainbow - {foundCounterText.rainbow}
           </Button>
         </div>
       </div>
@@ -300,10 +300,11 @@ export default function Challenges() {
             <Label htmlFor="ordered-row" className="text-white">Rows</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="column"   id="ordered-column" className="border-white text-white" />
+            <RadioGroupItem value="column" id="ordered-column" className="border-white text-white" />
             <Label htmlFor="ordered-column" className="text-white">Columns</Label>
           </div>
           <div className="flex items-center space-x-2">
+            
             <RadioGroupItem value="diagonal" id="ordered-diagonal" className="border-white text-white" />
             <Label htmlFor="ordered-diagonal" className="text-white">Diagonals</Label>
           </div>
@@ -334,17 +335,17 @@ export default function Challenges() {
           <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
             <CardContent className="p-4 pt-6">
               {challengeType === 'solid' && (
-                <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)}`}>
+                <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)} rounded-t-lg`}>
                   Solid {colorNames[pattern.color]}
                 </div>
               )}
               {challengeType === 'ordered' && (
-                <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-blue-500 via-yellow-500 via-green-500 via-purple-500 to-orange-500">
+                <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-blue-500 via-yellow-500 via-green-500 via-purple-500 to-orange-500 rounded-t-lg">
                   Ordered
                 </div>
               )}
               {challengeType === 'rainbow' && (
-                <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500">
+                <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 rounded-t-lg">
                   Rainbow
                 </div>
               )}
