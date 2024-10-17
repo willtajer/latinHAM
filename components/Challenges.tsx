@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, ReactNode } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -25,7 +25,7 @@ interface Pattern {
 
 type RainbowSubsection = 'row' | 'column' | 'diagonal'
 
-const colorNames = ['', 'Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange']
+const colorNames = ['', 'Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']
 
 export default function Challenges() {
   const [games, setGames] = useState<Game[]>([])
@@ -44,6 +44,7 @@ export default function Challenges() {
           throw new Error('Failed to fetch games')
         }
         const data = await response.json()
+        console.log('Fetched games:', data.games)
         setGames(data.games || [])
       } catch (error) {
         console.error('Error fetching games:', error)
@@ -79,6 +80,7 @@ export default function Challenges() {
 
   useEffect(() => {
     const generatePatterns = () => {
+      console.log('Generating patterns. Games:', games, 'Challenge type:', challengeType, 'Rainbow subsection:', rainbowSubsection)
       const size = 6
       const newPatterns: Pattern[] = []
 
@@ -163,11 +165,16 @@ export default function Challenges() {
         })
       })
 
+      console.log('Generated patterns:', newPatterns)
       setPatterns(newPatterns)
     }
 
     generatePatterns()
   }, [games, challengeType, rainbowSubsection])
+
+  useEffect(() => {
+    console.log('Rendering Challenges. Patterns:', patterns, 'Challenge type:', challengeType, 'Rainbow subsection:', rainbowSubsection)
+  }, [patterns, challengeType, rainbowSubsection])
 
   if (isLoading) {
     return <div className="text-center py-8 text-white">Loading...</div>
@@ -200,8 +207,8 @@ export default function Challenges() {
     switch (color) {
       case 1: return 'bg-red-500'
       case 2: return 'bg-blue-500'
-      case 3: return 'bg-green-500'
-      case 4: return 'bg-yellow-500'
+      case 3: return 'bg-yellow-500'  // Changed from green to yellow
+      case 4: return 'bg-green-500'   // Changed from yellow to green
       case 5: return 'bg-purple-500'
       case 6: return 'bg-orange-500'
       default: return 'bg-gray-500'
@@ -211,14 +218,14 @@ export default function Challenges() {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <p className="text-white text-lg">
+        <p className="text-white text-lg pb-6">
           Discover unique LatinHAM patterns from your completed games!
         </p>
-        <p className="text-white text-md pb-8">
-          Time until weekly reset: {timeUntilReset}
-        </p>
-        <p className="text-green-500 text-3xl font-bold">
+        <p className="text-white text-lg font-bold">
           {getFoundCounterText()}
+        </p>
+        <p className="text-white text-md">
+          Time until weekly reset: {timeUntilReset}
         </p>
       </div>
       <div className="flex flex-col items-center space-y-4">
@@ -266,7 +273,7 @@ export default function Challenges() {
         </RadioGroup>
       )}
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
-        {patterns.map((pattern, index) => (
+        {patterns.map((pattern, index): ReactNode => (
           <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-hidden">
             <CardContent className="p-4 pt-6 relative">
               {challengeType === 'solid' ? (

@@ -288,7 +288,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             </p>
           </div>
           <p className="italic mt-2 text-sm">
-            "{entry?.quote || 'No quote available'}"
+            &ldquo;{entry?.quote || 'No quote available'}&rdquo;
           </p>
         </CardContent>
       </Card>
@@ -543,7 +543,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{formatTime(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm text-center truncate max-w-xs">"{entry.quote || 'No quote'}"</TableCell>
+                  <TableCell className="p-1 text-sm text-center truncate max-w-xs">&ldquo;{entry.quote || 'No quote'}&rdquo;</TableCell>
                 </TableRow>
               ))}
             </TableBody>

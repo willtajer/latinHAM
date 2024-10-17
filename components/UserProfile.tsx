@@ -70,11 +70,6 @@ const formatDate = (dateString: string) => {
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)}`;
 }
 
-const formatTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-}
-
 interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
   active?: boolean;
   payload?: Array<{
