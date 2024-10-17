@@ -54,7 +54,7 @@ PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'rainbow', rainb
   }
 
   const detectRainbowLines = (board: Board, subsection?: 'row' | 'column' | 'diagonal'): number[][] => {
-    let lines: number[][] = []
+    const lines: number[][] = []
 
     if (subsection === 'row' || !subsection) {
       lines.push(...board)
