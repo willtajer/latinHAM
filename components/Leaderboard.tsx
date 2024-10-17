@@ -69,7 +69,7 @@ interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, xAxisView }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-background p-2 border border-border rounded shadow">
+      <div className="bg-white dark:bg-gray-800 p-2 border border-gray-200 dark:border-gray-700 rounded shadow">
         <p className="label">{`${xAxisView === 'game' ? 'Game' : 'Date'}: ${label}`}</p>
         {payload.map((pld) => (
           <p key={pld.name} style={{ color: pld.color }}>
@@ -267,11 +267,11 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     const textColor = difficulty === 'easy' ? 'text-green-500' : difficulty === 'medium' ? 'text-orange-500' : 'text-red-500';
     
     return (
-      <Card className="w-full bg-gray-900 text-white text-center flex flex-col">
+      <Card className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-center flex flex-col">
         <CardHeader className="rounded-t-lg p-0 text-center">
           <CardTitle className="text-lg">
-            <div className="p-2 rounded-t-lg">
-              <span className="font-bold text-white">{entry?.username || 'Anonymous'}</span>
+            <div className="p-2 rounded-t-lg bg-gray-100 dark:bg-gray-700">
+              <span className="font-bold">{entry?.username || 'Anonymous'}</span>
             </div>
             <div className={`${textColor} p-2`}>
               {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} - Best {type === "moves" ? "Moves" : "Time"}
@@ -296,7 +296,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading leaderboard entries...</div>
+    return <div className="text-center py-8 text-gray-900 dark:text-white">Loading leaderboard entries...</div>
   }
 
   if (error) {
@@ -305,10 +305,10 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
 
   if (entries.length === 0) {
     return (
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800">
         <CardContent className="pt-6">
-          <p className="text-center">No entries available {difficulty === 'all' ? 'across all difficulties' : `for ${difficulty} difficulty`}. </p>
-          <p className="text-center">Sign in to rank on the leaderboard.</p>
+          <p className="text-center text-gray-900 dark:text-white">No entries available {difficulty === 'all' ? 'across all difficulties' : `for ${difficulty} difficulty`}. </p>
+          <p className="text-center text-gray-900  dark:text-white">Sign in to rank on the leaderboard.</p>
         </CardContent>
       </Card>
     )
@@ -332,7 +332,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
       </div>
 
       <div className="text-center mb-6">
-        <h2 className="font-bold text-3xl p-4">Game History</h2>
+        <h2 className="font-bold text-3xl p-4 text-gray-900 dark:text-white">Game History</h2>
         <div className="flex justify-center space-x-2 mb-6">
           <Button
             onClick={() => handleDifficultyChange('all')}
@@ -361,24 +361,24 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
         </div>
       </div>
 
-      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6">
+      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6 bg-white dark:bg-gray-800">
         <CardContent>
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+          <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
             <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
               {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
             </h3>
             <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
               <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Moves</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.moves.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{formatTime(Math.round(averages.duration))}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">{formatTime(Math.round(averages.duration))}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
-                <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Hints</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.hints.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -386,12 +386,12 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           <div className="flex flex-col items-center">
             <div className="w-full relative">
               <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
-                <div className="transform -rotate-90  origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
+                <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   Time (seconds)
                 </div>
               </div>
               <div className="absolute top-0 bottom-0 right-0 flex flex-col justify-center">
-                <div className="transform rotate-90 origin-center translate-x-[50%] whitespace-nowrap text-sm text-gray-500">
+                <div className="transform rotate-90 origin-center translate-x-[50%] whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   Moves
                 </div>
               </div>
@@ -399,13 +399,14 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                 <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#525252" />
                       <XAxis 
                         dataKey={xAxisView === 'game' ? 'game' : 'date'}
-                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }} 
+                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }}
+                        stroke="#a3a3a3"
                       />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />
+                      <YAxis yAxisId="left" stroke="#a3a3a3" />
+                      <YAxis yAxisId="right" orientation="right" stroke="#a3a3a3" />
                       <Tooltip content={<CustomTooltip xAxisView={xAxisView} />} />
                       <Line yAxisId="left" type="monotone" dataKey="time" stroke="#8884d8" name="Time" strokeWidth={3} dot={false} />
                       <Line yAxisId="right" type="monotone" dataKey="moves" stroke="#82ca9d" name="Moves" strokeWidth={3} dot={false} />
@@ -423,22 +424,22 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             <div className="flex flex-wrap justify-center mt-4">
               <div className="flex items-center mr-4 mb-2">
                 <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
-                <span>Time</span>
+                <span className="text-gray-900 dark:text-white">Time</span>
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[rgba(136,132,216,0.5)] mr-2"></div>
-                  <span>Avg Time</span>
+                  <span className="text-gray-900 dark:text-white">Avg Time</span>
                 </div>
               )}
               <div className="flex items-center mr-4 mb-2">
                 <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
-                <span>Moves</span>
+                <span className="text-gray-900 dark:text-white">Moves</span>
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mb-2">
                   <div className="w-4 h-4 bg-[rgba(130,202,157,0.5)] mr-2"></div>
-                  <span>Avg Moves</span>
+                  <span className="text-gray-900 dark:text-white">Avg Moves</span>
                 </div>
               )}
             </div>
@@ -448,11 +449,11 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             <RadioGroup defaultValue="game" onValueChange={(value) => setXAxisView(value as 'game' | 'daily')} className="flex justify-center space-x-4">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="game" id="game" />
-                <Label htmlFor="game">Game View</Label>
+                <Label htmlFor="game" className="text-gray-900 dark:text-white">Game View</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="daily" id="daily" />
-                <Label htmlFor="daily">Daily View</Label>
+                <Label htmlFor="daily" className="text-gray-900 dark:text-white">Daily View</Label>
               </div>
             </RadioGroup>
           </div>
@@ -460,9 +461,9 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">#</TableHead>
+                <TableHead className="w-12 text-gray-900 dark:text-white">#</TableHead>
                 <TableHead 
-                  className="w-24 cursor-pointer"
+                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
                   onClick={() => handleSort('date')}
                 >
                   Date
@@ -470,9 +471,9 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-16">LatinHAM</TableHead>
+                <TableHead className="w-16 text-gray-900 dark:text-white">LatinHAM</TableHead>
                 <TableHead 
-                  className="w-20 cursor-pointer"
+                  className="w-20 cursor-pointer text-gray-900 dark:text-white"
                   onClick={() => handleSort('difficulty')}
                 >
                   Difficulty
@@ -481,7 +482,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-24 cursor-pointer"
+                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
                   onClick={() => handleSort('username')}
                 >
                   User
@@ -490,7 +491,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-16 cursor-pointer"
+                  className="w-16 cursor-pointer text-gray-900 dark:text-white"
                   onClick={() => handleSort('moves')}
                 >
                   Moves
@@ -499,7 +500,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-16 cursor-pointer"
+                  className="w-16 cursor-pointer text-gray-900 dark:text-white"
                   onClick={() => handleSort('hints')}
                 >
                   Hints
@@ -508,7 +509,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-24 cursor-pointer"
+                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
                   onClick={() => handleSort('duration')}
                 >
                   Duration
@@ -516,14 +517,14 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-32">Quote</TableHead>
+                <TableHead className="w-32 text-gray-900 dark:text-white">Quote</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedEntries.map((entry, index) => (
                 <TableRow key={entry.id}>
-                  <TableCell className="p-2 text-center">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatDate(entry.timestamp)}</TableCell>
+                  <TableCell className="p-2 text-center text-gray-900 dark:text-white">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
+                  <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{formatDate(entry.timestamp)}</TableCell>
                   <TableCell className="p-2">
                     <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
                   </TableCell>
@@ -539,11 +540,11 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       {entry.difficulty}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-1 text-sm text-center">{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{formatTime(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm text-center truncate max-w-xs">&ldquo;{entry.quote || 'No quote'}&rdquo;</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.moves}</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.hints || 0}</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{formatTime(entry.time)}</TableCell>
+                  <TableCell className="p-1 text-sm text-center truncate max-w-xs text-gray-900 dark:text-white">&ldquo;{entry.quote || 'No quote'}&rdquo;</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -585,10 +586,10 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           setSelectedGame(null);
         }
       }}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
           <DialogHeader>
             <DialogTitle>Completed LatinHAM</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
               Details of the completed game
             </DialogDescription>
           </DialogHeader>
