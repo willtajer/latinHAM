@@ -228,8 +228,6 @@ export default function Challenges() {
     return <div className="text-center py-8 text-red-500">{error}</div>
   }
 
-  const foundPatternCount = patterns.filter(p => p.matchedGames.length > 0).length;
-
   const getFoundCounterText = () => {
     const solidCount = patterns.filter(p => p.matchedGames.length > 0 && p.color !== 0).length;
     const orderedCount = patterns.filter(p => p.matchedGames.length > 0 && p.color === 0 && !p.isAscending).length;
