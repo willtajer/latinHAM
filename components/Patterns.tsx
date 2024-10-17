@@ -328,7 +328,7 @@ export default function Challenges() {
         </div>
         <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
           {pattern.matchedGames[0]?.patterns && Object.entries(pattern.matchedGames[0].patterns)
-            .filter(([type, value]) => value)
+            .filter(([ value]) => value)
             .map(([type]) => (
               <p key={type} className="capitalize">{type}</p>
             ))}
