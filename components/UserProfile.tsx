@@ -494,16 +494,6 @@ export function UserProfile() {
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-16 cursor-pointer" onClick={() => handleSort('time')}>
-                  Time
-                  {sortColumn === 'time' && (
-                    sortDirection === 'asc' ? (
-                      <ChevronUp className="inline ml-1" />
-                    ) : (
-                      <ChevronDown className="inline ml-1" />
-                    )
-                  )}
-                </TableHead>
                 <TableHead className="w-16 cursor-pointer" onClick={() => handleSort('moves')}>
                   Moves
                   {sortColumn === 'moves' && (
@@ -550,7 +540,6 @@ export function UserProfile() {
                     </Badge>
                   </TableCell>
                   <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatTime(game.created_at)}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
                   <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
@@ -87,8 +87,8 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [difficulty, setDifficulty] = useState<"all" | "easy" | "medium" | "hard">(initialDifficulty)
-  const [sortColumn, setSortColumn] = useState<'moves' | 'date' | 'hints' | 'duration' | 'difficulty'>('moves')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [sortColumn, setSortColumn] = useState<'moves' | 'date' | 'hints' | 'duration' | 'difficulty' | 'username'>('date')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedGame, setSelectedGame] = useState<LeaderboardEntry | null>(null)
   const [xAxisView, setXAxisView] = useState<'game' | 'daily'>('game')
@@ -123,7 +123,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  const handleSort = (column: 'moves' | 'date' | 'hints' | 'duration' | 'difficulty') => {
+  const handleSort = (column: 'moves' | 'date' | 'hints' | 'duration' | 'difficulty' | 'username') => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -136,15 +136,19 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     return difficulty === 'all' ? entries : entries.filter(entry => entry.difficulty === difficulty)
   }, [entries, difficulty])
 
+  const rankedEntries = useMemo(() => {
+    return filteredEntries.sort((a, b) => a.moves - b.moves);
+  }, [filteredEntries]);
+
   const sortedEntries = useMemo(() => {
-    return [...filteredEntries].sort((a, b) => {
+    return [...rankedEntries].sort((a, b) => {
       let compareValue: number;
       switch (sortColumn) {
-        case 'moves':
-          compareValue = a.moves - b.moves;
-          break;
         case 'date':
           compareValue = new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          break;
+        case 'moves':
+          compareValue = a.moves - b.moves;
           break;
         case 'hints':
           compareValue = (a.hints || 0) - (b.hints || 0);
@@ -155,12 +159,15 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
         case 'difficulty':
           compareValue = a.difficulty.localeCompare(b.difficulty);
           break;
+        case 'username':
+          compareValue = (a.username || 'Anonymous').localeCompare(b.username || 'Anonymous');
+          break;
         default:
-          compareValue = 0;
+          compareValue = new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
       }
       return sortDirection === 'asc' ? compareValue : -compareValue
     });
-  }, [filteredEntries, sortColumn, sortDirection]);
+  }, [rankedEntries, sortColumn, sortDirection]);
 
   const chartData = useMemo(() => {
     if (xAxisView === 'game') {
@@ -230,6 +237,21 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     }
   }, [filteredEntries])
 
+  const bestPerformances = useMemo(() => {
+    const difficulties: ("easy" | "medium" | "hard")[] = ["easy", "medium", "hard"];
+    return difficulties.reduce((acc, diff) => {
+      const diffEntries = entries.filter(entry => entry.difficulty === diff);
+      const bestMoves = diffEntries.reduce((best, current) => 
+        current.moves < best.moves ? current : best
+      , diffEntries[0] || null);
+      const bestTime = diffEntries.reduce((best, current) => 
+        current.time < best.time ? current : best
+      , diffEntries[0] || null);
+      acc[diff] = { bestMoves, bestTime };
+      return acc;
+    }, {} as Record<"easy" | "medium" | "hard", { bestMoves: LeaderboardEntry | null, bestTime: LeaderboardEntry | null }>);
+  }, [entries]);
+
   const handleViewCompletedBoard = useCallback((entry: LeaderboardEntry) => {
     setSelectedGame(entry)
   }, [])
@@ -239,6 +261,39 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     setCurrentPage(1)
     onDifficultyChange(newDifficulty)
   }, [onDifficultyChange])
+
+  const renderBestPerformanceCard = (difficulty: "easy" | "medium" | "hard", type: "moves" | "time") => {
+    const entry = type === "moves" ? bestPerformances[difficulty].bestMoves : bestPerformances[difficulty].bestTime;
+    const textColor = difficulty === 'easy' ? 'text-green-500' : difficulty === 'medium' ? 'text-orange-500' : 'text-red-500';
+    
+    return (
+      <Card className="w-full bg-gray-900 text-white text-center flex flex-col">
+        <CardHeader className="rounded-t-lg p-0 text-center">
+          <CardTitle className="text-lg">
+            <div className="p-2 rounded-t-lg">
+              <span className="font-bold text-white">{entry?.username || 'Anonymous'}</span>
+            </div>
+            <div className={`${textColor} p-2`}>
+              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} - Best {type === "moves" ? "Moves" : "Time"}
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 flex-grow flex flex-col justify-between">
+          <div className="space-y-2">
+            <p>
+              <span className="font-semibold">{type === "moves" ? "Moves:" : "Time:"}</span> {type === "moves" ? entry?.moves : (entry ? formatTime(entry.time) : 'N/A')}
+            </p>
+            <p>
+              <span className="font-semibold">{type === "moves" ? "Time:" : "Moves:"}</span> {type === "moves" ? (entry ? formatTime(entry.time) : 'N/A') : entry?.moves}
+            </p>
+          </div>
+          <p className="italic mt-2 text-sm">
+            "{entry?.quote || 'No quote available'}"
+          </p>
+        </CardContent>
+      </Card>
+    );
+  };
 
   if (isLoading) {
     return <div className="text-center py-8">Loading leaderboard entries...</div>
@@ -261,12 +316,23 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
 
   return (
     <>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-6">
+        <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
+          {renderBestPerformanceCard("easy", "moves")}
+          {renderBestPerformanceCard("easy", "time")}
+        </div>
+        <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
+          {renderBestPerformanceCard("medium", "moves")}
+          {renderBestPerformanceCard("medium", "time")}
+        </div>
+        <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
+          {renderBestPerformanceCard("hard", "moves")}
+          {renderBestPerformanceCard("hard", "time")}
+        </div>
+      </div>
+
       <div className="text-center mb-6">
-        <p className="text-xl mb-4 text-white">
-          {difficulty === 'all'
-            ? `Total games played: ${entries.length}`
-            : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} games played: ${entries.filter(entry => entry.difficulty === difficulty).length}`}
-        </p>
+        <h2 className="font-bold text-3xl p-4">Game History</h2>
         <div className="flex justify-center space-x-2 mb-6">
           <Button
             onClick={() => handleDifficultyChange('all')}
@@ -320,7 +386,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           <div className="flex flex-col items-center">
             <div className="w-full relative">
               <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
-                <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
+                <div className="transform -rotate-90  origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
                   Time (seconds)
                 </div>
               </div>
@@ -329,8 +395,8 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   Moves
                 </div>
               </div>
-              <div  ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
-                <div className="w-full" style={{ minWidth:  `${Math.max(chartData.length * 50, 1000)}px` }}>
+              <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
+                <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -394,7 +460,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">Rank</TableHead>
+                <TableHead className="w-12">#</TableHead>
                 <TableHead 
                   className="w-24 cursor-pointer"
                   onClick={() => handleSort('date')}
@@ -414,7 +480,15 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-24">User</TableHead>
+                <TableHead 
+                  className="w-24 cursor-pointer"
+                  onClick={() => handleSort('username')}
+                >
+                  User
+                  {sortColumn === 'username' && (
+                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                  )}
+                </TableHead>
                 <TableHead 
                   className="w-16 cursor-pointer"
                   onClick={() => handleSort('moves')}
@@ -465,11 +539,11 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                       {entry.difficulty}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-1 text-sm">{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center">{entry.hints || 0}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatTime(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm truncate max-w-xs">{entry.quote || 'No quote'}</TableCell>
+                  <TableCell className="p-1 text-sm text-center">{formatTime(entry.time)}</TableCell>
+                  <TableCell className="p-1 text-sm text-center truncate max-w-xs">"{entry.quote || 'No quote'}"</TableCell>
                 </TableRow>
               ))}
             </TableBody>
