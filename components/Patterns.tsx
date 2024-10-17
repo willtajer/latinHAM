@@ -138,6 +138,31 @@ export default function Challenges() {
         newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom Left to Top Right Forward", true, false))
         newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + (size - 1 - i), "Bottom Right to Top Left Forward", true, false))
       }
+    } else if (type === 'my-patterns') {
+      games.forEach(game => {
+        if (game.patterns && Object.values(game.patterns).some(Boolean)) {
+          const newPattern: Pattern = {
+            grid: game.grid,
+            highlightedCells: [],
+            matchedGames: [game],
+            description: "Custom Pattern",
+            color: 0
+          }
+          
+          if (game.patterns.solid) {
+            newPattern.highlightedCells.push(...PatternDetector.detectPatterns(game.grid, 'solid').flat())
+          }
+          if (game.patterns.ordered) {
+            newPattern.highlightedCells.push(...PatternDetector.detectPatterns(game.grid, 'ordered', subsection).flat())
+          }
+          if (game.patterns.rainbow) {
+            newPattern.highlightedCells.push(...PatternDetector.detectPatterns(game.grid, 'rainbow', subsection).flat())
+          }
+          
+          newPattern.highlightedCells = [...new Set(newPattern.highlightedCells)] // Remove duplicates
+          newPatterns.push(newPattern)
+        }
+      })
     }
 
     // Match games to patterns
@@ -267,7 +292,7 @@ export default function Challenges() {
           />
         </div>
         <div className="absolute -bottom-2 -right-2 overflow-visible">
-          <div className="w-8 h-8 bg-blue-500 rounded-xl rotate-45 flex items-center  justify-center">
+          <div className="w-8 h-8 bg-blue-500 rounded-xl rotate-45 flex items-center justify-center">
             <span className="text-white font-bold text-sm -rotate-45">
               {pattern.matchedGames.length}
             </span>
@@ -289,37 +314,33 @@ export default function Challenges() {
     </Card>
   )
 
-  const renderMyPatternsCard = (game: Game) => {
-    const patternTypes = game.patterns ? Object.entries(game.patterns).filter(([_, value]) => value) : []
-    const comboCount = patternTypes.length
-    const gradientClass = `bg-gradient-to-r from-orange-${comboCount * 100} to-orange-${comboCount * 200}`
-
-    return (
-      <Card key={game.id} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
-        <CardContent className="p-4 pt-6">
-          <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${gradientClass} rounded-t-lg`}>
-            {myPatternsMode === 'combo' ? `Combo (${comboCount})` : 'My Pattern'}
-          </div>
-          <div className="aspect-square mb-4 relative">
-            <PatternDetector 
-              board={game.grid} 
-              type="solid"
-              highlightedCells={[]}
-            />
-          </div>
-          <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
-            {patternTypes.map(([type]) => (
+  const renderMyPatternsCard = (pattern: Pattern, index: number) => (
+    <Card key={pattern.matchedGames[0]?.id || `unknown-${index}`} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
+      <CardContent className="p-4 pt-6">
+        <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-orange-400 to-orange-600 rounded-t-lg">
+          My Pattern
+        </div>
+        <div className="aspect-square mb-4 relative">
+          <PatternDetector 
+            board={pattern.grid} 
+            type="my-patterns"
+            highlightedCells={pattern.highlightedCells}
+          />
+        </div>
+        <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
+          {pattern.matchedGames[0]?.patterns && Object.entries(pattern.matchedGames[0].patterns)
+            .filter(([_, value]) => value)
+            .map(([type]) => (
               <p key={type} className="capitalize">{type}</p>
             ))}
-            <p><strong>Difficulty:</strong> {game.difficulty.charAt(0).toUpperCase() + game.difficulty.slice(1)}</p>
-            <p><strong>Moves:</strong> {game.moves}</p>
-            <p><strong>Time:</strong> {game.time}s</p>
-            <p><strong>Completed:</strong> {formatTimestamp(game.created_at)}</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
+          <p><strong>Difficulty:</strong> {pattern.matchedGames[0]?.difficulty?.charAt(0).toUpperCase() + pattern.matchedGames[0]?.difficulty?.slice(1) || 'Unknown'}</p>
+          <p><strong>Moves:</strong> {pattern.matchedGames[0]?.moves || 'N/A'}</p>
+          <p><strong>Time:</strong> {pattern.matchedGames[0]?.time ? `${pattern.matchedGames[0].time}s` : 'N/A'}</p>
+          <p><strong>Completed:</strong> {pattern.matchedGames[0]?.created_at ? formatTimestamp(pattern.matchedGames[0].created_at) : 'N/A'}</p>
+        </div>
+      </CardContent>
+    </Card>
+  )
 
   return (
     <div className="space-y-6">
@@ -384,7 +405,7 @@ export default function Challenges() {
           className="flex justify-center space-x-4"
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="row" id="ordered-row"   className="border-white text-white" />
+            <RadioGroupItem value="row" id="ordered-row" className="border-white text-white" />
             <Label htmlFor="ordered-row" className="text-white">Rows</Label>
           </div>
           <div className="flex items-center space-x-2">
@@ -435,11 +456,7 @@ export default function Challenges() {
       )}
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
         {challengeType === 'my-patterns' ? (
-          myPatternsMode === 'single' ? (
-            games.filter(game => game.patterns && Object.values(game.patterns).some(Boolean)).map(renderMyPatternsCard)
-          ) : (
-            games.filter(game => game.patterns && Object.values(game.patterns).filter(Boolean).length > 1).map(renderMyPatternsCard)
-          )
+          patterns.map((pattern, index) => renderMyPatternsCard(pattern, index))
         ) : (
           patterns.map(renderPatternCard)
         )}

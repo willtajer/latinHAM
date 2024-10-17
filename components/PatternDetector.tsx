@@ -4,15 +4,15 @@ type Board = number[][]
 
 interface PatternDetectorProps {
   board: Board
-  type: 'solid' | 'ordered' | 'rainbow'
+  type: 'solid' | 'ordered' | 'rainbow' | 'my-patterns'
   highlightedCells?: number[]
 }
 
 interface PatternDetectorComponent extends React.FC<PatternDetectorProps> {
-  detectPatterns: (board: Board, type: 'solid' | 'ordered' | 'rainbow', subsection?: 'row' | 'column' | 'diagonal') => number[][]
+  detectPatterns: (board: Board, type: 'solid' | 'ordered' | 'rainbow' | 'my-patterns', subsection?: 'row' | 'column' | 'diagonal') => number[][]
 }
 
-const PatternDetector: PatternDetectorComponent = ({ board, highlightedCells = [] }) => {
+const PatternDetector: PatternDetectorComponent = ({ board, type, highlightedCells = [] }) => {
   return (
     <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner aspect-square">
       {board.flat().map((cell, index) => (
@@ -33,7 +33,7 @@ const PatternDetector: PatternDetectorComponent = ({ board, highlightedCells = [
   )
 }
 
-PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'ordered' | 'rainbow', subsection?: 'row' | 'column' | 'diagonal'): number[][] => {
+PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'ordered' | 'rainbow' | 'my-patterns', subsection?: 'row' | 'column' | 'diagonal'): number[][] => {
   const size = board.length
 
   const detectSolidDiagonals = (board: Board): number[][] => {
@@ -154,6 +154,12 @@ PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'ordered' | 'rai
       return detectOrderedLines(board, subsection)
     case 'rainbow':
       return detectRainbowLines(board, subsection)
+    case 'my-patterns':
+      return [
+        ...detectSolidDiagonals(board),
+        ...detectOrderedLines(board, subsection),
+        ...detectRainbowLines(board, subsection)
+      ]
     default:
       return []
   }
