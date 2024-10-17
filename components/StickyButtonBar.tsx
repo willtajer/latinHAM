@@ -156,7 +156,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white"
+                className="absolute top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white hover:text-gray-100"
                 onClick={closeOverlays}
                 aria-label="Close Overlay"
               >
