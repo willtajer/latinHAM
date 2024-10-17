@@ -67,79 +67,114 @@ export default function Challenges() {
       const size = 6
       const newPatterns: Pattern[] = []
 
-      const addPattern = (
-        type: 'solid' | 'ordered' | 'rainbow',
-        highlightedCells: number[],
-        description: string,
-        color: number = 0
-      ) => {
-        const grid = Array(size).fill(null).map(() => Array(size).fill(0))
-        highlightedCells.forEach(cell => {
-          const row = Math.floor(cell / size)
-          const col = cell % size
-          grid[row][col] = type === 'solid' ? color : (type === 'ordered' ? (row * size + col) % size + 1 : [1, 6, 3, 4, 2, 5][col])
-        })
-        newPatterns.push({
-          grid,
-          highlightedCells,
-          matchedGames: [],
-          description,
-          color,
-          type
-        })
-      }
-
       // Generate solid diagonal patterns
       for (let color = 1; color <= 6; color++) {
-        addPattern('solid', Array(size).fill(0).map((_, i) => i * size + i), "Top Left to Bottom Right", color)
-        addPattern('solid', Array(size).fill(0).map((_, i) => i * size + (size - 1 - i)), "Top Right to Bottom Left", color)
+        // Top-left to bottom-right
+        const tlbrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
+        const tlbrHighlight = []
+        for (let i = 0; i < size; i++) {
+          tlbrGrid[i][i] = color
+          tlbrHighlight.push(i * size + i)
+        }
+        newPatterns.push({ 
+          grid: tlbrGrid, 
+          highlightedCells: tlbrHighlight,
+          matchedGames: [],
+          description: "Top Left to Bottom Right",
+          color: color,
+          type: 'solid'
+        })
+
+        // Top-right to bottom-left
+        const trblGrid = Array(size).fill(null).map(() => Array(size).fill(0))
+        const trblHighlight = []
+        for (let i = 0; i < size; i++) {
+          trblGrid[i][size - 1 - i] = color
+          trblHighlight.push(i * size + (size - 1 - i))
+        }
+        newPatterns.push({ 
+          grid: trblGrid, 
+          highlightedCells: trblHighlight,
+          matchedGames: [],
+          description: "Top Right to Bottom Left",
+          color: color,
+          type: 'solid'
+        })
       }
 
       // Generate ordered patterns
-      const orderedDirections = ['row', 'column', 'diagonal'] as const
-      orderedDirections.forEach(direction => {
-        if (direction === 'row' || direction === 'column') {
-          for (let i = 0; i < size; i++) {
-            const cells = Array(size).fill(0).map((_, j) => direction === 'row' ? i * size + j : j * size + i)
-            addPattern('ordered', cells, `${direction.charAt(0).toUpperCase() + direction.slice(1)} ${i + 1} Forward`)
-            addPattern('ordered', cells, `${direction.charAt(0).toUpperCase() + direction.slice(1)} ${i + 1} Backward`)
-          }
-        } else {
-          addPattern('ordered', Array(size).fill(0).map((_, i) => i * size + i), "Top Left to Bottom Right Forward")
-          addPattern('ordered', Array(size).fill(0).map((_, i) => i * size + (size - 1 - i)), "Top Right to Bottom Left Forward")
-          addPattern('ordered', Array(size).fill(0).map((_, i) => (size - 1 - i) * size + i), "Bottom Left to Top Right Forward")
-          addPattern('ordered', Array(size).fill(0).map((_, i) => (size - 1 - i) * size + (size - 1 - i)), "Bottom Right to Top Left Forward")
+      const generateOrderedPattern = (
+        direction: (i: number) => number,
+        description: string,
+        isBackward: boolean
+      ) => {
+        const grid = Array(size).fill(null).map(() => Array(size).fill(0))
+        const highlight = []
+        for (let i = 0; i < size; i++) {
+          const index = direction(i)
+          grid[Math.floor(index / size)][index % size] = isBackward ? size - i : i + 1
+          highlight.push(index)
         }
-      })
+        return { grid, highlightedCells: highlight, matchedGames: [], description, color: 0, isBackward, type: 'ordered' as const }
+      }
+
+      // Rows and Columns
+      for (let i = 0; i < size; i++) {
+        newPatterns.push(generateOrderedPattern((j: number) => i * size + j, `Row ${i + 1} Forward`, false))
+        newPatterns.push(generateOrderedPattern((j: number) => i * size + j, `Row ${i + 1} Backward`, true))
+        newPatterns.push(generateOrderedPattern((j: number) => j * size + i, `Column ${i + 1} Forward`, false))
+        newPatterns.push(generateOrderedPattern((j: number) => j * size + i, `Column ${i + 1} Backward`, true))
+      }
+
+      // Diagonals
+      newPatterns.push(generateOrderedPattern((i: number) => i * size + i, "Left to Right Forward", false))
+      newPatterns.push(generateOrderedPattern((i: number) => i * size + (size - 1 - i), "Right to Left Forward", false))
+      newPatterns.push(generateOrderedPattern((i: number) => (size - 1 - i) * size + i, "Bottom Left to Top Right Forward", true))
+      newPatterns.push(generateOrderedPattern((i: number) => (size - 1 - i) * size + (size - 1 - i), "Bottom Right to Top Left Forward", true))
 
       // Generate rainbow patterns
-      orderedDirections.forEach(direction => {
-        if (direction === 'row' || direction === 'column') {
-          for (let i = 0; i < size; i++) {
-            const cells = Array(size).fill(0).map((_, j) => direction === 'row' ? i * size + j : j * size + i)
-            addPattern('rainbow', cells, `${direction.charAt(0).toUpperCase() + direction.slice(1)} ${i + 1} Forward`)
-            addPattern('rainbow', cells, `${direction.charAt(0).toUpperCase() + direction.slice(1)} ${i + 1} Backward`)
-          }
-        } else {
-          addPattern('rainbow', Array(size).fill(0).map((_, i) => i * size + i), "Top Left to Bottom Right Forward")
-          addPattern('rainbow', Array(size).fill(0).map((_, i) => i * size + i), "Top Left to Bottom Right Backward")
-          addPattern('rainbow', Array(size).fill(0).map((_, i) => i * size + (size - 1 - i)), "Top Right to Bottom Left Forward")
-          addPattern('rainbow', Array(size).fill(0).map((_, i) => i * size + (size - 1 - i)), "Top Right to Bottom Left Backward")
+      const generateRainbowPattern = (
+        direction: (i: number) => number, 
+        ascending: boolean, 
+        description: string
+      ) => {
+        const grid = Array(size).fill(null).map(() => Array(size).fill(0))
+        const highlight = []
+        for (let i = 0; i < size; i++) {
+          const index = direction(i)
+          grid[Math.floor(index / size)][index % size] = [1, 6, 3, 4, 2, 5][ascending ? i : 5 - i]
+          highlight.push(index)
         }
-      })
+        return { grid, highlightedCells: highlight, matchedGames: [], description: `${description} ${ascending ? 'Forward' : 'Backward'}`, color: 0, isAscending: ascending, type: 'rainbow' as const }
+      }
+
+      // Rows and Columns
+      for (let i = 0; i < size; i++) {
+        newPatterns.push(generateRainbowPattern((j: number) => i * size + j, true, `Row ${i + 1}`))
+        newPatterns.push(generateRainbowPattern((j: number) => i * size + j, false, `Row ${i + 1}`))
+        newPatterns.push(generateRainbowPattern((j: number) => j * size + i, true, `Column ${i + 1}`))
+        newPatterns.push(generateRainbowPattern((j: number) => j * size + i, false, `Column ${i + 1}`))
+      }
+
+      // Diagonals
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, true, "Left to Right"))
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, false, "Left to Right"))
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), true, "Right to Left"))
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), false, "Right to Left"))
 
       // Match games to patterns
       games.forEach(game => {
         ['solid', 'ordered', 'rainbow'].forEach(type => {
-          const gamePatterns = PatternDetector.detectPatterns(
-            game.grid, 
-            type as 'solid' | 'ordered' | 'rainbow',
-            type === 'ordered' ? orderedSubsection : type === 'rainbow' ? rainbowSubsection : undefined
-          )
+          const gamePatterns = PatternDetector.detectPatterns(game.grid, type as 'solid' | 'ordered' | 'rainbow')
           gamePatterns.forEach(patternCells => {
             const matchingPattern = newPatterns.find(p => 
               p.type === type &&
-              p.highlightedCells.every(cell => patternCells.includes(cell))
+              p.highlightedCells.every(cell => patternCells.includes(cell)) &&
+              (type === 'rainbow' || 
+               (type === 'ordered' && p.grid.flat().every((value, index) => 
+                 value === game.grid[Math.floor(index / size)][index % size]
+               )) ||
+               (type === 'solid' && game.grid[Math.floor(patternCells[0] / size)][patternCells[0] % size] === p.color))
             )
             if (matchingPattern) {
               matchingPattern.matchedGames.push(game)
@@ -167,7 +202,7 @@ export default function Challenges() {
     }
 
     generatePatterns()
-  }, [games, orderedSubsection, rainbowSubsection])
+  }, [games])
 
   const getFoundCounterText = () => {
     const solidCount = patterns.filter(p => p.matchedGames.length > 0 && p.type === 'solid').length;
@@ -263,6 +298,7 @@ export default function Challenges() {
             <Label htmlFor="ordered-column" className="text-white">Columns</Label>
           </div>
           <div className="flex items-center space-x-2">
+            
             <RadioGroupItem value="diagonal" id="ordered-diagonal" className="border-white  text-white" />
             <Label htmlFor="ordered-diagonal" className="text-white">Diagonals</Label>
           </div>
@@ -300,7 +336,7 @@ export default function Challenges() {
           <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
             <CardContent className="p-4 pt-6">
               {challengeType === 'solid' && (
-                <div className={`absolute top-0 left-0 right-0 text-xs  font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)}`}>
+                <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)}`}>
                   Solid {colorNames[pattern.color]}
                 </div>
               )}
