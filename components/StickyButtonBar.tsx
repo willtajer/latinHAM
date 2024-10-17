@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
-import { Play, Grid, Trophy, HelpCircle, User, X, Award } from "lucide-react"
+import { Play, Grid, Trophy, HelpCircle, User, X, Swords } from "lucide-react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
@@ -106,7 +106,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               onClick={() => toggleOverlay('challenges')}
               aria-label="Challenges"
             >
-              <Award className="h-6 w-6" />
+              <Swords className="h-6 w-6" />
             </Button>
             
             <Button
