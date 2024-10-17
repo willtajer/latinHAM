@@ -159,8 +159,7 @@ export default function Challenges() {
             newPattern.highlightedCells.push(...PatternDetector.detectPatterns(game.grid, 'rainbow', subsection).flat())
           }
           
-          newPattern.highlightedCells = [...new Set(newPattern.highlightedCells)] // Remove duplicates
-          newPatterns.push(newPattern)
+          newPattern.highlightedCells = Array.from(new Set(newPattern.highlightedCells)); // Remove duplicates
         }
       })
     }
