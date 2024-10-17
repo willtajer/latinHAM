@@ -352,7 +352,7 @@ export default function Challenges() {
         </p>
       </div>
       <div className="flex flex-col items-center space-y-4">
-        <div className="flex justify-center mb-4">
+        {/* <div className="flex justify-center mb-4">
           <Button
             onClick={() => setChallengeType('my-patterns')}
             className={`${
@@ -363,7 +363,7 @@ export default function Challenges() {
           >
             My Patterns
           </Button>
-        </div>
+        </div> */}
         <div className="flex space-x-4">
           <Button
             onClick={() => setChallengeType('solid')}
