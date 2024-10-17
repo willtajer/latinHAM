@@ -270,8 +270,8 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
       <Card className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-center flex flex-col">
         <CardHeader className="rounded-t-lg p-0 text-center">
           <CardTitle className="text-lg">
-            <div className="p-2 rounded-t-lg bg-gray-100 dark:bg-gray-700">
-              <span className="font-bold">{entry?.username || 'Anonymous'}</span>
+            <div className="p-2 rounded-t-lg bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500">
+              <span className="font-bold text-white">{entry?.username || 'Anonymous'}</span>
             </div>
             <div className={`${textColor} p-2`}>
               {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} - Best {type === "moves" ? "Moves" : "Time"}
@@ -307,7 +307,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     return (
       <Card className="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800">
         <CardContent className="pt-6">
-          <p className="text-center text-gray-900 dark:text-white">No entries available {difficulty === 'all' ? 'across all difficulties' : `for ${difficulty} difficulty`}. </p>
+          <p className="text-center text-gray-900 dark:text-white">No entries available {difficulty === 'all' ? 'across  all difficulties' : `for ${difficulty} difficulty`}. </p>
           <p className="text-center text-gray-900  dark:text-white">Sign in to rank on the leaderboard.</p>
         </CardContent>
       </Card>
