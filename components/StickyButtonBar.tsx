@@ -12,6 +12,7 @@ import { GamePreview } from './GamePreview'
 import Leaderboard from './Leaderboard'
 import { LearningModeGame } from './LearningModeGame'
 import { UserProfile } from './UserProfile'
+import Challenges from './Challenges'
 
 interface StickyButtonBarProps {
   onStartNewGame: (initialGrid?: number[][]) => void;
@@ -19,7 +20,7 @@ interface StickyButtonBarProps {
 
 export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps) {
   const { theme } = useTheme()
-  const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'quests'>('none')
+  const [activeOverlay, setActiveOverlay] = useState<'none' | 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'challenges'>('none')
   const [isLearningComplete, setIsLearningComplete] = useState(false)
   const [learningKey, setLearningKey] = useState(0)
 
@@ -27,7 +28,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     onStartNewGame(initialGrid)
   }
 
-  const toggleOverlay = (overlay: 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'quests') => {
+  const toggleOverlay = (overlay: 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'challenges') => {
     setActiveOverlay(prev => prev === overlay ? 'none' : overlay)
   }
 
@@ -55,13 +56,13 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     exit: { opacity: 0, y: '100%' }
   }
 
-  const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'quests') => {
+  const getOverlayStyle = (overlayType: 'discovered' | 'leaderboard' | 'learning' | 'profile' | 'challenges') => {
     const colors = {
       discovered: { light: 'bg-orange-500', dark: 'bg-slate-950' },
       leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
       learning: { light: 'bg-purple-500', dark: 'bg-slate-950' },
       profile: { light: 'bg-blue-500', dark: 'bg-slate-950' },
-      quests: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
+      challenges: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
     }
 
     const color = colors[overlayType]
@@ -102,8 +103,8 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               variant="ghost"
               size="icon"
               className="rounded-full p-2 shadow-md transition-colors duration-200 bg-yellow-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-yellow-500"
-              onClick={() => toggleOverlay('quests')}
-              aria-label="Achievements"
+              onClick={() => toggleOverlay('challenges')}
+              aria-label="Challenges"
             >
               <Award className="h-6 w-6" />
             </Button>
@@ -245,14 +246,12 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                 </div>
               )}
 
-              {activeOverlay === 'quests' && (
-                <div className="max-w-6xl mx-auto pt-16">
-                  <h1 className="text-6xl font-bold mb-6 text-center text-white">
-                    Achievements
+              {activeOverlay === 'challenges' && (
+                <div className="max-w-6xl mx-auto pt-16 pb-20">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
+                    Challenges
                   </h1>
-                  <div className="flex flex-col items-center justify-center">
-                    <p className="text-2xl text-white">Coming Soon</p>
-                  </div>
+                  <Challenges />
                 </div>
               )}
             </div>
