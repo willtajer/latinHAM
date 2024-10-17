@@ -116,14 +116,14 @@ export default function Challenges() {
       } else {
         // Generate rainbow patterns
         const generateRainbowPattern = (
-          direction: (i: number, j: number) => number, 
+          direction: (i: number) => number, 
           ascending: boolean, 
           description: string
         ) => {
           const grid = Array(size).fill(null).map(() => Array(size).fill(0))
           const highlight = []
           for (let i = 0; i < size; i++) {
-            const index = direction(i, i)
+            const index = direction(i)
             grid[Math.floor(index / size)][index % size] = ascending ? i + 1 : size - i
             highlight.push(index)
           }
@@ -133,18 +133,18 @@ export default function Challenges() {
         if (rainbowSubsection === 'row' || rainbowSubsection === 'column') {
           for (let i = 0; i < size; i++) {
             const rowDirection = rainbowSubsection === 'row'
-              ? (_: number, j: number) => i * size + j
-              : (j: number, _: number) => j * size + i
+              ? (j: number) => i * size + j
+              : (j: number) => j * size + i
             const rowDesc = rainbowSubsection === 'row' ? `Row ${i + 1}` : `Column ${i + 1}`
             newPatterns.push(generateRainbowPattern(rowDirection, true, `${rowDesc} Left to Right`))
             newPatterns.push(generateRainbowPattern(rowDirection, false, `${rowDesc} Right to Left`))
           }
         } else if (rainbowSubsection === 'diagonal') {
           // Main diagonals
-          newPatterns.push(generateRainbowPattern((i: number, _: number) => i * size + i, true, "Top Left to Bottom Right"))
-          newPatterns.push(generateRainbowPattern((i: number, _: number) => i * size + i, false, "Bottom Right to Top Left"))
-          newPatterns.push(generateRainbowPattern((i: number, _: number) => i * size + (size - 1 - i), true, "Top Right to Bottom Left"))
-          newPatterns.push(generateRainbowPattern((i: number, _: number) => i * size + (size - 1 - i), false, "Bottom Left to Top Right"))
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + i, true, "Top Left to Bottom Right"))
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + i, false, "Bottom Right to Top Left"))
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), true, "Top Right to Bottom Left"))
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), false, "Bottom Left to Top Right"))
         }
       }
 
@@ -278,7 +278,7 @@ export default function Challenges() {
                   {pattern.isAscending ? 'Rainbow' : 'Backwards Rainbow'}
                 </div>
               )}
-              <div className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2 mt-1 text-center">
+              <div className="text-sm font-semibold text-gray-800  dark:text-gray-300 mb-2 mt-1 text-center">
                 {pattern.description}
               </div>
               <div className="aspect-square mb-4">
