@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import PatternDetector from './PatternDetector'
 
 interface Game {
@@ -12,12 +13,14 @@ interface Game {
   grid: number[][]
   difficulty: string
   created_at: string
+  moves: number
+  time: number
 }
 
 interface Pattern {
   grid: number[][]
   highlightedCells: number[]
-  matchedGame?: Game
+  matchedGames: Game[]
   description: string
   color: number
   isAscending?: boolean
@@ -34,7 +37,6 @@ export default function Challenges() {
   const [patterns, setPatterns] = useState<Pattern[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [timeUntilReset, setTimeUntilReset] = useState<string>('')
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -58,27 +60,6 @@ export default function Challenges() {
   }, [])
 
   useEffect(() => {
-    const calculateTimeUntilReset = () => {
-      const now = new Date()
-      const nextSunday = new Date(now)
-      nextSunday.setUTCDate(now.getUTCDate() + (7 - now.getUTCDay()) % 7)
-      nextSunday.setUTCHours(17, 0, 0, 0) // 17:00 UTC is midnight Bangkok time
-
-      const timeDiff = nextSunday.getTime() - now.getTime()
-      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))
-
-      setTimeUntilReset(`${days}d ${hours}h ${minutes}m`)
-    }
-
-    calculateTimeUntilReset()
-    const timer = setInterval(calculateTimeUntilReset, 60000) // Update every minute
-
-    return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
     const generatePatterns = () => {
       console.log('Generating patterns. Games:', games, 'Challenge type:', challengeType, 'Rainbow subsection:', rainbowSubsection)
       const size = 6
@@ -97,6 +78,7 @@ export default function Challenges() {
           newPatterns.push({ 
             grid: tlbrGrid, 
             highlightedCells: tlbrHighlight,
+            matchedGames: [],
             description: "Top Left to Bottom Right",
             color: color
           })
@@ -111,6 +93,7 @@ export default function Challenges() {
           newPatterns.push({ 
             grid: trblGrid, 
             highlightedCells: trblHighlight,
+            matchedGames: [],
             description: "Top Right to Bottom Left",
             color: color
           })
@@ -129,7 +112,7 @@ export default function Challenges() {
             grid[Math.floor(index / size)][index % size] = ascending ? i + 1 : size - i
             highlight.push(index)
           }
-          return { grid, highlightedCells: highlight, description, color: 0, isAscending: ascending }
+          return { grid, highlightedCells: highlight, matchedGames: [], description, color: 0, isAscending: ascending }
         }
 
         if (rainbowSubsection === 'row' || rainbowSubsection === 'column') {
@@ -160,9 +143,21 @@ export default function Challenges() {
             (challengeType === 'rainbow' || game.grid[Math.floor(patternCells[0] / size)][patternCells[0] % size] === p.color)
           )
           if (matchingPattern) {
-            matchingPattern.grid = game.grid
-            matchingPattern.matchedGame = game
+            matchingPattern.matchedGames.push(game)
           }
+        })
+      })
+
+      // Sort matched games for each pattern
+      newPatterns.forEach(pattern => {
+        pattern.matchedGames.sort((a, b) => {
+          const difficultyOrder = { 'hard': 0, 'medium': 1, 'easy': 2 }
+          if (a.difficulty !== b.difficulty) {
+            return difficultyOrder[a.difficulty as keyof typeof difficultyOrder] - difficultyOrder[b.difficulty as keyof typeof difficultyOrder]
+          }
+          if (a.moves !== b.moves) return a.moves - b.moves
+          if (a.time !== b.time) return a.time - b.time
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         })
       })
 
@@ -185,7 +180,7 @@ export default function Challenges() {
     return <div className="text-center py-8 text-red-500">{error}</div>
   }
 
-  const foundPatternCount = patterns.filter(p => p.matchedGame).length
+  const foundPatternCount = patterns.filter(p => p.matchedGames.length > 0).length
 
   const getFoundCounterText = () => {
     if (challengeType === 'solid') {
@@ -225,9 +220,6 @@ export default function Challenges() {
         <p className="text-white text-lg font-bold">
           {getFoundCounterText()}
         </p>
-        <p className="text-white text-md">
-          Time until weekly reset: {timeUntilReset}
-        </p>
       </div>
       <div className="flex flex-col items-center space-y-4">
         <div className="flex space-x-4">
@@ -260,23 +252,23 @@ export default function Challenges() {
           className="flex justify-center space-x-4"
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="row" id="row" />
-            <Label htmlFor="row">Rows</Label>
+            <RadioGroupItem value="row" id="row" className="border-white text-white" />
+            <Label htmlFor="row" className="text-white">Rows</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="column" id="column" />
-            <Label htmlFor="column">Columns</Label>
+            <RadioGroupItem value="column" id="column" className="border-white text-white" />
+            <Label htmlFor="column" className="text-white">Columns</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="diagonal" id="diagonal" />
-            <Label htmlFor="diagonal">Diagonals</Label>
+            <RadioGroupItem value="diagonal" id="diagonal" className="border-white text-white" />
+            <Label htmlFor="diagonal" className="text-white">Diagonals</Label>
           </div>
         </RadioGroup>
       )}
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
         {patterns.map((pattern, index): ReactNode => (
-          <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-hidden">
-            <CardContent className="p-4 pt-6 relative">
+          <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
+            <CardContent className="p-4 pt-6">
               {challengeType === 'solid' ? (
                 <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)}`}>
                   Solid {colorNames[pattern.color]}
@@ -289,18 +281,27 @@ export default function Challenges() {
               <div className="text-sm font-semibold text-gray-800  dark:text-gray-300 mb-2 mt-1 text-center">
                 {pattern.description}
               </div>
-              <div className="aspect-square mb-4">
+              <div className="aspect-square mb-4 relative">
                 <PatternDetector 
                   board={pattern.grid} 
                   type={challengeType}
                   highlightedCells={pattern.highlightedCells}
                 />
               </div>
+              <div className="absolute -bottom-2 -right-2 overflow-visible">
+                <div className="w-8 h-8 bg-blue-500 rounded-xl rotate-45 flex items-center justify-center">
+                  <span className="text-white font-bold text-sm -rotate-45">
+                    {pattern.matchedGames.length}
+                  </span>
+                </div>
+              </div>
               <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
-                {pattern.matchedGame ? (
+                {pattern.matchedGames.length > 0 ? (
                   <>
-                    <p><strong>Difficulty:</strong> {pattern.matchedGame.difficulty.charAt(0).toUpperCase() + pattern.matchedGame.difficulty.slice(1)}</p>
-                    <p><strong>Completed:</strong> {new Date(pattern.matchedGame.created_at).toLocaleString()}</p>
+                    <p><strong>Difficulty:</strong> {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + pattern.matchedGames[0].difficulty.slice(1)}</p>
+                    <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
+                    <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
+                    <p><strong>Completed:</strong> {new Date(pattern.matchedGames[0].created_at).toLocaleString()}</p>
                   </>
                 ) : (
                   <p className="text-center">Unfound LatinHAM</p>
