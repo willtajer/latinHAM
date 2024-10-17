@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -44,7 +44,6 @@ export default function Challenges() {
   const [patterns, setPatterns] = useState<Pattern[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [myPatternsMode, setMyPatternsMode] = useState<'single' | 'combo'>('single')
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -66,7 +65,7 @@ export default function Challenges() {
     fetchGames()
   }, [])
 
-  const generatePatterns = (type: ChallengeType, subsection?: ChallengeSubsection) => {
+  const generatePatterns = useCallback((type: ChallengeType, subsection?: ChallengeSubsection) => {
     const size = 6
     const newPatterns: Pattern[] = []
 
@@ -160,6 +159,7 @@ export default function Challenges() {
           }
           
           newPattern.highlightedCells = Array.from(new Set(newPattern.highlightedCells)); // Remove duplicates
+          newPatterns.push(newPattern)
         }
       })
     }
@@ -199,12 +199,12 @@ export default function Challenges() {
     })
 
     return newPatterns
-  }
+  }, [games])
 
   useEffect(() => {
     const newPatterns = generatePatterns(challengeType, challengeType === 'ordered' ? orderedSubsection : (challengeType === 'rainbow' ? rainbowSubsection : undefined))
     setPatterns(newPatterns)
-  }, [games, challengeType, orderedSubsection, rainbowSubsection])
+  }, [games, challengeType, orderedSubsection, rainbowSubsection, generatePatterns])
 
   const patternCounts = useMemo(() => {
     const solidPatterns = generatePatterns('solid')
@@ -216,7 +216,7 @@ export default function Challenges() {
       ordered: orderedPatterns.filter(p => p.matchedGames.length > 0).length,
       rainbow: rainbowPatterns.filter(p => p.matchedGames.length > 0).length,
     }
-  }, [games, orderedSubsection, rainbowSubsection])
+  }, [generatePatterns, orderedSubsection, rainbowSubsection])
 
   const foundCounterText = useMemo(() => {
     const totalCount = patternCounts.solid + patternCounts.ordered + patternCounts.rainbow
@@ -314,7 +314,7 @@ export default function Challenges() {
   )
 
   const renderMyPatternsCard = (pattern: Pattern, index: number) => (
-    <Card key={pattern.matchedGames[0]?.id || `unknown-${index}`} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
+    <Card  key={pattern.matchedGames[0]?.id || `unknown-${index}`} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
       <CardContent className="p-4 pt-6">
         <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-orange-400 to-orange-600 rounded-t-lg">
           My Pattern
@@ -328,7 +328,7 @@ export default function Challenges() {
         </div>
         <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
           {pattern.matchedGames[0]?.patterns && Object.entries(pattern.matchedGames[0].patterns)
-            .filter(([_, value]) => value)
+            .filter(([type, value]) => value)
             .map(([type]) => (
               <p key={type} className="capitalize">{type}</p>
             ))}
@@ -434,22 +434,6 @@ export default function Challenges() {
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="diagonal" id="rainbow-diagonal" className="border-white text-white" />
             <Label htmlFor="rainbow-diagonal" className="text-white">Diagonals</Label>
-          </div>
-        </RadioGroup>
-      )}
-      {challengeType === 'my-patterns' && (
-        <RadioGroup
-          defaultValue="single"
-          onValueChange={(value) => setMyPatternsMode(value as 'single' | 'combo')}
-          className="flex justify-center space-x-4"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="single" id="single-detections" className="border-white text-white" />
-            <Label htmlFor="single-detections" className="text-white">Single Detections</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="combo" id="combo-detections" className="border-white text-white" />
-            <Label htmlFor="combo-detections" className="text-white">Combo Detections</Label>
           </div>
         </RadioGroup>
       )}
