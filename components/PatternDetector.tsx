@@ -12,7 +12,7 @@ interface PatternDetectorComponent extends React.FC<PatternDetectorProps> {
   detectPatterns: (board: Board, type: 'solid' | 'ordered' | 'rainbow' | 'my-patterns', subsection?: 'row' | 'column' | 'diagonal') => number[][]
 }
 
-const PatternDetector: PatternDetectorComponent = ({ board, type, highlightedCells = [] }) => {
+const PatternDetector: PatternDetectorComponent = ({ board, highlightedCells = [] }) => {
   return (
     <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner aspect-square">
       {board.flat().map((cell, index) => (
