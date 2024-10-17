@@ -24,7 +24,6 @@ interface Pattern {
   color: number
   isBackward?: boolean
   isAscending?: boolean
-  type: 'solid' | 'ordered' | 'rainbow'
 }
 
 type ChallengeSubsection = 'row' | 'column' | 'diagonal'
@@ -63,128 +62,127 @@ export default function Challenges() {
 
   useEffect(() => {
     const generatePatterns = () => {
-      console.log('Generating patterns. Games:', games)
+      console.log('Generating patterns. Games:', games, 'Challenge type:', challengeType, 'Ordered subsection:', orderedSubsection, 'Rainbow subsection:', rainbowSubsection)
       const size = 6
       const newPatterns: Pattern[] = []
 
-      // Generate solid diagonal patterns
-      for (let color = 1; color <= 6; color++) {
-        // Top-left to bottom-right
-        const tlbrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
-        const tlbrHighlight = []
-        for (let i = 0; i < size; i++) {
-          tlbrGrid[i][i] = color
-          tlbrHighlight.push(i * size + i)
+      if (challengeType === 'solid') {
+        for (let color = 1; color <= 6; color++) {
+          // Left to Right
+          const tlbrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
+          const tlbrHighlight = []
+          for (let i = 0; i < size; i++) {
+            tlbrGrid[i][i] = color
+            tlbrHighlight.push(i * size + i)
+          }
+          newPatterns.push({ 
+            grid: tlbrGrid, 
+            highlightedCells: tlbrHighlight,
+            matchedGames: [],
+            description: "Left to Right",
+            color: color
+          })
+
+          // Right to Left
+          const trblGrid = Array(size).fill(null).map(() => Array(size).fill(0))
+          const trblHighlight = []
+          for (let i = 0; i < size; i++) {
+            trblGrid[i][size - 1 - i] = color
+            trblHighlight.push(i * size + (size - 1 - i))
+          }
+          newPatterns.push({ 
+            grid: trblGrid, 
+            highlightedCells: trblHighlight,
+            matchedGames: [],
+            description: "Right to Left",
+            color: color
+          })
         }
-        newPatterns.push({ 
-          grid: tlbrGrid, 
-          highlightedCells: tlbrHighlight,
-          matchedGames: [],
-          description: "Top Left to Bottom Right",
-          color: color,
-          type: 'solid'
-        })
-
-        // Top-right to bottom-left
-        const trblGrid = Array(size).fill(null).map(() => Array(size).fill(0))
-        const trblHighlight = []
-        for (let i = 0; i < size; i++) {
-          trblGrid[i][size - 1 - i] = color
-          trblHighlight.push(i * size + (size - 1 - i))
+      } else if (challengeType === 'ordered') {
+        const generateOrderedPattern = (
+          direction: (i: number) => number,
+          description: string,
+          isBackward: boolean
+        ) => {
+          const grid = Array(size).fill(null).map(() => Array(size).fill(0))
+          const highlight = []
+          for (let i = 0; i < size; i++) {
+            const index = direction(i)
+            grid[Math.floor(index / size)][index % size] = isBackward ? size - i : i + 1
+            highlight.push(index)
+          }
+          return { grid, highlightedCells: highlight, matchedGames: [], description, color: 0, isBackward }
         }
-        newPatterns.push({ 
-          grid: trblGrid, 
-          highlightedCells: trblHighlight,
-          matchedGames: [],
-          description: "Top Right to Bottom Left",
-          color: color,
-          type: 'solid'
-        })
-      }
 
-      // Generate ordered patterns
-      const generateOrderedPattern = (
-        direction: (i: number) => number,
-        description: string,
-        isBackward: boolean
-      ) => {
-        const grid = Array(size).fill(null).map(() => Array(size).fill(0))
-        const highlight = []
-        for (let i = 0; i < size; i++) {
-          const index = direction(i)
-          grid[Math.floor(index / size)][index % size] = isBackward ? size - i : i + 1
-          highlight.push(index)
+        if (orderedSubsection === 'row' || orderedSubsection === 'column') {
+          for (let i = 0; i < size; i++) {
+            const isRow = orderedSubsection === 'row'
+            const direction = isRow
+              ? (j: number) => i * size + j
+              : (j: number) => j * size + i
+            const desc = isRow ? `Row ${i + 1}` : `Column ${i + 1}`
+            newPatterns.push(generateOrderedPattern(direction, `${desc} Forward`, false))
+            newPatterns.push(generateOrderedPattern(direction, `${desc} Backward`, true))
+          }
+        } else if (orderedSubsection === 'diagonal') {
+          newPatterns.push(generateOrderedPattern((i: number) => i * size + i, "Left to Right Forward", false))
+          newPatterns.push(generateOrderedPattern((i: number) => i * size + (size - 1 - i), "Right to Left Forward", false))
+          newPatterns.push(generateOrderedPattern((i: number) => (size - 1 - i) * size + i, "Bottom Left to Top Right Forward", true))
+          newPatterns.push(generateOrderedPattern((i: number) => (size - 1 - i) * size + (size - 1 - i), "Bottom Right to Top Left Forward", true))
         }
-        return { grid, highlightedCells: highlight, matchedGames: [], description, color: 0, isBackward, type: 'ordered' as const }
-      }
-
-      // Rows and Columns
-      for (let i = 0; i < size; i++) {
-        newPatterns.push(generateOrderedPattern((j: number) => i * size + j, `Row ${i + 1} Forward`, false))
-        newPatterns.push(generateOrderedPattern((j: number) => i * size + j, `Row ${i + 1} Backward`, true))
-        newPatterns.push(generateOrderedPattern((j: number) => j * size + i, `Column ${i + 1} Forward`, false))
-        newPatterns.push(generateOrderedPattern((j: number) => j * size + i, `Column ${i + 1} Backward`, true))
-      }
-
-      // Diagonals
-      newPatterns.push(generateOrderedPattern((i: number) => i * size + i, "Top Left to Bottom Right", false))
-      newPatterns.push(generateOrderedPattern((i: number) => i * size + (size - 1 - i), "Top Right to Bottom Left", false))
-      newPatterns.push(generateOrderedPattern((i: number) => i * size + i, "Bottom Right to Top Left", true))
-      newPatterns.push(generateOrderedPattern((i: number) => i * size + (size - 1 - i), "Bottom Left to Top Right", true))
-
-      // Generate rainbow patterns
-      const generateRainbowPattern = (
-        direction: (i: number) => number, 
-        ascending: boolean, 
-        description: string
-      ) => {
-        const grid = Array(size).fill(null).map(() => Array(size).fill(0))
-        const highlight = []
-        for (let i = 0; i < size; i++) {
-          const index = direction(i)
-          grid[Math.floor(index / size)][index % size] = [1, 6, 3, 4, 2, 5][ascending ? i : 5 - i]
-          highlight.push(index)
+      } else if (challengeType === 'rainbow') {
+        const generateRainbowPattern = (
+          direction: (i: number) => number, 
+          ascending: boolean, 
+          description: string
+        ) => {
+          const grid = Array(size).fill(null).map(() => Array(size).fill(0))
+          const highlight = []
+          const rainbowOrder = [1, 6, 3, 4, 2, 5]
+          for (let i = 0; i < size; i++) {
+            const index = direction(i)
+            grid[Math.floor(index / size)][index % size] = rainbowOrder[ascending ? i : 5 - i]
+            highlight.push(index)
+          }
+          return { grid, highlightedCells: highlight, matchedGames: [], description: `${description} ${ascending ? 'Forward' : 'Backward'}`, color: 0, isAscending: ascending }
         }
-        return { grid, highlightedCells: highlight, matchedGames: [], description: `${description} ${ascending ? 'Forward' : 'Backward'}`, color: 0, isAscending: ascending, type: 'rainbow' as const }
-      }
 
-      // Rows and Columns
-      for (let i = 0; i < size; i++) {
-        newPatterns.push(generateRainbowPattern((j: number) => i * size + j, true, `Row ${i + 1}`))
-        newPatterns.push(generateRainbowPattern((j: number) => i * size + j, false, `Row ${i + 1}`))
-        newPatterns.push(generateRainbowPattern((j: number) => j * size + i, true, `Column ${i + 1}`))
-        newPatterns.push(generateRainbowPattern((j: number) => j * size + i, false, `Column ${i + 1}`))
+        if (rainbowSubsection === 'row' || rainbowSubsection === 'column') {
+          for (let i = 0; i < size; i++) {
+            const isRow = rainbowSubsection === 'row'
+            const direction = isRow
+              ? (j: number) => i * size + j
+              : (j: number) => j * size + i
+            const desc = isRow ? `Row ${i + 1}` : `Column ${i + 1}`
+            newPatterns.push(generateRainbowPattern(direction, true, desc))
+            newPatterns.push(generateRainbowPattern(direction, false, desc))
+          }
+        } else if (rainbowSubsection === 'diagonal') {
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + i, true, "Left to Right"))
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + i, false, "Left to Right"))
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), true, "Right to Left"))
+          newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), false, "Right to Left"))
+        }
       }
-
-      // Diagonals
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, true, "Top Left to Bottom Right"))
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), true, "Top Right to Bottom Left"))
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, false, "Bottom Right to Top Left"))
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), false, "Bottom Left to Top Right"))
 
       // Match games to patterns
       games.forEach(game => {
-        ['solid', 'ordered', 'rainbow'].forEach(type => {
-          const gamePatterns = PatternDetector.detectPatterns(
-            game.grid, 
-            type as 'solid' | 'ordered' | 'rainbow',
-            type === 'ordered' ? orderedSubsection : type === 'rainbow' ? rainbowSubsection : undefined
-          )
-          gamePatterns.forEach(patternCells => {
-            const matchingPattern = newPatterns.find(p => 
-              p.type === type &&
-              p.highlightedCells.every(cell => patternCells.includes(cell)) &&
-              (type === 'rainbow' || 
-               (type === 'ordered' && p.grid.flat().every((value, index) => 
-                 value === game.grid[Math.floor(index / size)][index % size]
-               )) ||
-               (type === 'solid' && game.grid[Math.floor(patternCells[0] / size)][patternCells[0] % size] === p.color))
+        const gamePatterns = PatternDetector.detectPatterns(
+          game.grid,
+          challengeType,
+          challengeType === 'ordered' ? orderedSubsection : (challengeType === 'rainbow' ? rainbowSubsection : undefined)
+        )
+        gamePatterns.forEach(patternCells => {
+          const matchingPattern = newPatterns.find(p => 
+            p.highlightedCells.every(cell => patternCells.includes(cell)) &&
+            p.grid.flat().every((value, index) => 
+              value === 0 || value === game.grid[Math.floor(index / size)][index % size]
             )
-            if (matchingPattern) {
-              matchingPattern.matchedGames.push(game)
-              matchingPattern.grid = game.grid // Update the grid with the winning board
-            }
-          })
+          )
+          if (matchingPattern) {
+            matchingPattern.matchedGames.push(game)
+            matchingPattern.grid = game.grid // Update the grid with the winning board
+          }
         })
       })
 
@@ -206,12 +204,24 @@ export default function Challenges() {
     }
 
     generatePatterns()
-  }, [games, orderedSubsection, rainbowSubsection])
+  }, [games, challengeType, orderedSubsection, rainbowSubsection])
+
+  useEffect(() => {
+    console.log('Rendering Challenges. Patterns:', patterns, 'Challenge type:', challengeType, 'Ordered subsection:', orderedSubsection, 'Rainbow subsection:', rainbowSubsection)
+  }, [patterns, challengeType, orderedSubsection, rainbowSubsection])
+
+  if (isLoading) {
+    return <div className="text-center py-8 text-white">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>
+  }
 
   const getFoundCounterText = () => {
-    const solidCount = patterns.filter(p => p.matchedGames.length > 0 && p.type === 'solid').length;
-    const orderedCount = patterns.filter(p => p.matchedGames.length > 0 && p.type === 'ordered').length;
-    const rainbowCount = patterns.filter(p => p.matchedGames.length > 0 && p.type === 'rainbow').length;
+    const solidCount = patterns.filter(p => p.matchedGames.length > 0 && p.color !== 0).length;
+    const orderedCount = patterns.filter(p => p.matchedGames.length > 0 && p.color === 0 && !p.isAscending).length;
+    const rainbowCount = patterns.filter(p => p.matchedGames.length > 0 && p.color === 0 && p.isAscending !== undefined).length;
     const totalCount = solidCount + orderedCount + rainbowCount;
     const totalPatterns = 12 + 28 + 28; // 12 solid, 28 ordered, 28 rainbow
 
@@ -233,14 +243,6 @@ export default function Challenges() {
       case 6: return 'bg-orange-500'
       default: return 'bg-gray-500'
     }
-  }
-
-  if (isLoading) {
-    return <div className="text-center py-8 text-white">Loading...</div>
-  }
-
-  if (error) {
-    return <div className="text-center py-8 text-red-500">{error}</div>
   }
 
   return (
@@ -269,7 +271,7 @@ export default function Challenges() {
             onClick={() => setChallengeType('ordered')}
             className={`${
               challengeType === 'ordered'
-                ? 'bg-purple-500 hover:bg-purple-600 text-white'
+                ? 'bg-gradient-to-r from-red-500 via-blue-500 via-yellow-500 via-green-500 via-purple-500 to-orange-500 text-white'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
@@ -298,12 +300,11 @@ export default function Challenges() {
             <Label htmlFor="ordered-row" className="text-white">Rows</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="column" id="ordered-column" className="border-white text-white" />
+            <RadioGroupItem value="column"   id="ordered-column" className="border-white text-white" />
             <Label htmlFor="ordered-column" className="text-white">Columns</Label>
           </div>
           <div className="flex items-center space-x-2">
-            
-            <RadioGroupItem value="diagonal" id="ordered-diagonal" className="border-white  text-white" />
+            <RadioGroupItem value="diagonal" id="ordered-diagonal" className="border-white text-white" />
             <Label htmlFor="ordered-diagonal" className="text-white">Diagonals</Label>
           </div>
         </RadioGroup>
@@ -329,14 +330,7 @@ export default function Challenges() {
         </RadioGroup>
       )}
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
-        {patterns
-          .filter(pattern => pattern.type === challengeType)
-          .filter(pattern => 
-            challengeType === 'solid' || 
-            (challengeType === 'ordered' && pattern.description.toLowerCase().includes(orderedSubsection)) ||
-            (challengeType === 'rainbow' && pattern.description.toLowerCase().includes(rainbowSubsection))
-          )
-          .map((pattern, index): ReactNode => (
+        {patterns.map((pattern, index): ReactNode => (
           <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
             <CardContent className="p-4 pt-6">
               {challengeType === 'solid' && (
@@ -345,7 +339,7 @@ export default function Challenges() {
                 </div>
               )}
               {challengeType === 'ordered' && (
-                <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-purple-500">
+                <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-blue-500 via-yellow-500 via-green-500 via-purple-500 to-orange-500">
                   Ordered
                 </div>
               )}
