@@ -60,8 +60,8 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
     const colors = {
       discovered: { light: 'bg-orange-500', dark: 'bg-slate-950' },
       leaderboard: { light: 'bg-green-500', dark: 'bg-slate-950' },
-      learning: { light: 'bg-purple-500', dark: 'bg-slate-950' },
-      profile: { light: 'bg-blue-500', dark: 'bg-slate-950' },
+      learning: { light: 'bg-blue-500', dark: 'bg-slate-950' },
+      profile: { light: 'bg-purple-500', dark: 'bg-slate-950' },
       challenges: { light: 'bg-yellow-400', dark: 'bg-slate-950' },
     }
 
@@ -123,20 +123,20 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               variant="ghost"
               size="icon"
               className="rounded-full p-2 shadow-md transition-colors duration-200 bg-blue-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-blue-500"
-              onClick={() => toggleOverlay('profile')}
-              aria-label="View User Profile"
+              onClick={() => toggleOverlay('learning')}
+              aria-label="Go to Learning Mode"
             >
-              <User className="h-6 w-6" />
+              <HelpCircle className="h-6 w-6" />
             </Button>
             
             <Button
               variant="ghost"
               size="icon"
               className="rounded-full p-2 shadow-md transition-colors duration-200 bg-purple-500 hover:bg-white dark:hover:bg-gray-700 text-white hover:text-purple-500"
-              onClick={() => toggleOverlay('learning')}
-              aria-label="Go to Learning Mode"
+              onClick={() => toggleOverlay('profile')}
+              aria-label="View User Profile"
             >
-              <HelpCircle className="h-6 w-6" />
+              <User className="h-6 w-6" />
             </Button>
           </div>
         </div>
