@@ -273,12 +273,12 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
             <div className="p-2 rounded-t-lg bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500">
               <span className="font-bold text-white">{entry?.username || 'Anonymous'}</span>
             </div>
-            <div className={`${textColor} p-2`}>
+            <div className={`${textColor} pt-2`}>
               {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} - Best {type === "moves" ? "Moves" : "Time"}
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-4 flex-grow flex flex-col justify-between">
+        <CardContent className="pb-4 pt-2 flex-grow flex flex-col justify-between">
           <div className="space-y-2">
             <p>
               <span className="font-semibold">{type === "moves" ? "Moves:" : "Time:"}</span> {type === "moves" ? entry?.moves : (entry ? formatTime(entry.time) : 'N/A')}
@@ -337,24 +337,28 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           <Button
             onClick={() => handleDifficultyChange('all')}
             variant={difficulty === 'all' ? 'default' : 'outline'}
+            className={difficulty === 'all' ? 'bg-blue-500 hover:bg-blue-600' : ''}
           >
             All
           </Button>
           <Button
             onClick={() => handleDifficultyChange('easy')}
             variant={difficulty === 'easy' ? 'default' : 'outline'}
+            className={difficulty === 'easy' ? 'bg-green-500 hover:bg-green-600' : ''}
           >
             Easy
           </Button>
           <Button
             onClick={() => handleDifficultyChange('medium')}
             variant={difficulty === 'medium' ? 'default' : 'outline'}
+            className={difficulty === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : ''}
           >
             Medium
           </Button>
           <Button
             onClick={() => handleDifficultyChange('hard')}
             variant={difficulty === 'hard' ? 'default' : 'outline'}
+            className={difficulty === 'hard' ? 'bg-red-500 hover:bg-red-600' : ''}
           >
             Hard
           </Button>

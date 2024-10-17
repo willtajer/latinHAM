@@ -313,28 +313,28 @@ export function UserProfile() {
           <Button
             onClick={() => setDifficultyFilter('all')}
             variant={difficultyFilter === 'all' ? 'default' : 'outline'}
-            className={difficultyFilter === 'all' ? '' : 'text-foreground'}
+            className={`${difficultyFilter === 'all' ? 'bg-blue-500 hover:bg-blue-600' : 'text-foreground'}`}
           >
             All
           </Button>
           <Button
             onClick={() => setDifficultyFilter('easy')}
             variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
-            className={difficultyFilter === 'easy' ? '' : 'text-foreground'}
+            className={`${difficultyFilter === 'easy' ? 'bg-green-500 hover:bg-green-600' : 'text-foreground'}`}
           >
             Easy
           </Button>
           <Button
             onClick={() => setDifficultyFilter('medium')}
             variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
-            className={difficultyFilter === 'medium' ? '' : 'text-foreground'}
+            className={`${difficultyFilter === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : 'text-foreground'}`}
           >
             Medium
           </Button>
           <Button
             onClick={() => setDifficultyFilter('hard')}
             variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
-            className={difficultyFilter === 'hard' ? '' :   'text-foreground'}
+            className={`${difficultyFilter === 'hard' ? 'bg-red-500 hover:bg-red-600' : 'text-foreground'}`}
           >
             Hard
           </Button>
