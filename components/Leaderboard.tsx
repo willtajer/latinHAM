@@ -118,9 +118,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
   }, [])
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}m ${remainingSeconds}s`
+    return `${seconds.toFixed(2)}s`
   }
 
   const handleSort = (column: 'moves' | 'date' | 'hints' | 'duration' | 'difficulty' | 'username') => {
@@ -281,10 +279,16 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
         <CardContent className="pb-4 pt-2 flex-grow flex flex-col justify-between">
           <div className="space-y-2">
             <p>
-              <span className="font-semibold">{type === "moves" ? "Moves:" : "Time:"}</span> {type === "moves" ? entry?.moves : (entry ? formatTime(entry.time) : 'N/A')}
+              <span className="font-semibold">Moves:</span>{' '}
+              <span className={type === "moves" ? "text-yellow-500 font-bold" : ""}>
+                {entry?.moves}
+              </span>
             </p>
             <p>
-              <span className="font-semibold">{type === "moves" ? "Time:" : "Moves:"}</span> {type === "moves" ? (entry ? formatTime(entry.time) : 'N/A') : entry?.moves}
+              <span className="font-semibold">Time:</span>{' '}
+              <span className={type === "time" ? "text-yellow-500 font-bold" : ""}>
+                {entry ? formatTime(entry.time) : 'N/A'}
+              </span>
             </p>
           </div>
           <p className="italic mt-2 text-sm">
@@ -319,7 +323,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-6">
         <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
           {renderBestPerformanceCard("easy", "moves")}
-          {renderBestPerformanceCard("easy", "time")}
+          {renderBestPerformanceCard("easy",   "time")}
         </div>
         <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
           {renderBestPerformanceCard("medium", "moves")}
@@ -378,7 +382,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">{formatTime(Math.round(averages.duration))}</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">{formatTime(averages.duration)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Hints</p>
