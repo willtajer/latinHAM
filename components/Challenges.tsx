@@ -127,10 +127,10 @@ export default function Challenges() {
       }
 
       // Diagonals
-      newPatterns.push(generateOrderedPattern((i: number) => i * size + i, "Left to Right Forward", false))
-      newPatterns.push(generateOrderedPattern((i: number) => i * size + (size - 1 - i), "Right to Left Forward", false))
-      newPatterns.push(generateOrderedPattern((i: number) => (size - 1 - i) * size + i, "Bottom Left to Top Right Forward", true))
-      newPatterns.push(generateOrderedPattern((i: number) => (size - 1 - i) * size + (size - 1 - i), "Bottom Right to Top Left Forward", true))
+      newPatterns.push(generateOrderedPattern((i: number) => i * size + i, "Top Left to Bottom Right", false))
+      newPatterns.push(generateOrderedPattern((i: number) => i * size + (size - 1 - i), "Top Right to Bottom Left", false))
+      newPatterns.push(generateOrderedPattern((i: number) => i * size + i, "Bottom Right to Top Left", true))
+      newPatterns.push(generateOrderedPattern((i: number) => i * size + (size - 1 - i), "Bottom Left to Top Right", true))
 
       // Generate rainbow patterns
       const generateRainbowPattern = (
@@ -157,15 +157,19 @@ export default function Challenges() {
       }
 
       // Diagonals
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, true, "Left to Right"))
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, false, "Left to Right"))
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), true, "Right to Left"))
-      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), false, "Right to Left"))
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, true, "Top Left to Bottom Right"))
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), true, "Top Right to Bottom Left"))
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + i, false, "Bottom Right to Top Left"))
+      newPatterns.push(generateRainbowPattern((i: number) => i * size + (size - 1 - i), false, "Bottom Left to Top Right"))
 
       // Match games to patterns
       games.forEach(game => {
         ['solid', 'ordered', 'rainbow'].forEach(type => {
-          const gamePatterns = PatternDetector.detectPatterns(game.grid, type as 'solid' | 'ordered' | 'rainbow')
+          const gamePatterns = PatternDetector.detectPatterns(
+            game.grid, 
+            type as 'solid' | 'ordered' | 'rainbow',
+            type === 'ordered' ? orderedSubsection : type === 'rainbow' ? rainbowSubsection : undefined
+          )
           gamePatterns.forEach(patternCells => {
             const matchingPattern = newPatterns.find(p => 
               p.type === type &&
@@ -202,7 +206,7 @@ export default function Challenges() {
     }
 
     generatePatterns()
-  }, [games])
+  }, [games, orderedSubsection, rainbowSubsection])
 
   const getFoundCounterText = () => {
     const solidCount = patterns.filter(p => p.matchedGames.length > 0 && p.type === 'solid').length;
