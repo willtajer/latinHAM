@@ -332,7 +332,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
       </div>
 
       <div className="text-center mb-6">
-        <h2 className="font-bold text-3xl p-4 text-gray-900 dark:text-white">Game History</h2>
+        <h2 className="font-bold text-3xl p-4 text-white">Game History</h2>
         <div className="flex justify-center space-x-2 mb-6">
           <Button
             onClick={() => handleDifficultyChange('all')}
