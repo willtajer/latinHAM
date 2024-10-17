@@ -251,6 +251,11 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
                     Challenges
                   </h1>
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-[calc(6*3rem+6*0.75rem)]">
+                      <GamePreview />
+                    </div>
+                  </div>
                   <Challenges />
                 </div>
               )}

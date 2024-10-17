@@ -19,9 +19,13 @@ interface Pattern {
   highlightedCells: number[]
   matchedGame?: Game
   description: string
+  color: number
+  isAscending?: boolean
 }
 
 type RainbowSubsection = 'row' | 'column' | 'diagonal'
+
+const colorNames = ['', 'Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange']
 
 export default function Challenges() {
   const [games, setGames] = useState<Game[]>([])
@@ -30,6 +34,7 @@ export default function Challenges() {
   const [patterns, setPatterns] = useState<Pattern[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [timeUntilReset, setTimeUntilReset] = useState<string>('')
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -51,6 +56,27 @@ export default function Challenges() {
   }, [])
 
   useEffect(() => {
+    const calculateTimeUntilReset = () => {
+      const now = new Date()
+      const nextSunday = new Date(now)
+      nextSunday.setUTCDate(now.getUTCDate() + (7 - now.getUTCDay()) % 7)
+      nextSunday.setUTCHours(17, 0, 0, 0) // 17:00 UTC is midnight Bangkok time
+
+      const timeDiff = nextSunday.getTime() - now.getTime()
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))
+
+      setTimeUntilReset(`${days}d ${hours}h ${minutes}m`)
+    }
+
+    calculateTimeUntilReset()
+    const timer = setInterval(calculateTimeUntilReset, 60000) // Update every minute
+
+    return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
     const generatePatterns = () => {
       const size = 6
       const newPatterns: Pattern[] = []
@@ -68,7 +94,8 @@ export default function Challenges() {
           newPatterns.push({ 
             grid: tlbrGrid, 
             highlightedCells: tlbrHighlight,
-            description: "Top Left to Bottom Right"
+            description: "Top Left to Bottom Right",
+            color: color
           })
 
           // Top-right to bottom-left
@@ -81,7 +108,8 @@ export default function Challenges() {
           newPatterns.push({ 
             grid: trblGrid, 
             highlightedCells: trblHighlight,
-            description: "Top Right to Bottom Left"
+            description: "Top Right to Bottom Left",
+            color: color
           })
         }
       } else {
@@ -98,7 +126,7 @@ export default function Challenges() {
             grid[Math.floor(index / size)][index % size] = ascending ? i + 1 : size - i
             highlight.push(index)
           }
-          return { grid, highlightedCells: highlight, description }
+          return { grid, highlightedCells: highlight, description, color: 0, isAscending: ascending }
         }
 
         if (rainbowSubsection === 'row' || rainbowSubsection === 'column') {
@@ -124,7 +152,8 @@ export default function Challenges() {
         const gamePatterns = PatternDetector.detectPatterns(game.grid, challengeType)
         gamePatterns.forEach(patternCells => {
           const matchingPattern = newPatterns.find(p => 
-            p.highlightedCells.every(cell => patternCells.includes(cell))
+            p.highlightedCells.every(cell => patternCells.includes(cell)) &&
+            (challengeType === 'rainbow' || game.grid[Math.floor(patternCells[0] / size)][patternCells[0] % size] === p.color)
           )
           if (matchingPattern) {
             matchingPattern.grid = game.grid
@@ -166,12 +195,32 @@ export default function Challenges() {
     }
   }
 
+  const getColorClass = (color: number) => {
+    switch (color) {
+      case 1: return 'bg-red-500'
+      case 2: return 'bg-blue-500'
+      case 3: return 'bg-green-500'
+      case 4: return 'bg-yellow-500'
+      case 5: return 'bg-purple-500'
+      case 6: return 'bg-orange-500'
+      default: return 'bg-gray-500'
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-center space-y-4">
-        <div className="text-white text-lg">
+      <div className="text-center space-y-2">
+        <p className="text-white text-lg">
+          Discover unique LatinHAM patterns from your completed games!
+        </p>
+        <p className="text-white text-lg font-bold">
           {getFoundCounterText()}
-        </div>
+        </p>
+        <p className="text-white text-md">
+          Time until weekly reset: {timeUntilReset}
+        </p>
+      </div>
+      <div className="flex flex-col items-center space-y-4">
         <div className="flex space-x-4">
           <Button
             onClick={() => setChallengeType('solid')}
@@ -217,9 +266,18 @@ export default function Challenges() {
       )}
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
         {patterns.map((pattern, index) => (
-          <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px]">
-            <CardContent className="p-0">
-              <div className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2 text-center">
+          <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-hidden">
+            <CardContent className="p-4 pt-6 relative">
+              {challengeType === 'solid' ? (
+                <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)}`}>
+                  Solid {colorNames[pattern.color]}
+                </div>
+              ) : (
+                <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500">
+                  {pattern.isAscending ? 'Rainbow' : 'Backwards Rainbow'}
+                </div>
+              )}
+              <div className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2 mt-1 text-center">
                 {pattern.description}
               </div>
               <div className="aspect-square mb-4">
