@@ -9,7 +9,7 @@ interface PatternDetectorProps {
 }
 
 interface PatternDetectorComponent extends React.FC<PatternDetectorProps> {
-  detectPatterns: (board: Board, type: 'solid' | 'rainbow') => number[][]
+  detectPatterns: (board: Board, type: 'solid' | 'rainbow', rainbowSubsection?: 'row' | 'column' | 'diagonal') => number[][]
 }
 
 const PatternDetector: PatternDetectorComponent = ({ board, highlightedCells = [] }) => {
@@ -33,7 +33,7 @@ const PatternDetector: PatternDetectorComponent = ({ board, highlightedCells = [
   )
 }
 
-PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'rainbow'): number[][] => {
+PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'rainbow', rainbowSubsection?: 'row' | 'column' | 'diagonal'): number[][] => {
   const size = board.length
 
   const detectSolidDiagonals = (board: Board): number[][] => {
@@ -53,16 +53,23 @@ PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'rainbow'): numb
     }).filter(pattern => pattern.length > 0)
   }
 
-  const detectRainbowLines = (board: Board): number[][] => {
-    const lines = [
-      // Rows
-      ...board,
-      // Columns
-      ...Array(size).fill(0).map((_, i) => board.map(row => row[i])),
-      // Main diagonals
-      Array(size).fill(0).map((_, i) => board[i][i]),
-      Array(size).fill(0).map((_, i) => board[i][size - 1 - i])
-    ]
+  const detectRainbowLines = (board: Board, subsection?: 'row' | 'column' | 'diagonal'): number[][] => {
+    let lines: number[][] = []
+
+    if (subsection === 'row' || !subsection) {
+      lines.push(...board)
+    }
+
+    if (subsection === 'column' || !subsection) {
+      lines.push(...Array(size).fill(0).map((_, i) => board.map(row => row[i])))
+    }
+
+    if (subsection === 'diagonal' || !subsection) {
+      lines.push(
+        Array(size).fill(0).map((_, i) => board[i][i]),
+        Array(size).fill(0).map((_, i) => board[i][size - 1 - i])
+      )
+    }
 
     const isRainbowOrder = (line: number[]) => {
       const nonZeroLine = line.filter(cell => cell !== 0)
@@ -75,10 +82,10 @@ PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'rainbow'): numb
 
     return lines.map((line, i) => {
       if (isRainbowOrder(line)) {
-        if (i < size) {
+        if (subsection === 'row' || (!subsection && i < size)) {
           // Row
           return Array(size).fill(0).map((_, j) => i * size + j)
-        } else if (i < size * 2) {
+        } else if (subsection === 'column' || (!subsection && i < size * 2)) {
           // Column
           return Array(size).fill(0).map((_, j) => (i - size) + j * size)
         } else {
@@ -90,7 +97,7 @@ PatternDetector.detectPatterns = (board: Board, type: 'solid' | 'rainbow'): numb
     }).filter(pattern => pattern.length > 0)
   }
 
-  return type === 'solid' ? detectSolidDiagonals(board) : detectRainbowLines(board)
+  return type === 'solid' ? detectSolidDiagonals(board) : detectRainbowLines(board, rainbowSubsection)
 }
 
 export default PatternDetector

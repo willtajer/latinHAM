@@ -134,12 +134,13 @@ export default function Challenges() {
 
         if (rainbowSubsection === 'row' || rainbowSubsection === 'column') {
           for (let i = 0; i < size; i++) {
-            const rowDirection = rainbowSubsection === 'row'
+            const isRow = rainbowSubsection === 'row'
+            const direction = isRow
               ? (j: number) => i * size + j
               : (j: number) => j * size + i
-            const rowDesc = rainbowSubsection === 'row' ? `Row ${i + 1}` : `Column ${i + 1}`
-            newPatterns.push(generateRainbowPattern(rowDirection, true, `${rowDesc} Left to Right`))
-            newPatterns.push(generateRainbowPattern(rowDirection, false, `${rowDesc} Right to Left`))
+            const desc = isRow ? `Row ${i + 1}` : `Column ${i + 1}`
+            newPatterns.push(generateRainbowPattern(direction, true, `${desc} ${isRow ? 'Left to Right' : 'Top to Bottom'}`))
+            newPatterns.push(generateRainbowPattern(direction, false, `${desc} ${isRow ? 'Right to Left' : 'Bottom to Top'}`))
           }
         } else if (rainbowSubsection === 'diagonal') {
           // Main diagonals
@@ -152,7 +153,7 @@ export default function Challenges() {
 
       // Match games to patterns
       games.forEach(game => {
-        const gamePatterns = PatternDetector.detectPatterns(game.grid, challengeType)
+        const gamePatterns = PatternDetector.detectPatterns(game.grid, challengeType, rainbowSubsection)
         gamePatterns.forEach(patternCells => {
           const matchingPattern = newPatterns.find(p => 
             p.highlightedCells.every(cell => patternCells.includes(cell)) &&
@@ -207,8 +208,8 @@ export default function Challenges() {
     switch (color) {
       case 1: return 'bg-red-500'
       case 2: return 'bg-blue-500'
-      case 3: return 'bg-yellow-500'  // Changed from green to yellow
-      case 4: return 'bg-green-500'   // Changed from yellow to green
+      case 3: return 'bg-yellow-500'
+      case 4: return 'bg-green-500'
       case 5: return 'bg-purple-500'
       case 6: return 'bg-orange-500'
       default: return 'bg-gray-500'
