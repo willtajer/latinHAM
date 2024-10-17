@@ -45,7 +45,8 @@ export default function Challenges() {
         }
         const data = await response.json()
         setGames(data.games || [])
-      } catch (err) {
+      } catch (error) {
+        console.error('Error fetching games:', error)
         setError('Failed to load games. Please try again later.')
       } finally {
         setIsLoading(false)
@@ -133,7 +134,7 @@ export default function Challenges() {
           for (let i = 0; i < size; i++) {
             const rowDirection = rainbowSubsection === 'row'
               ? (_: number, j: number) => i * size + j
-              : (_: number, j: number) => j * size + i
+              : (j: number, _: number) => j * size + i
             const rowDesc = rainbowSubsection === 'row' ? `Row ${i + 1}` : `Column ${i + 1}`
             newPatterns.push(generateRainbowPattern(rowDirection, true, `${rowDesc} Left to Right`))
             newPatterns.push(generateRainbowPattern(rowDirection, false, `${rowDesc} Right to Left`))
@@ -213,11 +214,11 @@ export default function Challenges() {
         <p className="text-white text-lg">
           Discover unique LatinHAM patterns from your completed games!
         </p>
-        <p className="text-white text-lg font-bold">
-          {getFoundCounterText()}
-        </p>
         <p className="text-white text-md">
           Time until weekly reset: {timeUntilReset}
+        </p>
+        <p className="text-white text-lg font-bold">
+          {getFoundCounterText()}
         </p>
       </div>
       <div className="flex flex-col items-center space-y-4">
