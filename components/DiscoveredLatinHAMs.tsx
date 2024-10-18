@@ -53,8 +53,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<DiscoveredLatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
-  const { user } = useUser()
-
+  
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
