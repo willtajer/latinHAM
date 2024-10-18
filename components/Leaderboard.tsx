@@ -163,7 +163,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
         default:
           compareValue = new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
       }
-      return sortDirection === 'asc' ? compareValue : -compareValue
+      return sortDirection === 'desc' ? compareValue : -compareValue;
     });
   }, [rankedEntries, sortColumn, sortDirection]);
 
