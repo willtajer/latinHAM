@@ -17,7 +17,6 @@ import { Label } from "@/components/ui/label"
 import { GamePreview } from './GamePreview'
 import { TooltipProps } from 'recharts'
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
-import Link from 'next/link'
 import { SignInButton } from '@clerk/nextjs'
 
 interface GameEntry {
@@ -293,10 +292,10 @@ export function UserProfile() {
 
   if (!user) {
     return (
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6 text-center">
-          <h2 className="text-2xl font-bold mb-4">Create a Profile</h2>
-          <p className="mb-6">To create a profile and track your game history, you need to sign in.</p>
+          <h2 className="text-2xl font-bold mb-4">Create Your Profile</h2>
+          <p className="mb-6">Sign in to track your game history and compete on the leaderboard!</p>
           <SignInButton>
             <Button>Sign In</Button>
           </SignInButton>
