@@ -174,6 +174,7 @@ export default function Challenges() {
         )
         gamePatterns.forEach(patternCells => {
           const matchingPattern = newPatterns.find(p => 
+            p.patternType === patternType &&
             p.highlightedCells.every(cell => patternCells.includes(cell)) &&
             p.grid.flat().every((value, index) => 
               value === 0 || value === game.grid[Math.floor(index / size)][index % size]
@@ -302,8 +303,8 @@ export default function Challenges() {
         <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
           {pattern.matchedGames.length > 0 ? (
             <>
-              <p><strong>Difficulty:</strong> {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + 
- pattern.matchedGames[0].difficulty.slice(1)}</p>
+              <p><strong>Difficulty:</strong> 
+ {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + pattern.matchedGames[0].difficulty.slice(1)}</p>
               <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
               <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
               <p><strong>Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
@@ -322,7 +323,7 @@ export default function Challenges() {
         Discover unique LatinHAM patterns from your completed games!
       </p>
       <div className="flex flex-col items-center space-y-4">
-        <Button
+        {/* <Button
           onClick={() => setChallengeType('my-patterns')}
           className={`${
             challengeType === 'my-patterns'
@@ -331,7 +332,7 @@ export default function Challenges() {
           } transition-colors duration-200 px-6 w-64`}
         >
           My Patterns - {foundCounterText.myPatterns}
-        </Button>
+        </Button> */}
         <div className="flex space-x-4">
           <Button
             onClick={() => setChallengeType('solid')}
