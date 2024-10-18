@@ -30,6 +30,7 @@ interface LeaderboardEntry {
   time: number;
   hints: number;
   grid: number[][];
+  initialGrid: number[][]; // Added this line
   quote: string;
   timestamp: string;
 }
@@ -320,7 +321,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-500">{error}</div>
+    return <div  className="text-center py-8 text-red-500">{error}</div>
   }
 
   return (
@@ -613,7 +614,10 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
           </DialogHeader>
           {selectedGame && (
             <CompletedPuzzleCard
-              entry={selectedGame}
+              entry={{
+                ...selectedGame,
+                initialGrid: selectedGame.initialGrid || selectedGame.grid, // Use initialGrid if available, otherwise fallback to grid
+              }}
               difficulty={selectedGame.difficulty}
               gameNumber={entries.findIndex((game) => game.id === selectedGame.id) + 1}
               onImageReady={(file: File) => {
