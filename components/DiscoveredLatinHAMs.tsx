@@ -6,7 +6,6 @@ import LatinHAMLeaderboard from './LatinHAMLeaderboard'
 import { DiscoveredLatinHAM } from '@/types'
 import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
-import { useUser } from '@clerk/nextjs'
 import { calculateSolveCount } from '../utils/solveCountLogic'
 import { RefreshCw } from 'lucide-react'
 
@@ -53,7 +52,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const [isLoading, setIsLoading] = useState(true)
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<DiscoveredLatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
-  
+
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
