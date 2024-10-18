@@ -254,6 +254,10 @@ export default function Challenges() {
     return <div className="text-center py-8 text-white">Loading...</div>
   }
 
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>
+  }
+
   const getColorClass = (color: number) => {
     switch (color) {
       case 1: return 'bg-red-500'
@@ -324,7 +328,7 @@ export default function Challenges() {
                 <p><strong>Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
               </>
             ) : (
-              <p className="text-center">Unfound LatinHAM</p>
+              <p  className="text-center">Unfound LatinHAM</p>
             )
           ) : (
             <p className="text-center">Sign in to track your patterns!</p>
