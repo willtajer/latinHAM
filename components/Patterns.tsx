@@ -77,7 +77,7 @@ export default function Challenges() {
 
     const generateSolidPatterns = () => {
       for (let color = 1; color <= 6; color++) {
-        // Left to Right
+        // Top to Bottom (Top Left to Bottom Right)
         const tlbrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
         const tlbrHighlight = []
         for (let i = 0; i < size; i++) {
@@ -88,23 +88,23 @@ export default function Challenges() {
           grid: tlbrGrid, 
           highlightedCells: tlbrHighlight,
           matchedGames: [],
-          description: "Left to Right",
+          description: "Top to Bottom",
           color: color,
           patternType: 'solid'
         })
 
-        // Right to Left
-        const trblGrid = Array(size).fill(null).map(() => Array(size).fill(0))
-        const trblHighlight = []
+        // Bottom to Top (Bottom Left to Top Right)
+        const bltrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
+        const bltrHighlight = []
         for (let i = 0; i < size; i++) {
-          trblGrid[i][size - 1 - i] = color
-          trblHighlight.push(i * size + (size - 1 - i))
+          bltrGrid[size - 1 - i][i] = color
+          bltrHighlight.push((size - 1 - i) * size + i)
         }
         newPatterns.push({ 
-          grid: trblGrid, 
-          highlightedCells: trblHighlight,
+          grid: bltrGrid, 
+          highlightedCells: bltrHighlight,
           matchedGames: [],
-          description: "Right to Left",
+          description: "Bottom to Top",
           color: color,
           patternType: 'solid'
         })
@@ -151,10 +151,10 @@ export default function Challenges() {
           newPatterns.push(generatePattern(direction, `${desc} Backward`, true, false))
         }
       } else if (subsection === 'diagonal') {
-        newPatterns.push(generatePattern((i: number) => i * size + i, "Left to Right Forward", false, true))
-        newPatterns.push(generatePattern((i: number) => i * size + (size - 1 - i), "Right to Left Forward", false, true))
-        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom Left to Top Right Forward", true, false))
-        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + (size - 1 - i), "Bottom Right to Top Left Forward", true, false))
+        newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Forward", false, true))
+        newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Backward", true, false))
+        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Forward", false, true))
+        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Backward", true, false))
       }
     }
 
@@ -192,10 +192,9 @@ export default function Challenges() {
               )
             )
             matchingPatterns.forEach(matchingPattern => {
-              if (!matchingPattern.matchedGames.some(g => g.id === game.id)) {
-                matchingPattern.matchedGames.push(game)
-                matchingPattern.grid = game.grid // Update the grid with the winning board
-              }
+              // Remove the check for duplicates to allow multiple instances of the same game
+              matchingPattern.matchedGames.push(game)
+              matchingPattern.grid = game.grid // Update the grid with the winning board
             })
           })
         })
@@ -323,8 +322,8 @@ export default function Challenges() {
             pattern.matchedGames.length > 0 ? (
               <>
                 <p><strong>Difficulty:</strong> 
-                {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + 
                 
+                {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + 
                 pattern.matchedGames[0].difficulty.slice(1)}</p>
                 <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
                 <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
