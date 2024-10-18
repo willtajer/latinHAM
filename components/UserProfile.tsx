@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { GamePreview } from './GamePreview'
 import { TooltipProps } from 'recharts'
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
+import Link from 'next/link'
 
 interface GameEntry {
   id: string
@@ -98,7 +99,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, x
 };
 
 export function UserProfile() {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const [profileData, setProfileData] = useState<UserProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -113,7 +114,10 @@ export function UserProfile() {
 
   useEffect(() => {
     async function fetchUserProfile() {
-      if (!user) return
+      if (!user) {
+        setIsLoading(false)
+        return
+      }
 
       try {
         const response = await fetch(`/api/user-profile?userId=${user.id}`)
@@ -138,8 +142,10 @@ export function UserProfile() {
       }
     }
 
-    fetchUserProfile()
-  }, [user])
+    if (isLoaded) {
+      fetchUserProfile()
+    }
+  }, [user, isLoaded])
 
   const ensureGrid2D = (grid: number[] | number[][]): number[][] => {
     if (Array.isArray(grid[0])) {
@@ -280,8 +286,22 @@ export function UserProfile() {
     }
   }, [chartData, xAxisView])
 
-  if (isLoading) {
+  if (!isLoaded || isLoading) {
     return <LoadingSkeleton />
+  }
+
+  if (!user) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardContent className="pt-6 text-center">
+          <h2 className="text-2xl font-bold mb-4">Create a Profile</h2>
+          <p className="mb-6">To create a profile and track your game history, you need to sign in.</p>
+          <Button asChild>
+            <Link href="/sign-in">Sign In</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    )
   }
 
   if (error || !profileData) {
@@ -332,7 +352,9 @@ export function UserProfile() {
             Medium
           </Button>
           <Button
-            onClick={() => setDifficultyFilter('hard')}
+            onClick={() => 
+
+ setDifficultyFilter('hard')}
             variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
             className={`${difficultyFilter === 'hard' ? 'bg-red-500 hover:bg-red-600' : 'text-foreground'}`}
           >
