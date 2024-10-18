@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import PatternDetector from './PatternDetector'
+import { useUser } from '@clerk/nextjs'
+import { SignInButton } from '@clerk/nextjs'
 
 interface Game {
   id: string
@@ -33,6 +35,7 @@ type ChallengeType = 'solid' | 'ordered' | 'rainbow' | 'my-patterns'
 const colorNames = ['', 'Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']
 
 export default function Challenges() {
+  const { user, isLoaded } = useUser()
   const [games, setGames] = useState<Game[]>([])
   const [challengeType, setChallengeType] = useState<ChallengeType>('solid')
   const [orderedSubsection, setOrderedSubsection] = useState<ChallengeSubsection>('row')
@@ -43,6 +46,11 @@ export default function Challenges() {
 
   useEffect(() => {
     const fetchGames = async () => {
+      if (!user) {
+        setIsLoading(false)
+        return
+      }
+
       try {
         const response = await fetch('/api/games')
         if (!response.ok) {
@@ -58,8 +66,10 @@ export default function Challenges() {
       }
     }
 
-    fetchGames()
-  }, [])
+    if (isLoaded) {
+      fetchGames()
+    }
+  }, [user, isLoaded])
 
   const generatePatterns = useCallback((type: ChallengeType, subsection?: ChallengeSubsection) => {
     const size = 6
@@ -158,51 +168,53 @@ export default function Challenges() {
       generateOrderedOrRainbowPatterns('rainbow')
     }
 
-    // Match games to patterns
-    games.forEach(game => {
-      let patternTypes: Array<'solid' | 'ordered' | 'rainbow'> = [type as 'solid' | 'ordered' | 'rainbow'];
-      
-      if (type === 'my-patterns') {
-        patternTypes = ['solid', 'ordered', 'rainbow'];
-      }
+    if (user) {
+      // Match games to patterns only for logged-in users
+      games.forEach(game => {
+        let patternTypes: Array<'solid' | 'ordered' | 'rainbow'> = [type as 'solid' | 'ordered' | 'rainbow'];
+        
+        if (type === 'my-patterns') {
+          patternTypes = ['solid', 'ordered', 'rainbow'];
+        }
 
-      patternTypes.forEach(patternType => {
-        const gamePatterns = PatternDetector.detectPatterns(
-          game.grid,
-          patternType,
-          subsection
-        )
-        gamePatterns.forEach(patternCells => {
-          const matchingPattern = newPatterns.find(p => 
-            p.patternType === patternType &&
-            p.highlightedCells.every(cell => patternCells.includes(cell)) &&
-            p.grid.flat().every((value, index) => 
-              value === 0 || value === game.grid[Math.floor(index / size)][index % size]
-            )
+        patternTypes.forEach(patternType => {
+          const gamePatterns = PatternDetector.detectPatterns(
+            game.grid,
+            patternType,
+            subsection
           )
-          if (matchingPattern) {
-            matchingPattern.matchedGames.push(game)
-            matchingPattern.grid = game.grid // Update the grid with the winning board
-          }
+          gamePatterns.forEach(patternCells => {
+            const matchingPattern = newPatterns.find(p => 
+              p.patternType === patternType &&
+              p.highlightedCells.every(cell => patternCells.includes(cell)) &&
+              p.grid.flat().every((value, index) => 
+                value === 0 || value === game.grid[Math.floor(index / size)][index % size]
+              )
+            )
+            if (matchingPattern) {
+              matchingPattern.matchedGames.push(game)
+              matchingPattern.grid = game.grid // Update the grid with the winning board
+            }
+          })
         })
       })
-    })
 
-    // Sort matched games for each pattern
-    newPatterns.forEach(pattern => {
-      pattern.matchedGames.sort((a, b) => {
-        const difficultyOrder = { 'hard': 0, 'medium': 1, 'easy': 2 }
-        if (a.difficulty !== b.difficulty) {
-          return difficultyOrder[a.difficulty as keyof typeof difficultyOrder] - difficultyOrder[b.difficulty as keyof typeof difficultyOrder]
-        }
-        if (a.moves !== b.moves) return a.moves - b.moves
-        if (a.time !== b.time) return a.time - b.time
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      // Sort matched games for each pattern
+      newPatterns.forEach(pattern => {
+        pattern.matchedGames.sort((a, b) => {
+          const difficultyOrder = { 'hard': 0, 'medium': 1, 'easy': 2 }
+          if (a.difficulty !== b.difficulty) {
+            return difficultyOrder[a.difficulty as keyof typeof difficultyOrder] - difficultyOrder[b.difficulty as keyof typeof difficultyOrder]
+          }
+          if (a.moves !== b.moves) return a.moves - b.moves
+          if (a.time !== b.time) return a.time - b.time
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        })
       })
-    })
+    }
 
     return type === 'my-patterns' ? newPatterns.filter(pattern => pattern.matchedGames.length > 0) : newPatterns
-  }, [games])
+  }, [games, user])
 
   useEffect(() => {
     const newPatterns = generatePatterns(challengeType, challengeType === 'ordered' ? orderedSubsection : (challengeType === 'rainbow' ? rainbowSubsection : undefined))
@@ -210,6 +222,8 @@ export default function Challenges() {
   }, [games, challengeType, orderedSubsection, rainbowSubsection, generatePatterns])
 
   const patternCounts = useMemo(() => {
+    if (!user) return { solid: 0, ordered: 0, rainbow: 0, myPatterns: 0 }
+
     const solidPatterns = generatePatterns('solid')
     const orderedPatterns = generatePatterns('ordered', orderedSubsection)
     const rainbowPatterns = generatePatterns('rainbow', rainbowSubsection)
@@ -221,7 +235,7 @@ export default function Challenges() {
       rainbow: rainbowPatterns.filter(p => p.matchedGames.length > 0).length,
       myPatterns: myPatterns.length,
     }
-  }, [generatePatterns, orderedSubsection, rainbowSubsection])
+  }, [generatePatterns, orderedSubsection, rainbowSubsection, user])
 
   const foundCounterText = useMemo(() => {
     const totalCount = patternCounts.solid + patternCounts.ordered + patternCounts.rainbow
@@ -236,12 +250,8 @@ export default function Challenges() {
     }
   }, [patternCounts])
 
-  if (isLoading) {
+  if (!isLoaded || isLoading) {
     return <div className="text-center py-8 text-white">Loading...</div>
-  }
-
-  if (error) {
-    return <div className="text-center py-8 text-red-500">{error}</div>
   }
 
   const getColorClass = (color: number) => {
@@ -293,24 +303,31 @@ export default function Challenges() {
             highlightedCells={pattern.highlightedCells}
           />
         </div>
-        <div className="absolute -bottom-2 -right-2 overflow-visible">
-          <div className="w-8 h-8 bg-blue-500 rounded-xl rotate-45 flex items-center justify-center">
-            <span className="text-white font-bold text-sm -rotate-45">
-              {pattern.matchedGames.length}
-            </span>
+        {user && (
+          <div className="absolute -bottom-2 -right-2 overflow-visible">
+            <div className="w-8 h-8 bg-blue-500 rounded-xl rotate-45 flex items-center justify-center">
+              <span className="text-white font-bold text-sm -rotate-45">
+                {pattern.matchedGames.length}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
         <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
-          {pattern.matchedGames.length > 0 ? (
-            <>
-              <p><strong>Difficulty:</strong> 
- {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + pattern.matchedGames[0].difficulty.slice(1)}</p>
-              <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
-              <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
-              <p><strong>Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
-            </>
+          {user ? (
+            pattern.matchedGames.length > 0 ? (
+              <>
+                <p><strong>Difficulty:</strong> 
+                {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + 
+                pattern.matchedGames[0].difficulty.slice(1)}</p>
+                <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
+                <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
+                <p><strong>Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
+              </>
+            ) : (
+              <p className="text-center">Unfound LatinHAM</p>
+            )
           ) : (
-            <p className="text-center">Unfound LatinHAM</p>
+            <p className="text-center">Sign in to track your patterns!</p>
           )}
         </div>
       </CardContent>
@@ -322,17 +339,18 @@ export default function Challenges() {
       <p className="text-white text-lg text-center pb-6">
         Discover unique LatinHAM patterns from your completed games!
       </p>
+      {!user && (
+        <Card className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] mx-auto mb-6">
+          <CardContent className="text-center">
+            <h2 className="text-xl font-bold mb-2">Create a Profile</h2>
+            <p className="mb-4">Sign in to track your patterns and game history!</p>
+            <SignInButton>
+              <Button>Sign In</Button>
+            </SignInButton>
+          </CardContent>
+        </Card>
+      )}
       <div className="flex flex-col items-center space-y-4">
-        {/* <Button
-          onClick={() => setChallengeType('my-patterns')}
-          className={`${
-            challengeType === 'my-patterns'
-              ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white'
-              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-          } transition-colors duration-200 px-6 w-64`}
-        >
-          My Patterns - {foundCounterText.myPatterns}
-        </Button> */}
         <div className="flex space-x-4">
           <Button
             onClick={() => setChallengeType('solid')}
@@ -342,7 +360,7 @@ export default function Challenges() {
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
-            Solid - {foundCounterText.solid}
+            Solid {user && `- ${foundCounterText.solid}`}
           </Button>
           <Button
             onClick={() => setChallengeType('ordered')}
@@ -352,7 +370,7 @@ export default function Challenges() {
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
-            Ordered - {foundCounterText.ordered}
+            Ordered {user && `- ${foundCounterText.ordered}`}
           </Button>
           <Button
             onClick={() => setChallengeType('rainbow')}
@@ -362,7 +380,7 @@ export default function Challenges() {
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
-            Rainbow - {foundCounterText.rainbow}
+            Rainbow {user && `- ${foundCounterText.rainbow}`}
           </Button>
         </div>
       </div>
