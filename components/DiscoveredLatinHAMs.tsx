@@ -8,6 +8,7 @@ import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
 import { useUser } from '@clerk/nextjs'
 import { calculateSolveCount } from '../utils/solveCountLogic'
+import { RefreshCw } from 'lucide-react'
 
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';
@@ -57,11 +58,8 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&t=${Date.now()}`, {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}`, {
+        cache: 'no-store'
       })
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -86,7 +84,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
 
   useEffect(() => {
     fetchLatinHAMs()
-  }, [fetchLatinHAMs, user])
+  }, [fetchLatinHAMs, user, difficultyFilter])
 
   const handleLatinHAMClick = (latinHAM: DiscoveredLatinHAM) => {
     setSelectedLatinHAM(latinHAM)
@@ -101,6 +99,10 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     onPlayAgain(initialGrid, difficulty)
     onCloseOverlays()
   }, [onPlayAgain, onCloseOverlays])
+
+  const handleRefresh = () => {
+    fetchLatinHAMs()
+  }
 
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>
@@ -124,10 +126,18 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
       </div>
       <p className="text-center mb-6 text-white">Explore player-identified boards and help find all possible solutions to complete the LatinHAM.</p>
       {!selectedLatinHAM && (
-        <DifficultyFilters
-          difficultyFilter={difficultyFilter}
-          setDifficultyFilter={setDifficultyFilter}
-        />
+        <>
+          <DifficultyFilters
+            difficultyFilter={difficultyFilter}
+            setDifficultyFilter={setDifficultyFilter}
+          />
+          <div className="flex justify-center mb-4">
+            <Button onClick={handleRefresh} variant="outline">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh Data
+            </Button>
+          </div>
+        </>
       )}
       {selectedLatinHAM ? (
         <div>
