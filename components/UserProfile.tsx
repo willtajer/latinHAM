@@ -18,6 +18,7 @@ import { GamePreview } from './GamePreview'
 import { TooltipProps } from 'recharts'
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 import Link from 'next/link'
+import { SignInButton } from '@clerk/nextjs'
 
 interface GameEntry {
   id: string
@@ -296,9 +297,9 @@ export function UserProfile() {
         <CardContent className="pt-6 text-center">
           <h2 className="text-2xl font-bold mb-4">Create a Profile</h2>
           <p className="mb-6">To create a profile and track your game history, you need to sign in.</p>
-          <Button asChild>
-            <Link href="/sign-in">Sign In</Link>
-          </Button>
+          <SignInButton>
+            <Button>Sign In</Button>
+          </SignInButton>
         </CardContent>
       </Card>
     )
@@ -352,9 +353,7 @@ export function UserProfile() {
             Medium
           </Button>
           <Button
-            onClick={() => 
-
- setDifficultyFilter('hard')}
+            onClick={() => setDifficultyFilter('hard')}
             variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
             className={`${difficultyFilter === 'hard' ? 'bg-red-500 hover:bg-red-600' : 'text-foreground'}`}
           >
