@@ -58,7 +58,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}`, {
+      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&timestamp=${Date.now()}`, {
         cache: 'no-store'
       })
       if (!response.ok) {
@@ -84,7 +84,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
 
   useEffect(() => {
     fetchLatinHAMs()
-  }, [fetchLatinHAMs, user, difficultyFilter])
+  }, [fetchLatinHAMs])
 
   const handleLatinHAMClick = (latinHAM: DiscoveredLatinHAM) => {
     setSelectedLatinHAM(latinHAM)
@@ -104,6 +104,10 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     fetchLatinHAMs()
   }
 
+  const completedLatinHAMs = latinHAMs.filter(
+    latinHAM => latinHAM.uniqueSolves === latinHAM.possibleSolveCount
+  ).length
+
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>
   }
@@ -119,6 +123,9 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   return (
     <div className="container mx-auto">
       <h1 className="text-6xl font-bold text-center mb-6 text-white">Discovered LatinHAMs</h1>
+      <div className="text-center mb-4 text-white text-xl">
+        Completed: {completedLatinHAMs} / {latinHAMs.length}
+      </div>
       <div className="flex flex-col items-center justify-center">
         <div className="w-[calc(6*3rem+6*0.75rem)]">
           <GamePreview />

@@ -30,7 +30,7 @@ interface LeaderboardEntry {
   time: number;
   hints: number;
   grid: number[][];
-  initialGrid: number[][]; // Added this line
+  initialGrid: number[][];
   quote: string;
   timestamp: string;
 }
@@ -304,6 +304,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             <p>
               <span className="font-semibold">Time:</span>{' '}
               <span className={type === "time" ? "text-yellow-500 font-bold" : ""}>
+                
                 {entry ? formatTime(entry.time) : 'N/A'}
               </span>
             </p>
@@ -316,12 +317,19 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
     );
   };
 
-  if  (!isLoaded || isLoading) {
-    return <div className="text-center py-8 text-gray-900 dark:text-white">Loading leaderboard entries...</div>
+  const totalGames = entries.length;
+  const gameCounts = {
+    easy: entries.filter(entry => entry.difficulty === 'easy').length,
+    medium: entries.filter(entry => entry.difficulty === 'medium').length,
+    hard: entries.filter(entry => entry.difficulty === 'hard').length,
+  };
+
+  if (!isLoaded || isLoading) {
+    return <div className="text-center py-8 text-white">Loading leaderboard entries...</div>
   }
 
   if (error) {
-    return <div  className="text-center py-8 text-red-500">{error}</div>
+    return <div className="text-center py-8 text-red-500">{error}</div>
   }
 
   return (
@@ -329,14 +337,33 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
       {!user && (
         <Card className="w-full max-w-md mx-auto mb-6 bg-white dark:bg-gray-800">
           <CardContent className="pt-6 text-center">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Join the Leaderboard</h2>
-            <p className="mb-6 text-gray-700 dark:text-gray-300">Sign in to submit your scores and compete on the leaderboard!</p>
+            <h2 className="text-2xl font-bold mb-4 text-white">Join the Leaderboard</h2>
+            <p className="mb-6 text-white">Sign in to submit your scores and compete on the leaderboard!</p>
             <SignInButton>
               <Button>Sign In</Button>
             </SignInButton>
           </CardContent>
         </Card>
       )}
+
+      <Card className="w-full max-w-6xl mx-auto mb-6 bg-transparent border-transparent shadow-transparent">
+        <CardContent className="py-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4 text-white">Total Games Played: {totalGames}</h2>
+            <div className="flex justify-center space-x-4">
+              <Badge variant="secondary" className="text-lg py-1 px-3">
+                Easy: {gameCounts.easy}
+              </Badge>
+              <Badge variant="secondary" className="text-lg py-1 px-3">
+                Medium: {gameCounts.medium}
+              </Badge>
+              <Badge variant="secondary" className="text-lg py-1 px-3">
+                Hard: {gameCounts.hard}
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-6">
         <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
@@ -390,21 +417,21 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
       <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6 bg-white dark:bg-gray-800">
         <CardContent>
           <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
-            <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+            <h3 className="text-xl text-center font-semibold mb-2 text-white">
               {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
             </h3>
             <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Moves</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.moves.toFixed(2)}</p>
+                <p className="text-sm text-white">Avg. Moves</p>
+                <p className="text-lg font-bold text-white">{averages.moves.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">{formatTime(averages.duration)}</p>
+                <p className="text-sm text-white">Avg. Duration</p>
+                <p className="text-lg font-bold text-white">{formatTime(averages.duration)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Hints</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">{averages.hints.toFixed(2)}</p>
+                <p className="text-sm text-white">Avg. Hints</p>
+                <p className="text-lg font-bold text-white">{averages.hints.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -450,22 +477,22 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             <div className="flex flex-wrap justify-center mt-4">
               <div className="flex items-center mr-4 mb-2">
                 <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
-                <span className="text-gray-900 dark:text-white">Time</span>
+                <span className="text-white">Time</span>
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mr-4 mb-2">
                   <div className="w-4 h-4 bg-[rgba(136,132,216,0.5)] mr-2"></div>
-                  <span className="text-gray-900 dark:text-white">Avg Time</span>
+                  <span className="text-white">Avg Time</span>
                 </div>
               )}
               <div className="flex items-center mr-4 mb-2">
                 <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
-                <span className="text-gray-900 dark:text-white">Moves</span>
+                <span className="text-white">Moves</span>
               </div>
               {xAxisView === 'game' && (
                 <div className="flex items-center mb-2">
                   <div className="w-4 h-4 bg-[rgba(130,202,157,0.5)] mr-2"></div>
-                  <span className="text-gray-900 dark:text-white">Avg Moves</span>
+                  <span className="text-white">Avg Moves</span>
                 </div>
               )}
             </div>
@@ -475,11 +502,11 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             <RadioGroup defaultValue="game" onValueChange={(value) => setXAxisView(value as 'game' | 'daily')} className="flex justify-center space-x-4">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="game" id="game" />
-                <Label htmlFor="game" className="text-gray-900 dark:text-white">Game View</Label>
+                <Label htmlFor="game" className="text-white">Game View</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="daily" id="daily" />
-                <Label htmlFor="daily" className="text-gray-900 dark:text-white">Daily View</Label>
+                <Label htmlFor="daily" className="text-white">Daily View</Label>
               </div>
             </RadioGroup>
           </div>
@@ -487,9 +514,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12 text-gray-900 dark:text-white">#</TableHead>
+                <TableHead className="w-12 text-white">#</TableHead>
                 <TableHead 
-                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
+                  className="w-24 cursor-pointer text-white"
                   onClick={() => handleSort('date')}
                 >
                   Date
@@ -497,9 +524,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-16 text-gray-900 dark:text-white">LatinHAM</TableHead>
+                <TableHead className="w-16 text-white">LatinHAM</TableHead>
                 <TableHead 
-                  className="w-20 cursor-pointer text-gray-900 dark:text-white"
+                  className="w-20 cursor-pointer text-white"
                   onClick={() => handleSort('difficulty')}
                 >
                   Difficulty
@@ -508,7 +535,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
+                  className="w-24 cursor-pointer text-white"
                   onClick={() => handleSort('username')}
                 >
                   User
@@ -517,7 +544,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-16 cursor-pointer text-gray-900 dark:text-white"
+                  className="w-16 cursor-pointer text-white"
                   onClick={() => handleSort('moves')}
                 >
                   Moves
@@ -526,7 +553,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-16 cursor-pointer text-gray-900 dark:text-white"
+                  className="w-16 cursor-pointer text-white"
                   onClick={() => handleSort('hints')}
                 >
                   Hints
@@ -535,7 +562,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   )}
                 </TableHead>
                 <TableHead 
-                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
+                  className="w-24 cursor-pointer text-white"
                   onClick={() => handleSort('duration')}
                 >
                   Duration
@@ -543,34 +570,34 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                     sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
                   )}
                 </TableHead>
-                <TableHead className="w-32 text-gray-900 dark:text-white">Quote</TableHead>
+                <TableHead className="w-32 text-white">Quote</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedEntries.map((entry, index) => (
                 <TableRow key={entry.id}>
-                  <TableCell className="p-2 text-center text-gray-900 dark:text-white">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
-                  <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{formatDate(entry.timestamp)}</TableCell>
+                  <TableCell className="p-2 text-center text-white">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
+                  <TableCell className="p-1 text-sm text-white">{formatDate(entry.timestamp)}</TableCell>
                   <TableCell className="p-2">
                     <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
                   </TableCell>
                   <TableCell className="p-2">
                     <Badge 
                       className={
-                        entry.difficulty === 'easy' 
-                          ? 'bg-green-500 hover:bg-green-600' 
-                          : entry.difficulty === 'medium' 
-                            ? 'bg-orange-500 hover:bg-orange-600' 
+                        entry.difficulty === 'easy'
+                          ? 'bg-green-500 hover:bg-green-600'
+                          : entry.difficulty === 'medium'
+                            ? 'bg-orange-500 hover:bg-orange-600'
                             : 'bg-red-500 hover:bg-red-600'
                       }>
                       {entry.difficulty}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.moves}</TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.hints || 0}</TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{formatTime(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm truncate text-gray-900 dark:text-white">{entry.quote}</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-white">{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-white">{entry.moves}</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-white">{entry.hints || 0}</TableCell>
+                  <TableCell className="p-1 text-sm text-center text-white">{formatTime(entry.time)}</TableCell>
+                  <TableCell className="p-1 text-sm truncate text-white">{entry.quote}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -616,7 +643,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             <CompletedPuzzleCard
               entry={{
                 ...selectedGame,
-                initialGrid: selectedGame.initialGrid || selectedGame.grid, // Use initialGrid if available, otherwise fallback to grid
+                initialGrid: selectedGame.initialGrid || selectedGame.grid,
               }}
               difficulty={selectedGame.difficulty}
               gameNumber={entries.findIndex((game) => game.id === selectedGame.id) + 1}

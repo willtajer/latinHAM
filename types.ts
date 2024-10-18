@@ -32,6 +32,7 @@ export interface DiscoveredLatinHAM {
   bestTime: number;
   bestMovesPlayer: string | null;
   bestTimePlayer: string | null;
+  possibleSolveCount: number;
 }
 
 export interface CompletedPuzzle {
