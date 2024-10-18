@@ -14,11 +14,6 @@ interface Game {
   created_at: string
   moves: number
   time: number
-  patterns?: {
-    solid: boolean
-    ordered: boolean
-    rainbow: boolean
-  }
 }
 
 interface Pattern {
@@ -29,6 +24,7 @@ interface Pattern {
   color: number
   isBackward?: boolean
   isAscending?: boolean
+  patternType: 'solid' | 'ordered' | 'rainbow'
 }
 
 type ChallengeSubsection = 'row' | 'column' | 'diagonal'
@@ -69,7 +65,7 @@ export default function Challenges() {
     const size = 6
     const newPatterns: Pattern[] = []
 
-    if (type === 'solid') {
+    const generateSolidPatterns = () => {
       for (let color = 1; color <= 6; color++) {
         // Left to Right
         const tlbrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
@@ -83,7 +79,8 @@ export default function Challenges() {
           highlightedCells: tlbrHighlight,
           matchedGames: [],
           description: "Left to Right",
-          color: color
+          color: color,
+          patternType: 'solid'
         })
 
         // Right to Left
@@ -98,10 +95,13 @@ export default function Challenges() {
           highlightedCells: trblHighlight,
           matchedGames: [],
           description: "Right to Left",
-          color: color
+          color: color,
+          patternType: 'solid'
         })
       }
-    } else if (type === 'ordered' || type === 'rainbow') {
+    }
+
+    const generateOrderedOrRainbowPatterns = (patternType: 'ordered' | 'rainbow') => {
       const generatePattern = (
         direction: (i: number) => number,
         description: string,
@@ -110,7 +110,7 @@ export default function Challenges() {
       ) => {
         const grid = Array(size).fill(null).map(() => Array(size).fill(0))
         const highlight = []
-        const values = type === 'ordered' 
+        const values = patternType === 'ordered' 
           ? Array.from({length: size}, (_, i) => i + 1)
           : [1, 6, 3, 4, 2, 5]
         for (let i = 0; i < size; i++) {
@@ -118,7 +118,16 @@ export default function Challenges() {
           grid[Math.floor(index / size)][index % size] = isBackward ? values[size - 1 - i] : values[i]
           highlight.push(index)
         }
-        return { grid, highlightedCells: highlight, matchedGames: [], description, color: 0, isBackward, isAscending }
+        return { 
+          grid, 
+          highlightedCells: highlight, 
+          matchedGames: [], 
+          description, 
+          color: 0, 
+          isBackward, 
+          isAscending,
+          patternType
+        }
       }
 
       if (subsection === 'row' || subsection === 'column') {
@@ -137,51 +146,44 @@ export default function Challenges() {
         newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom Left to Top Right Forward", true, false))
         newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + (size - 1 - i), "Bottom Right to Top Left Forward", true, false))
       }
-    } else if (type === 'my-patterns') {
-      games.forEach(game => {
-        if (game.patterns && Object.values(game.patterns).some(Boolean)) {
-          const newPattern: Pattern = {
-            grid: game.grid,
-            highlightedCells: [],
-            matchedGames: [game],
-            description: "Custom Pattern",
-            color: 0
-          }
-          
-          if (game.patterns.solid) {
-            newPattern.highlightedCells.push(...PatternDetector.detectPatterns(game.grid, 'solid').flat())
-          }
-          if (game.patterns.ordered) {
-            newPattern.highlightedCells.push(...PatternDetector.detectPatterns(game.grid, 'ordered', subsection).flat())
-          }
-          if (game.patterns.rainbow) {
-            newPattern.highlightedCells.push(...PatternDetector.detectPatterns(game.grid, 'rainbow', subsection).flat())
-          }
-          
-          newPattern.highlightedCells = Array.from(new Set(newPattern.highlightedCells)); // Remove duplicates
-          newPatterns.push(newPattern)
-        }
-      })
+    }
+
+    if (type === 'solid' || type === 'my-patterns') {
+      generateSolidPatterns()
+    }
+    if (type === 'ordered' || type === 'my-patterns') {
+      generateOrderedOrRainbowPatterns('ordered')
+    }
+    if (type === 'rainbow' || type === 'my-patterns') {
+      generateOrderedOrRainbowPatterns('rainbow')
     }
 
     // Match games to patterns
     games.forEach(game => {
-      const gamePatterns = PatternDetector.detectPatterns(
-        game.grid,
-        type,
-        subsection
-      )
-      gamePatterns.forEach(patternCells => {
-        const matchingPattern = newPatterns.find(p => 
-          p.highlightedCells.every(cell => patternCells.includes(cell)) &&
-          p.grid.flat().every((value, index) => 
-            value === 0 || value === game.grid[Math.floor(index / size)][index % size]
-          )
+      let patternTypes: Array<'solid' | 'ordered' | 'rainbow'> = [type as 'solid' | 'ordered' | 'rainbow'];
+      
+      if (type === 'my-patterns') {
+        patternTypes = ['solid', 'ordered', 'rainbow'];
+      }
+
+      patternTypes.forEach(patternType => {
+        const gamePatterns = PatternDetector.detectPatterns(
+          game.grid,
+          patternType,
+          subsection
         )
-        if (matchingPattern) {
-          matchingPattern.matchedGames.push(game)
-          matchingPattern.grid = game.grid // Update the grid with the winning board
-        }
+        gamePatterns.forEach(patternCells => {
+          const matchingPattern = newPatterns.find(p => 
+            p.highlightedCells.every(cell => patternCells.includes(cell)) &&
+            p.grid.flat().every((value, index) => 
+              value === 0 || value === game.grid[Math.floor(index / size)][index % size]
+            )
+          )
+          if (matchingPattern) {
+            matchingPattern.matchedGames.push(game)
+            matchingPattern.grid = game.grid // Update the grid with the winning board
+          }
+        })
       })
     })
 
@@ -198,7 +200,7 @@ export default function Challenges() {
       })
     })
 
-    return newPatterns
+    return type === 'my-patterns' ? newPatterns.filter(pattern => pattern.matchedGames.length > 0) : newPatterns
   }, [games])
 
   useEffect(() => {
@@ -210,11 +212,13 @@ export default function Challenges() {
     const solidPatterns = generatePatterns('solid')
     const orderedPatterns = generatePatterns('ordered', orderedSubsection)
     const rainbowPatterns = generatePatterns('rainbow', rainbowSubsection)
+    const myPatterns = generatePatterns('my-patterns')
 
     return {
       solid: solidPatterns.filter(p => p.matchedGames.length > 0).length,
       ordered: orderedPatterns.filter(p => p.matchedGames.length > 0).length,
       rainbow: rainbowPatterns.filter(p => p.matchedGames.length > 0).length,
+      myPatterns: myPatterns.length,
     }
   }, [generatePatterns, orderedSubsection, rainbowSubsection])
 
@@ -226,6 +230,7 @@ export default function Challenges() {
       solid: `${patternCounts.solid}/12`,
       ordered: `${patternCounts.ordered}/28`,
       rainbow: `${patternCounts.rainbow}/28`,
+      myPatterns: `${patternCounts.myPatterns}`,
       total: `${totalCount}/${totalPatterns}`
     }
   }, [patternCounts])
@@ -252,30 +257,27 @@ export default function Challenges() {
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
+    return date.toLocaleDateString('en-US', {
       month: '2-digit',
       day: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).replace(',', ' at');
+      year: '2-digit'
+    });
   }
 
   const renderPatternCard = (pattern: Pattern, index: number) => (
     <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
       <CardContent className="p-4 pt-6">
-        {challengeType === 'solid' && (
+        {pattern.patternType === 'solid' && (
           <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)} rounded-t-lg`}>
             Solid {colorNames[pattern.color]}
           </div>
         )}
-        {challengeType === 'ordered' && (
+        {pattern.patternType === 'ordered' && (
           <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-blue-500 via-yellow-500 via-green-500 via-purple-500 to-orange-500 rounded-t-lg">
             Ordered
           </div>
         )}
-        {challengeType === 'rainbow' && (
+        {pattern.patternType === 'rainbow' && (
           <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 rounded-t-lg">
             Rainbow
           </div>
@@ -286,7 +288,7 @@ export default function Challenges() {
         <div className="aspect-square mb-4 relative">
           <PatternDetector 
             board={pattern.grid} 
-            type={challengeType === 'my-patterns' ? 'solid' : challengeType}
+            type={pattern.patternType}
             highlightedCells={pattern.highlightedCells}
           />
         </div>
@@ -300,7 +302,8 @@ export default function Challenges() {
         <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
           {pattern.matchedGames.length > 0 ? (
             <>
-              <p><strong>Difficulty:</strong> {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + pattern.matchedGames[0].difficulty.slice(1)}</p>
+              <p><strong>Difficulty:</strong> {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + 
+ pattern.matchedGames[0].difficulty.slice(1)}</p>
               <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
               <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
               <p><strong>Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
@@ -313,57 +316,22 @@ export default function Challenges() {
     </Card>
   )
 
-  const renderMyPatternsCard = (pattern: Pattern, index: number) => (
-    <Card  key={pattern.matchedGames[0]?.id || `unknown-${index}`} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
-      <CardContent className="p-4 pt-6">
-        <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-orange-400 to-orange-600 rounded-t-lg">
-          My Pattern
-        </div>
-        <div className="aspect-square mb-4 relative">
-          <PatternDetector 
-            board={pattern.grid} 
-            type="my-patterns"
-            highlightedCells={pattern.highlightedCells}
-          />
-        </div>
-        <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
-          {pattern.matchedGames[0]?.patterns && Object.entries(pattern.matchedGames[0].patterns)
-            .filter(([ value]) => value)
-            .map(([type]) => (
-              <p key={type} className="capitalize">{type}</p>
-            ))}
-          <p><strong>Difficulty:</strong> {pattern.matchedGames[0]?.difficulty?.charAt(0).toUpperCase() + pattern.matchedGames[0]?.difficulty?.slice(1) || 'Unknown'}</p>
-          <p><strong>Moves:</strong> {pattern.matchedGames[0]?.moves || 'N/A'}</p>
-          <p><strong>Time:</strong> {pattern.matchedGames[0]?.time ? `${pattern.matchedGames[0].time}s` : 'N/A'}</p>
-          <p><strong>Completed:</strong> {pattern.matchedGames[0]?.created_at ? formatTimestamp(pattern.matchedGames[0].created_at) : 'N/A'}</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <p className="text-white text-lg pb-6">
-          Discover unique LatinHAM patterns from your completed games!
-        </p>
-        <p className="text-white text-lg font-bold">
-          Total Challenges Found: {foundCounterText.total}
-        </p>
-      </div>
+      <p className="text-white text-lg text-center pb-6">
+        Discover unique LatinHAM patterns from your completed games!
+      </p>
       <div className="flex flex-col items-center space-y-4">
-        {/* <div className="flex justify-center mb-4">
-          <Button
-            onClick={() => setChallengeType('my-patterns')}
-            className={`${
-              challengeType === 'my-patterns'
-                ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white'
-                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-            } transition-colors duration-200 px-6`}
-          >
-            My Patterns
-          </Button>
-        </div> */}
+        <Button
+          onClick={() => setChallengeType('my-patterns')}
+          className={`${
+            challengeType === 'my-patterns'
+              ? 'bg-gradient-to-r from-orange-400 to-orange-600 text-white'
+              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+          } transition-colors duration-200 px-6 w-64`}
+        >
+          My Patterns - {foundCounterText.myPatterns}
+        </Button>
         <div className="flex space-x-4">
           <Button
             onClick={() => setChallengeType('solid')}
@@ -438,11 +406,7 @@ export default function Challenges() {
         </RadioGroup>
       )}
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
-        {challengeType === 'my-patterns' ? (
-          patterns.map((pattern, index) => renderMyPatternsCard(pattern, index))
-        ) : (
-          patterns.map(renderPatternCard)
-        )}
+        {patterns.map(renderPatternCard)}
       </div>
     </div>
   )
