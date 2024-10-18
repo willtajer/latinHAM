@@ -326,7 +326,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
   return (
     <>
       {!user && (
-        <Card className="w-full max-w-4xl mx-auto mb-6 bg-white dark:bg-gray-800">
+        <Card className="w-full max-w-md mx-auto mb-6 bg-white dark:bg-gray-800">
           <CardContent className="pt-6 text-center">
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Join the Leaderboard</h2>
             <p className="mb-6 text-gray-700 dark:text-gray-300">Sign in to submit your scores and compete on the leaderboard!</p>
