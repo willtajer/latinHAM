@@ -192,9 +192,8 @@ export default function Challenges() {
               )
             )
             matchingPatterns.forEach(matchingPattern => {
-              // Remove the check for duplicates to allow multiple instances of the same game
+              // Add the game to matchedGames without checking for duplicates
               matchingPattern.matchedGames.push(game)
-              matchingPattern.grid = game.grid // Update the grid with the winning board
             })
           })
         })
@@ -303,7 +302,7 @@ export default function Challenges() {
         </div>
         <div className="aspect-square mb-4 relative">
           <PatternDetector 
-            board={pattern.grid} 
+            board={pattern.matchedGames.length > 0 ? pattern.matchedGames[0].grid : pattern.grid} 
             type={pattern.patternType}
             highlightedCells={pattern.highlightedCells}
           />
@@ -325,9 +324,10 @@ export default function Challenges() {
                 
                 {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + 
                 pattern.matchedGames[0].difficulty.slice(1)}</p>
-                <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
-                <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
-                <p><strong>Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
+                <p><strong>Best Moves:</strong> {pattern.matchedGames[0].moves}</p>
+                <p><strong>Best Time:</strong> {pattern.matchedGames[0].time}s</p>
+                <p><strong>Last Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
+                <p><strong>Total Matches:</strong> {pattern.matchedGames.length}</p>
               </>
             ) : (
               <p className="text-center">Unfound LatinHAM</p>
