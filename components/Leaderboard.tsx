@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import { LeaderboardEntry } from '../types'
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -15,10 +14,24 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { TooltipProps } from 'recharts'
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
+import { useUser } from '@clerk/nextjs'
+import { SignInButton } from '@clerk/nextjs'
 
 interface LeaderboardProps {
   initialDifficulty?: "all" | "easy" | "medium" | "hard";
   onDifficultyChange: (newDifficulty: "all" | "easy" | "medium" | "hard") => void;
+}
+
+interface LeaderboardEntry {
+  id: string;
+  username: string;
+  difficulty: "easy" | "medium" | "hard";
+  moves: number;
+  time: number;
+  hints: number;
+  grid: number[][];
+  quote: string;
+  timestamp: string;
 }
 
 const colorClasses = [
@@ -56,14 +69,14 @@ const formatDate = (dateString: string) => {
 }
 
 interface CustomTooltipProps extends TooltipProps<ValueType, NameType> {
-  active?: boolean
+  active?: boolean;
   payload?: Array<{
-    name: string
-    value: number
-    color: string
-  }>
-  label?: string
-  xAxisView: 'game' | 'daily'
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+  xAxisView: 'game' | 'daily';
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, xAxisView }) => {
@@ -82,7 +95,8 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, x
   return null;
 };
 
-export default function Component({ initialDifficulty = "all", onDifficultyChange }: LeaderboardProps) {
+export default function Leaderboard({ initialDifficulty = "all", onDifficultyChange }: LeaderboardProps) {
+  const { user, isLoaded } = useUser()
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -114,8 +128,10 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
       }
     }
 
-    fetchLeaderboard()
-  }, [])
+    if (isLoaded) {
+      fetchLeaderboard()
+    }
+  }, [isLoaded])
 
   const formatTime = (seconds: number) => {
     return `${seconds.toFixed(2)}s`
@@ -299,7 +315,7 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     );
   };
 
-  if (isLoading) {
+  if  (!isLoaded || isLoading) {
     return <div className="text-center py-8 text-gray-900 dark:text-white">Loading leaderboard entries...</div>
   }
 
@@ -307,23 +323,24 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
     return <div className="text-center py-8 text-red-500">{error}</div>
   }
 
-  if (entries.length === 0) {
-    return (
-      <Card className="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800">
-        <CardContent className="pt-6">
-          <p className="text-center text-gray-900 dark:text-white">No entries available {difficulty === 'all' ? 'across  all difficulties' : `for ${difficulty} difficulty`}. </p>
-          <p className="text-center text-gray-900  dark:text-white">Sign in to rank on the leaderboard.</p>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <>
+      {!user && (
+        <Card className="w-full max-w-4xl mx-auto mb-6 bg-white dark:bg-gray-800">
+          <CardContent className="pt-6 text-center">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Join the Leaderboard</h2>
+            <p className="mb-6 text-gray-700 dark:text-gray-300">Sign in to submit your scores and compete on the leaderboard!</p>
+            <SignInButton>
+              <Button>Sign In</Button>
+            </SignInButton>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-4 mb-6">
         <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
           {renderBestPerformanceCard("easy", "moves")}
-          {renderBestPerformanceCard("easy",   "time")}
+          {renderBestPerformanceCard("easy", "time")}
         </div>
         <div className="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
           {renderBestPerformanceCard("medium", "moves")}
@@ -552,34 +569,30 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
                   <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.hints || 0}</TableCell>
                   <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{formatTime(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm text-center truncate max-w-xs text-gray-900 dark:text-white">&ldquo;{entry.quote || 'No quote'}&rdquo;</TableCell>
+                  <TableCell className="p-1 text-sm truncate text-gray-900 dark:text-white">{entry.quote}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-
           {totalPages > 1 && (
             <Pagination className="mt-4">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
                 {[...Array(totalPages)].map((_, i) => (
                   <PaginationItem key={i}>
-                    <PaginationLink
-                      onClick={() => setCurrentPage(i + 1)}
-                      isActive={currentPage === i + 1}
-                    >
+                    <PaginationLink onClick={() => setCurrentPage(i + 1)} isActive={currentPage === i + 1}>
                       {i + 1}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
@@ -588,24 +601,21 @@ export default function Component({ initialDifficulty = "all", onDifficultyChang
           )}
         </CardContent>
       </Card>
-
       <Dialog open={!!selectedGame} onOpenChange={(open) => {
         if (!open) {
           setSelectedGame(null);
         }
       }}>
-        <DialogContent className="max-w-3xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Completed LatinHAM</DialogTitle>
-            <DialogDescription className="text-gray-600 dark:text-gray-400">
-              Details of the completed game
-            </DialogDescription>
+            <DialogDescription>Details of the completed game</DialogDescription>
           </DialogHeader>
           {selectedGame && (
             <CompletedPuzzleCard
               entry={selectedGame}
               difficulty={selectedGame.difficulty}
-              gameNumber={sortedEntries.findIndex(entry => entry.id === selectedGame.id) + 1}
+              gameNumber={entries.findIndex((game) => game.id === selectedGame.id) + 1}
               onImageReady={(file: File) => {
                 console.log('Image ready:', file.name);
               }}
