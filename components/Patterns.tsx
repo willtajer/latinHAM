@@ -184,17 +184,19 @@ export default function Challenges() {
             subsection
           )
           gamePatterns.forEach(patternCells => {
-            const matchingPattern = newPatterns.find(p => 
+            const matchingPatterns = newPatterns.filter(p => 
               p.patternType === patternType &&
               p.highlightedCells.every(cell => patternCells.includes(cell)) &&
               p.grid.flat().every((value, index) => 
                 value === 0 || value === game.grid[Math.floor(index / size)][index % size]
               )
             )
-            if (matchingPattern) {
-              matchingPattern.matchedGames.push(game)
-              matchingPattern.grid = game.grid // Update the grid with the winning board
-            }
+            matchingPatterns.forEach(matchingPattern => {
+              if (!matchingPattern.matchedGames.some(g => g.id === game.id)) {
+                matchingPattern.matchedGames.push(game)
+                matchingPattern.grid = game.grid // Update the grid with the winning board
+              }
+            })
           })
         })
       })
@@ -322,13 +324,14 @@ export default function Challenges() {
               <>
                 <p><strong>Difficulty:</strong> 
                 {pattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + 
+                
                 pattern.matchedGames[0].difficulty.slice(1)}</p>
                 <p><strong>Moves:</strong> {pattern.matchedGames[0].moves}</p>
                 <p><strong>Time:</strong> {pattern.matchedGames[0].time}s</p>
                 <p><strong>Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
               </>
             ) : (
-              <p  className="text-center">Unfound LatinHAM</p>
+              <p className="text-center">Unfound LatinHAM</p>
             )
           ) : (
             <p className="text-center">Sign in to track your patterns!</p>
