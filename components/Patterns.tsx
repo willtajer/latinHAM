@@ -330,14 +330,14 @@ export default function Challenges() {
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', {
-      month:  '2-digit',
+      month: '2-digit',
       day: '2-digit',
       year: '2-digit'
     });
   }
 
   const renderPatternCard = (pattern: Pattern, index: number) => (
-    <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
+    <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0  rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
       <CardContent className="p-4 pt-6">
         {pattern.patternType === 'solid' && (
           <div className={`absolute top-0 left-0  right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)} rounded-t-lg`}>
@@ -358,11 +358,19 @@ export default function Challenges() {
           {pattern.description}
         </div>
         <div className="aspect-square mb-4 relative">
-          <PatternDetector 
-            board={pattern.grid}
-            type={pattern.patternType}
-            highlightedCells={pattern.highlightedCells}
-          />
+          {pattern.matchedGames.length > 0 ? (
+            <PatternDetector 
+              board={pattern.matchedGames[0].grid}
+              type={pattern.patternType}
+              highlightedCells={pattern.highlightedCells}
+            />
+          ) : (
+            <PatternDetector 
+              board={pattern.grid}
+              type={pattern.patternType}
+              highlightedCells={pattern.highlightedCells}
+            />
+          )}
         </div>
         {user && (
           <div className="absolute -bottom-2 -right-2 overflow-visible">
