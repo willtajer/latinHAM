@@ -4,7 +4,7 @@ type Board = number[][]
 
 interface PatternDetectorProps {
   board: Board
-  type: 'solid' | 'ordered' | 'rainbow' | 'my-patterns'
+  type: 'solid' | 'ordered' | 'rainbow' | 'my-patterns' | 'combined'
   highlightedCells?: number[]
 }
 
@@ -12,7 +12,7 @@ interface PatternDetectorComponent extends React.FC<PatternDetectorProps> {
   detectPatterns: (board: Board, type: 'solid' | 'ordered' | 'rainbow' | 'my-patterns', subsection?: 'row' | 'column' | 'diagonal') => number[][]
 }
 
-const PatternDetector: PatternDetectorComponent = ({ board, highlightedCells = [] }) => {
+const PatternDetector: PatternDetectorComponent = ({ board, type, highlightedCells = [] }) => {
   return (
     <div className="grid grid-cols-6 gap-1 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg shadow-inner aspect-square">
       {board.flat().map((cell, index) => (
@@ -23,11 +23,19 @@ const PatternDetector: PatternDetectorComponent = ({ board, highlightedCells = [
             relative transition-all duration-150 ease-in-out rounded-sm shadow-sm
             ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600'}
             ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
-            ${highlightedCells.includes(index) ? 'ring-2 ring-yellow-500' : ''}
+            ${highlightedCells.includes(index) ? 
+              (type === 'combined' ? 'ring-2 ring-pink-500' : 'ring-2 ring-yellow-500') 
+              : ''}
           `}
           role="cell"
           aria-label={`Cell ${cell !== 0 ? 'filled' : 'empty'}`}
-        />
+        >
+          {type === 'combined' && highlightedCells.includes(index) && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+            </div>
+          )}
+        </div>
       ))}
     </div>
   )

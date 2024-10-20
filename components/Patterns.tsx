@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import PatternDetector from './PatternDetector'
 import { useUser } from '@clerk/nextjs'
 import { SignInButton } from '@clerk/nextjs'
@@ -29,8 +30,13 @@ interface Pattern {
   patternType: 'solid' | 'ordered' | 'rainbow'
 }
 
+interface CombinedPattern {
+  patterns: Pattern[]
+  matchedGames: Game[]
+}
+
 type ChallengeSubsection = 'row' | 'column' | 'diagonal'
-type ChallengeType = 'solid' | 'ordered' | 'rainbow' | 'my-patterns'
+type ChallengeType = 'solid' | 'ordered' | 'rainbow' | 'my-patterns' | 'combined'
 
 const colorNames = ['', 'Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']
 
@@ -41,6 +47,7 @@ export default function Challenges() {
   const [orderedSubsection, setOrderedSubsection] = useState<ChallengeSubsection>('row')
   const [rainbowSubsection, setRainbowSubsection] = useState<ChallengeSubsection>('row')
   const [patterns, setPatterns] = useState<Pattern[]>([])
+  const [combinedPatterns, setCombinedPatterns] = useState<CombinedPattern[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -158,13 +165,13 @@ export default function Challenges() {
       }
     }
 
-    if (type === 'solid' || type === 'my-patterns') {
+    if (type === 'solid' || type === 'my-patterns' || type === 'combined') {
       generateSolidPatterns()
     }
-    if (type === 'ordered' || type === 'my-patterns') {
+    if (type === 'ordered' || type === 'my-patterns' || type === 'combined') {
       generateOrderedOrRainbowPatterns('ordered')
     }
-    if (type === 'rainbow' || type === 'my-patterns') {
+    if (type === 'rainbow' || type === 'my-patterns' || type === 'combined') {
       generateOrderedOrRainbowPatterns('rainbow')
     }
 
@@ -173,7 +180,7 @@ export default function Challenges() {
       games.forEach(game => {
         let patternTypes: Array<'solid' | 'ordered' | 'rainbow'> = [type as 'solid' | 'ordered' | 'rainbow'];
         
-        if (type === 'my-patterns') {
+        if (type === 'my-patterns' || type === 'combined') {
           patternTypes = ['solid', 'ordered', 'rainbow'];
         }
 
@@ -216,26 +223,83 @@ export default function Challenges() {
     return type === 'my-patterns' ? newPatterns.filter(pattern => pattern.matchedGames.length > 0) : newPatterns
   }, [games, user])
 
+  const generateCombinedPatterns = useCallback(() => {
+    const newCombinedPatterns: CombinedPattern[] = []
+
+    games.forEach(game => {
+      const gamePatterns: Pattern[] = []
+
+      // Detect solid patterns
+      const solidPatterns = PatternDetector.detectPatterns(game.grid, 'solid')
+      gamePatterns.push(...solidPatterns.map(cells => ({
+        grid: game.grid,
+        highlightedCells: cells,
+        matchedGames: [game],
+        description: 'Solid Pattern',
+        color: game.grid[Math.floor(cells[0] / 6)][cells[0] % 6],
+        patternType: 'solid' as const
+      })))
+
+      // Detect ordered patterns
+      const orderedPatterns = PatternDetector.detectPatterns(game.grid, 'ordered')
+      gamePatterns.push(...orderedPatterns.map(cells => ({
+        grid: game.grid,
+        highlightedCells: cells,
+        matchedGames: [game],
+        description: 'Ordered Pattern',
+        color: 0,
+        patternType: 'ordered' as const
+      })))
+
+      // Detect rainbow patterns
+      const rainbowPatterns = PatternDetector.detectPatterns(game.grid, 'rainbow')
+      gamePatterns.push(...rainbowPatterns.map(cells => ({
+        grid: game.grid,
+        highlightedCells: cells,
+        matchedGames: [game],
+        description: 'Rainbow Pattern',
+        color: 0,
+        patternType: 'rainbow' as const
+      })))
+
+      if (gamePatterns.length > 1) {
+        newCombinedPatterns.push({
+          patterns: gamePatterns,
+          matchedGames: [game]
+        })
+      }
+    })
+
+    return newCombinedPatterns
+  }, [games])
+
   useEffect(() => {
-    const newPatterns = generatePatterns(challengeType, challengeType === 'ordered' ? orderedSubsection : (challengeType === 'rainbow' ? rainbowSubsection : undefined))
-    setPatterns(newPatterns)
-  }, [games, challengeType, orderedSubsection, rainbowSubsection, generatePatterns])
+    if (challengeType === 'combined') {
+      const newCombinedPatterns = generateCombinedPatterns()
+      setCombinedPatterns(newCombinedPatterns)
+    } else {
+      const newPatterns = generatePatterns(challengeType, challengeType === 'ordered' ? orderedSubsection : (challengeType === 'rainbow' ? rainbowSubsection : undefined))
+      setPatterns(newPatterns)
+    }
+  }, [games, challengeType, orderedSubsection, rainbowSubsection, generatePatterns, generateCombinedPatterns])
 
   const patternCounts = useMemo(() => {
-    if (!user) return { solid: 0, ordered: 0, rainbow: 0, myPatterns: 0 }
+    if (!user) return { solid: 0, ordered: 0, rainbow: 0, myPatterns: 0, combined: 0 }
 
     const solidPatterns = generatePatterns('solid')
     const orderedPatterns = generatePatterns('ordered', orderedSubsection)
     const rainbowPatterns = generatePatterns('rainbow', rainbowSubsection)
     const myPatterns = generatePatterns('my-patterns')
+    const combinedPatternsCount = generateCombinedPatterns().length
 
     return {
       solid: solidPatterns.filter(p => p.matchedGames.length > 0).length,
       ordered: orderedPatterns.filter(p => p.matchedGames.length > 0).length,
       rainbow: rainbowPatterns.filter(p => p.matchedGames.length > 0).length,
       myPatterns: myPatterns.length,
+      combined: combinedPatternsCount,
     }
-  }, [generatePatterns, orderedSubsection, rainbowSubsection, user])
+  }, [generatePatterns, orderedSubsection, rainbowSubsection, user, generateCombinedPatterns])
 
   const foundCounterText = useMemo(() => {
     const totalCount = patternCounts.solid + patternCounts.ordered + patternCounts.rainbow
@@ -246,6 +310,7 @@ export default function Challenges() {
       ordered: `${patternCounts.ordered}/28`,
       rainbow: `${patternCounts.rainbow}/28`,
       myPatterns: `${patternCounts.myPatterns}`,
+      combined: `${patternCounts.combined}`,
       total: `${totalCount}/${totalPatterns}`
     }
   }, [patternCounts])
@@ -273,7 +338,7 @@ export default function Challenges() {
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', {
-      month: '2-digit',
+      month:  '2-digit',
       day: '2-digit',
       year: '2-digit'
     });
@@ -340,6 +405,39 @@ export default function Challenges() {
     </Card>
   )
 
+  const renderCombinedPatternCard = (combinedPattern: CombinedPattern, index: number) => (
+    <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
+      <CardContent className="p-4 pt-6">
+        <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-t-lg">
+          Combined Pattern
+        </div>
+        <div className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2 mt-1 text-center">
+          Combined Pattern #{index + 1}
+        </div>
+        <div className="flex flex-wrap gap-2 mb-4 justify-center">
+          {combinedPattern.patterns.map((pattern, patternIndex) => (
+            <Badge key={patternIndex} variant="secondary">
+              {pattern.patternType}
+            </Badge>
+          ))}
+        </div>
+        <div className="aspect-square mb-4 relative">
+          <PatternDetector 
+            board={combinedPattern.matchedGames[0].grid}
+            type="combined"
+            highlightedCells={combinedPattern.patterns.flatMap(p => p.highlightedCells)}
+          />
+        </div>
+        <div className="text-sm text-gray-800 dark:text-gray-300 space-y-1">
+          <p><strong>Difficulty:</strong> {combinedPattern.matchedGames[0].difficulty.charAt(0).toUpperCase() + combinedPattern.matchedGames[0].difficulty.slice(1)}</p>
+          <p><strong>Moves:</strong> {combinedPattern.matchedGames[0].moves}</p>
+          <p><strong>Time:</strong> {combinedPattern.matchedGames[0].time}s</p>
+          <p><strong>Completed:</strong> {formatTimestamp(combinedPattern.matchedGames[0].created_at)}</p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+
   return (
     <div className="space-y-6">
       <p className="text-white text-lg text-center pb-6">
@@ -357,7 +455,7 @@ export default function Challenges() {
         </Card>
       )}
       <div className="flex flex-col items-center space-y-4">
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap justify-center gap-4">
           <Button
             onClick={() => setChallengeType('solid')}
             className={`${
@@ -387,6 +485,16 @@ export default function Challenges() {
             } transition-colors duration-200`}
           >
             Rainbow {user && `- ${foundCounterText.rainbow}`}
+          </Button>
+          <Button
+            onClick={() => setChallengeType('combined')}
+            className={`${
+              challengeType === 'combined'
+                ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            } transition-colors duration-200`}
+          >
+            Combined {user && `- ${foundCounterText.combined}`}
           </Button>
         </div>
       </div>
@@ -431,7 +539,9 @@ export default function Challenges() {
         </RadioGroup>
       )}
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
-        {patterns.map(renderPatternCard)}
+        {challengeType === 'combined'
+          ? combinedPatterns.map(renderCombinedPatternCard)
+          : patterns.map(renderPatternCard)}
       </div>
     </div>
   )
