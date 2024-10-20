@@ -463,7 +463,7 @@ export default function Challenges() {
         <Card className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] mx-auto mb-6">
           <CardContent className="text-center">
             <h2 className="text-xl font-bold mb-2">No Games Yet</h2>
-            <p className="mb-4">You haven't completed any games yet. Play some games to start discovering patterns!</p>
+            <p className="mb-4">You haven&apos;t completed any games yet. Play some games to start discovering patterns!</p>
             <Button onClick={() => {/* Add navigation to game page */}}>Start Playing</Button>
           </CardContent>
         </Card>
