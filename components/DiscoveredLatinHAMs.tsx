@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { calculateSolveCount } from '../utils/solveCountLogic'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';
