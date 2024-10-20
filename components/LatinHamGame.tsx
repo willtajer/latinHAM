@@ -225,7 +225,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-transparent text-foreground">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-transparent text-foreground pb-24">
       {showConfetti && (
         <div className="fixed inset-0 z-40 pointer-events-none">
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} />

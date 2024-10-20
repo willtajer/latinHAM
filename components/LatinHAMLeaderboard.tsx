@@ -203,7 +203,7 @@ export default function Component({ latinHAM, onPlayAgain, onCloseOverlays }: La
   }
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading leaderboard entries...</div>
+    return <div className="text-center text-white py-8">Loading leaderboard entries...</div>
   }
 
   if (error) {
