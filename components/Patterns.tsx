@@ -440,9 +440,9 @@ export default function Challenges() {
         </div>
         {user && (
           <div className="absolute -bottom-2 -right-2 overflow-visible">
-            <div className="w-8 h-8 bg-pink-500 rounded-xl rotate-45 flex items-center justify-center">
+            <div className="w-8 h-8 bg-blue-500 rounded-xl rotate-45 flex items-center justify-center">
               <span className="text-white font-bold text-sm -rotate-45">
-                {combinedPattern.patterns.length}
+                {combinedPattern.matchedGames.length}
               </span>
             </div>
           </div>
