@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronFirst, ChevronLast } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
@@ -234,6 +234,11 @@ export function UserProfile() {
 
   const totalPages = Math.ceil(filteredAndSortedGames.length / entriesPerPage)
 
+  const paginatedGames = useMemo(() => {
+    const startIndex = (currentPage - 1) * entriesPerPage
+    return filteredAndSortedGames.slice(startIndex, startIndex + entriesPerPage)
+  }, [filteredAndSortedGames, currentPage, entriesPerPage])
+
   const chartData = useMemo(() => {
     if (!profileData) return [];
     if (xAxisView === 'game') {
@@ -281,6 +286,89 @@ export function UserProfile() {
       chartRef.current.scrollLeft = chartRef.current.scrollWidth;
     }
   }, [chartData, xAxisView])
+
+  const ImprovedPagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
+    const pageRange = 2 // Number of pages to show on each side of the current page
+    
+    const renderPageNumbers = () => {
+      const pages = []
+      const startPage = Math.max(1, currentPage - pageRange)
+      const endPage = Math.min(totalPages, currentPage + pageRange)
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(
+          <PaginationItem key={i}>
+            <PaginationLink onClick={() => onPageChange(i)} isActive={currentPage === i}>
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        )
+      }
+
+      return pages
+    }
+
+    return (
+      <Pagination className="flex flex-wrap justify-center items-center gap-1">
+        <PaginationContent>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronFirst className="h-4 w-4" />
+            </Button>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => onPageChange(currentPage - 1)}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+            />
+          </PaginationItem>
+          {currentPage > pageRange + 1 && (
+            <>
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(1)}>1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            </>
+          )}
+          {renderPageNumbers()}
+          {currentPage < totalPages - pageRange && (
+            <>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(totalPages)}>{totalPages}</PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => onPageChange(currentPage + 1)}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+            />
+          </PaginationItem>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(totalPages)}
+              
+              disabled={currentPage === totalPages}
+            >
+              <ChevronLast className="h-4 w-4" />
+            </Button>
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    )
+  }
 
   if (!isLoaded || isLoading) {
     return <LoadingSkeleton />
@@ -549,7 +637,7 @@ export function UserProfile() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSortedGames.map((game) => (
+                {paginatedGames.map((game) => (
                   <TableRow key={game.id}>
                     <TableCell className="p-2">
                       <MiniProgressBar grid={game.grid} onClick={() => handleViewCompletedBoard(game)} />
@@ -577,77 +665,11 @@ export function UserProfile() {
               </TableBody>
             </Table>
             {totalPages > 1 && (
-              <Pagination className="mt-4">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                  {totalPages <= 7 ? (
-                    [...Array(totalPages)].map((_, i) => (
-                      <PaginationItem key={i}>
-                        <PaginationLink onClick={() => setCurrentPage(i + 1)} isActive={currentPage === i + 1}>
-                          {i + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))
-                  ) : (
-                    <>
-                      <PaginationItem>
-                        <PaginationLink onClick={() => setCurrentPage(1)} isActive={currentPage === 1}>
-                          1
-                        </PaginationLink>
-                      </PaginationItem>
-                      {currentPage > 3 && <PaginationEllipsis />}
-                      {currentPage === totalPages && (
-                        <PaginationItem>
-                          <PaginationLink onClick={() => setCurrentPage(totalPages - 2)}>
-                            {totalPages - 2}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )}
-                      {currentPage > 2 && currentPage < totalPages && (
-                        <PaginationItem>
-                          <PaginationLink onClick={() => setCurrentPage(currentPage - 1)}>
-                            {currentPage - 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )}
-                      {currentPage !== 1 && currentPage !== totalPages && (
-                        <PaginationItem>
-                          <PaginationLink isActive>{currentPage}</PaginationLink>
-                        </PaginationItem>
-                      )}
-                      {currentPage < totalPages - 1 && currentPage > 1 && (
-                        <PaginationItem>
-                          <PaginationLink onClick={() => setCurrentPage(currentPage + 1)}>
-                            {currentPage + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )}
-                      {currentPage === 1 && (
-                        <PaginationItem>
-                          <PaginationLink onClick={() => setCurrentPage(3)}>3</PaginationLink>
-                        </PaginationItem>
-                      )}
-                      {currentPage < totalPages - 2 && <PaginationEllipsis />}
-                      <PaginationItem>
-                        <PaginationLink onClick={() => setCurrentPage(totalPages)} isActive={currentPage === totalPages}>
-                          {totalPages}
-                        </PaginationLink>
-                      </PaginationItem>
-                    </>
-                  )}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <ImprovedPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             )}
           </CardContent>
         </Card>
@@ -686,17 +708,22 @@ export function UserProfile() {
 
 function LoadingSkeleton() {
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardContent>
-        <Skeleton className="h-8 w-[200px] mb-4" />
-        <Skeleton className="h-4 w-[150px] mb-2" />
-        <Skeleton className="h-4 w-[180px] mb-6" />
+    <div className="w-full max-w-4xl mx-auto p-4">
+      <div className="space-y-4">
+        <Skeleton className="h-12 w-3/4 mx-auto" />
+        <Skeleton className="h-6 w-1/2 mx-auto" />
+        <div className="flex justify-center space-x-4">
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20" />
+        </div>
+        <Skeleton className="h-64 w-full" />
         <div className="space-y-2">
           {[...Array(5)].map((_, i) => (
             <Skeleton key={i} className="h-12 w-full" />
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
