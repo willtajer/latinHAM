@@ -1,15 +1,12 @@
-import { NextResponse, NextRequest } from 'next/server'
-import { getAuth } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 import { sql } from '@vercel/postgres'
 
-export async function GET(request: NextRequest) {
-  const { userId } = getAuth(request)
-  const searchParams = request.nextUrl.searchParams
-  const limit = parseInt(searchParams.get('limit') || '50', 10)
-  const offset = parseInt(searchParams.get('offset') || '0', 10)
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const userId = searchParams.get('userId')
 
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
   }
 
   try {
@@ -26,12 +23,10 @@ export async function GET(request: NextRequest) {
         le.user_id = ${userId}
       ORDER BY 
         le.timestamp DESC
-      LIMIT ${limit}
-      OFFSET ${offset}
     `
 
-    if (result.rows.length === 0 && offset === 0) {
-      return NextResponse.json({ error: 'No games played' }, { status: 404 })
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'User not found or no games played' }, { status: 404 })
     }
 
     const userData = {
@@ -50,14 +45,7 @@ export async function GET(request: NextRequest) {
       }))
     }
 
-    // Get total count of games for pagination
-    const countResult = await sql`
-      SELECT COUNT(*) as total
-      FROM leaderboard_entries
-      WHERE user_id = ${userId}
-    `
-
-    const totalGames = parseInt(countResult.rows[0].total, 10)
+    const totalGames = result.rows.length
 
     return NextResponse.json({ ...userData, totalGames })
   } catch (error) {
