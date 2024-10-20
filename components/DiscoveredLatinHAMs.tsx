@@ -8,7 +8,6 @@ import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { RefreshCw } from 'lucide-react'
 import { useDiscoveredLatinHAMs } from '../hooks/useDiscoveredLatinHAMs'
 
 const DifficultyFilters: React.FC<{
@@ -168,12 +167,6 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
                 </div>
               </div>
             </RadioGroup>
-          </div>
-          <div className="flex justify-center mb-4">
-            <Button onClick={refreshData} variant="outline">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh Data
-            </Button>
           </div>
         </>
       )}
