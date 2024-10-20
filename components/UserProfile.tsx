@@ -288,7 +288,7 @@ export function UserProfile() {
   }, [chartData, xAxisView])
 
   const ImprovedPagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
-    const pageRange = 2 // Number of pages to show on each side of the current page
+    const pageRange = 1 // Number of pages to show on each side of the current page
     
     const renderPageNumbers = () => {
       const pages = []
