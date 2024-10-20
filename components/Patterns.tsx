@@ -340,7 +340,7 @@ export default function Challenges() {
     <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
       <CardContent className="p-4 pt-6">
         {pattern.patternType === 'solid' && (
-          <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)} rounded-t-lg`}>
+          <div className={`absolute top-0 left-0  right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)} rounded-t-lg`}>
             Solid {colorNames[pattern.color]}
           </div>
         )}
@@ -359,7 +359,7 @@ export default function Challenges() {
         </div>
         <div className="aspect-square mb-4 relative">
           <PatternDetector 
-            board={pattern.matchedGames.length > 0 ? pattern.matchedGames[0].grid : pattern.grid} 
+            board={pattern.grid}
             type={pattern.patternType}
             highlightedCells={pattern.highlightedCells}
           />
@@ -459,107 +459,95 @@ export default function Challenges() {
           </CardContent>
         </Card>
       )}
-      {user && games.length === 0 ? (
-        <Card className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-[400px] mx-auto mb-6">
-          <CardContent className="text-center">
-            <h2 className="text-xl font-bold mb-2">No Games Yet</h2>
-            <p className="mb-4">You haven&apos;t completed any games yet. Play some games to start discovering patterns!</p>
-            <Button onClick={() => {/* Add navigation to game page */}}>Start Playing</Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="flex flex-col items-center space-y-4">
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button
-                onClick={() => setChallengeType('solid')}
-                className={`${
-                  challengeType === 'solid'
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                } transition-colors duration-200`}
-              >
-                Solid {user && `- ${foundCounterText.solid}`}
-              </Button>
-              <Button
-                onClick={() => setChallengeType('ordered')}
-                className={`${
-                  challengeType === 'ordered'
-                    ? 'bg-gradient-to-r from-red-500 via-blue-500 via-yellow-500 via-green-500 via-purple-500 to-orange-500 text-white'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                } transition-colors duration-200`}
-              >
-                Ordered {user && `- ${foundCounterText.ordered}`}
-              </Button>
-              <Button
-                onClick={() => setChallengeType('rainbow')}
-                className={`${
-                  challengeType === 'rainbow'
-                    ? 'bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                } transition-colors duration-200`}
-              >
-                Rainbow {user && `- ${foundCounterText.rainbow}`}
-              </Button>
-              <Button
-                onClick={() => setChallengeType('combined')}
-                className={`${
-                  challengeType === 'combined'
-                    ? 'bg-pink-500 hover:bg-pink-600 text-white'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                } transition-colors duration-200`}
-              >
-                Combo {user && `- ${foundCounterText.combined}`}
-              </Button>
-            </div>
+      <div className="flex flex-col items-center space-y-4">
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button
+            onClick={() => setChallengeType('solid')}
+            className={`${
+              challengeType === 'solid'
+                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            } transition-colors duration-200`}
+          >
+            Solid {user && `- ${foundCounterText.solid}`}
+          </Button>
+          <Button
+            onClick={() => setChallengeType('ordered')}
+            className={`${
+              challengeType === 'ordered'
+                ? 'bg-gradient-to-r from-red-500 via-blue-500 via-yellow-500 via-green-500 via-purple-500 to-orange-500 text-white'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            } transition-colors duration-200`}
+          >
+            Ordered {user && `- ${foundCounterText.ordered}`}
+          </Button>
+          <Button
+            onClick={() => setChallengeType('rainbow')}
+            className={`${
+              challengeType === 'rainbow'
+                ? 'bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 text-white'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            } transition-colors duration-200`}
+          >
+            Rainbow {user && `- ${foundCounterText.rainbow}`}
+          </Button>
+          <Button
+            onClick={() => setChallengeType('combined')}
+            className={`${
+              challengeType === 'combined'
+                ? 'bg-pink-500 hover:bg-pink-600 text-white'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            } transition-colors duration-200`}
+          >
+            Combined {user && `- ${foundCounterText.combined}`}
+          </Button>
+        </div>
+      </div>
+      {challengeType === 'ordered' && (
+        <RadioGroup
+          defaultValue="row"
+          onValueChange={(value) => setOrderedSubsection(value as ChallengeSubsection)}
+          className="flex justify-center space-x-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="row" id="ordered-row" className="border-white text-white" />
+            <Label htmlFor="ordered-row" className="text-white">Rows</Label>
           </div>
-          {challengeType === 'ordered' && (
-            <RadioGroup
-              defaultValue="row"
-              onValueChange={(value) => setOrderedSubsection(value as ChallengeSubsection)}
-              className="flex justify-center space-x-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="row" id="ordered-row" className="border-white text-white" />
-                <Label htmlFor="ordered-row" className="text-white">Rows</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="column" id="ordered-column" className="border-white text-white" />
-                <Label htmlFor="ordered-column" className="text-white">Columns</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="diagonal" id="ordered-diagonal" className="border-white text-white" />
-                <Label htmlFor="ordered-diagonal" className="text-white">Diagonals</Label>
-              </div>
-            </RadioGroup>
-          )}
-          {challengeType === 'rainbow' && (
-            <RadioGroup
-              defaultValue="row"
-              onValueChange={(value) => setRainbowSubsection(value as ChallengeSubsection)}
-              className="flex justify-center space-x-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="row" id="rainbow-row" className="border-white text-white" />
-                <Label htmlFor="rainbow-row" className="text-white">Rows</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="column" id="rainbow-column" className="border-white text-white" />
-                <Label htmlFor="rainbow-column" className="text-white">Columns</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="diagonal" id="rainbow-diagonal" className="border-white text-white" />
-                <Label htmlFor="rainbow-diagonal" className="text-white">Diagonals</Label>
-              </div>
-            </RadioGroup>
-          )}
-          <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
-            {challengeType === 'combined'
-              ? combinedPatterns.map(renderCombinedPatternCard)
-              : patterns.map(renderPatternCard)}
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="column" id="ordered-column" className="border-white text-white" />
+            <Label htmlFor="ordered-column" className="text-white">Columns</Label>
           </div>
-        </>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="diagonal" id="ordered-diagonal" className="border-white text-white" />
+            <Label htmlFor="ordered-diagonal" className="text-white">Diagonals</Label>
+          </div>
+        </RadioGroup>
       )}
+      {challengeType === 'rainbow' && (
+        <RadioGroup
+          defaultValue="row"
+          onValueChange={(value) => setRainbowSubsection(value as ChallengeSubsection)}
+          className="flex justify-center space-x-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="row" id="rainbow-row" className="border-white text-white" />
+            <Label htmlFor="rainbow-row" className="text-white">Rows</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="column" id="rainbow-column" className="border-white text-white" />
+            <Label htmlFor="rainbow-column" className="text-white">Columns</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="diagonal" id="rainbow-diagonal" className="border-white text-white" />
+            <Label htmlFor="rainbow-diagonal" className="text-white">Diagonals</Label>
+          </div>
+        </RadioGroup>
+      )}
+      <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
+        {challengeType === 'combined'
+          ? (combinedPatterns.length > 0 ? combinedPatterns.map(renderCombinedPatternCard) : <p className="text-center text-white col-span-full">No combined patterns found yet. Keep playing to discover them!</p>)
+          : patterns.map(renderPatternCard)}
+      </div>
     </div>
   )
 }
