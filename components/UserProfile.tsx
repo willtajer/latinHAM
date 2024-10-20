@@ -6,9 +6,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChevronUp, ChevronDown, ChevronFirst, ChevronLast } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -322,10 +322,14 @@ export function UserProfile() {
             </Button>
           </PaginationItem>
           <PaginationItem>
-            <PaginationPrevious
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => onPageChange(currentPage - 1)}
-              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-            />
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
           </PaginationItem>
           {currentPage > pageRange + 1 && (
             <>
@@ -349,10 +353,14 @@ export function UserProfile() {
             </>
           )}
           <PaginationItem>
-            <PaginationNext
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() => onPageChange(currentPage + 1)}
-              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-            />
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </PaginationItem>
           <PaginationItem>
             <Button

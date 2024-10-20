@@ -4,8 +4,8 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ChevronUp, ChevronDown } from 'lucide-react'
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import { ChevronUp, ChevronDown, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -304,9 +304,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             <p>
               <span className="font-semibold">Time:</span>{' '}
               <span className={type === "time" ? "text-yellow-500 font-bold" : ""}>
-                {entry ? 
-
- formatTime(entry.time) : 'N/A'}
+                {entry ? formatTime(entry.time) : 'N/A'}
               </span>
             </p>
           </div>
@@ -319,11 +317,101 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
   };
 
   const totalGames = entries.length;
-  const gameCounts = {
+  const  gameCounts = {
     easy: entries.filter(entry => entry.difficulty === 'easy').length,
     medium: entries.filter(entry => entry.difficulty === 'medium').length,
     hard: entries.filter(entry => entry.difficulty === 'hard').length,
   };
+
+  const ImprovedPagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
+    const pageRange = 1 // Number of pages to show on each side of the current page
+    
+    const renderPageNumbers = () => {
+      const pages = []
+      const startPage = Math.max(1, currentPage - pageRange)
+      const endPage = Math.min(totalPages, currentPage + pageRange)
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(
+          <PaginationItem key={i}>
+            <PaginationLink onClick={() => onPageChange(i)} isActive={currentPage === i}>
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        )
+      }
+
+      return pages
+    }
+
+    return (
+      <Pagination className="flex flex-wrap justify-center items-center gap-1">
+        <PaginationContent>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronFirst className="h-4 w-4" />
+            </Button>
+          </PaginationItem>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </PaginationItem>
+          {currentPage > pageRange + 1 && (
+            <>
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(1)}>1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            </>
+          )}
+          {renderPageNumbers()}
+          {currentPage < totalPages - pageRange && (
+            <>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(totalPages)}>{totalPages}</PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </PaginationItem>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onPageChange(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronLast className="h-4 w-4" />
+            </Button>
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    )
+  }
 
   if (!isLoaded || isLoading) {
     return <div className="text-center py-8 text-white">Loading leaderboard entries...</div>
@@ -334,7 +422,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       {!user && (
         <Card className="w-full max-w-md mx-auto mb-6 bg-white dark:bg-gray-800">
           <CardContent className="pt-6 text-center">
@@ -385,8 +473,8 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
         <h2 className="font-bold text-3xl p-4 text-white">Game History</h2>
       </div>
 
-      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6 bg-white dark:bg-gray-800">
-        <CardContent>
+      <Card className="w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 flex-grow">
+        <CardContent className="p-6">
           <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
             <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
               {difficulty === 'all' ? 'Overall' : `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`} Averages
@@ -407,7 +495,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             </div>
           </div>
 
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center mb-6">
             <div className="w-full relative">
               <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
                 <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -513,122 +601,108 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             </Button>
           </div>
 
-          <Table className="w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12 text-gray-900 dark:text-white">#</TableHead>
-                <TableHead 
-                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
-                  onClick={() => handleSort('date')}
-                >
-                  Date
-                  {sortColumn === 'date' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead className="w-16 text-gray-900 dark:text-white">LatinHAM</TableHead>
-                <TableHead 
-                  className="w-20 cursor-pointer text-gray-900 dark:text-white"
-                  onClick={() => handleSort('difficulty')}
-                >
-                  Difficulty
-                  {sortColumn === 'difficulty' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
-                  onClick={() => handleSort('username')}
-                >
-                  User
-                  {sortColumn === 'username' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-16 cursor-pointer text-gray-900 dark:text-white"
-                  onClick={() => handleSort('moves')}
-                >
-                  Moves
-                  {sortColumn === 'moves' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-16 cursor-pointer text-gray-900 dark:text-white"
-                  onClick={() => handleSort('hints')}
-                >
-                  Hints
-                  {sortColumn === 'hints' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead 
-                  className="w-24 cursor-pointer text-gray-900 dark:text-white"
-                  onClick={() => handleSort('duration')}
-                >
-                  Duration
-                  {sortColumn === 'duration' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead className="w-32 text-gray-900 dark:text-white">Quote</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedEntries.map((entry, index) => (
-                <TableRow key={entry.id}>
-                  <TableCell className="p-2 text-center text-gray-900 dark:text-white">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
-                  <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{formatDate(entry.timestamp)}</TableCell>
-                  <TableCell className="p-2">
-                    <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
-                  </TableCell>
-                  <TableCell className="p-2">
-                    <Badge 
-                      className={
-                        entry.difficulty === 'easy'
-                          ? 'bg-green-500 hover:bg-green-600'
-                          : entry.difficulty === 'medium'
-                          ? 'bg-orange-500 hover:bg-orange-600'
-                          : 'bg-red-500 hover:bg-red-600'
-                      }
-                    >
-                      {entry.difficulty}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{entry.username || 'Anonymous'}</TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.moves}</TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.hints || 0}</TableCell>
-                  <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{formatTime(entry.time)}</TableCell>
-                  <TableCell className="p-1 text-sm truncate text-gray-900 dark:text-white">{entry.quote}</TableCell>
+          <div className="overflow-x-auto">
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12 text-gray-900 dark:text-white">#</TableHead>
+                  <TableHead 
+                    className="w-24 cursor-pointer text-gray-900 dark:text-white"
+                    onClick={() => handleSort('date')}
+                  >
+                    Date
+                    {sortColumn === 'date' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead className="w-16 text-gray-900 dark:text-white">LatinHAM</TableHead>
+                  <TableHead 
+                    className="w-20 cursor-pointer text-gray-900 dark:text-white"
+                    onClick={() => handleSort('difficulty')}
+                  >
+                    Difficulty
+                    {sortColumn === 'difficulty' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead 
+                    className="w-24 cursor-pointer text-gray-900 dark:text-white"
+                    onClick={() => handleSort('username')}
+                  >
+                    User
+                    {sortColumn === 'username' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead 
+                    className="w-16 cursor-pointer text-gray-900 dark:text-white"
+                    onClick={() => handleSort('moves')}
+                  >
+                    Moves
+                    {sortColumn === 'moves' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead 
+                    className="w-16 cursor-pointer text-gray-900 dark:text-white"
+                    onClick={() => handleSort('hints')}
+                  >
+                    Hints
+                    {sortColumn === 'hints' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead 
+                    className="w-24 cursor-pointer text-gray-900 dark:text-white"
+                    onClick={() => handleSort('duration')}
+                  >
+                    Duration
+                    {sortColumn === 'duration' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead className="w-32 text-gray-900 dark:text-white">Quote</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {totalPages > 1 && (
-            <Pagination className="mt-4">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-                {[...Array(totalPages)].map((_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink onClick={() => setCurrentPage(i + 1)} isActive={currentPage === i + 1}>
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
+              </TableHeader>
+              <TableBody>
+                {paginatedEntries.map((entry, index) => (
+                  <TableRow key={entry.id}>
+                    <TableCell className="p-2 text-center text-gray-900 dark:text-white">{(currentPage - 1) * entriesPerPage + index + 1}</TableCell>
+                    <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{formatDate(entry.timestamp)}</TableCell>
+                    <TableCell className="p-2">
+                      <MiniProgressBar grid={entry.grid} onClick={() => handleViewCompletedBoard(entry)} />
+                    </TableCell>
+                    <TableCell className="p-2">
+                      <Badge 
+                        className={
+                          entry.difficulty === 'easy'
+                            ? 'bg-green-500 hover:bg-green-600'
+                            : entry.difficulty === 'medium'
+                            ? 'bg-orange-500 hover:bg-orange-600'
+                            : 'bg-red-500 hover:bg-red-600'
+                        }
+                      >
+                        {entry.difficulty}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{entry.username || 'Anonymous'}</TableCell>
+                    <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.moves}</TableCell>
+                    <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.hints || 0}</TableCell>
+                    <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{formatTime(entry.time)}</TableCell>
+                    <TableCell className="p-1 text-sm truncate text-gray-900 dark:text-white">{entry.quote}</TableCell>
+                  </TableRow>
                 ))}
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+              </TableBody>
+            </Table>
+          </div>
+          {totalPages > 1 && (
+            <div className="mt-4">
+              <ImprovedPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           )}
         </CardContent>
       </Card>
@@ -650,6 +724,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   )
 }
