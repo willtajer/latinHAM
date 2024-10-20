@@ -60,6 +60,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const [sortCriteria, setSortCriteria] = useState<'totalPlays' | 'date' | 'solvedCount' | 'possibleSolveCount'>('totalPlays')
   const [showCompleted, setShowCompleted] = useState(false)
   const [showIncomplete, setShowIncomplete] = useState(true)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
@@ -90,7 +91,24 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
 
   useEffect(() => {
     fetchLatinHAMs()
-  }, [fetchLatinHAMs])
+  }, [fetchLatinHAMs, refreshTrigger])
+
+  const refreshData = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1)
+  }, [])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshData()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [refreshData])
 
   const handleLatinHAMClick = (latinHAM: DiscoveredLatinHAM) => {
     setSelectedLatinHAM(latinHAM)
