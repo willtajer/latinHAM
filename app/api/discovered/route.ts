@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
 
 interface DiscoveredLatinHAM {
@@ -41,7 +41,10 @@ function parseJsonField(field: string | number[][]): number[][] {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const timestamp = request.nextUrl.searchParams.get('timestamp')
+  console.log(`API called at ${new Date().toISOString()}, client timestamp: ${timestamp}`)
+
   try {
     const result = await sql<DatabaseEntry>`
       WITH distinct_grids AS (
@@ -105,9 +108,11 @@ export async function GET() {
       }
     }).filter((entry): entry is DiscoveredLatinHAM => entry !== null)
 
-    console.log('Fetched discovered latinHAMs:', JSON.stringify(formattedLatinHAMs))
+    console.log(`Fetched ${formattedLatinHAMs.length} discovered latinHAMs`)
 
-    return NextResponse.json(formattedLatinHAMs)
+    const response = NextResponse.json(formattedLatinHAMs)
+    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    return response
   } catch (error) {
     console.error('Failed to fetch discovered latinHAMs:', error)
     return NextResponse.json({ error: 'Failed to fetch discovered latinHAMs' }, { status: 500 })
