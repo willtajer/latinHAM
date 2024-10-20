@@ -499,7 +499,7 @@ export default function Challenges() {
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >
-            Combined {user && `- ${foundCounterText.combined}`}
+            Combo {user && `- ${foundCounterText.combined}`}
           </Button>
         </div>
       </div>
