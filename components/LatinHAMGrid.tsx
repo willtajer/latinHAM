@@ -24,6 +24,18 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
     return `${minutes}m${remainingSeconds}s`
   }
 
+  const formatDiscoveryDateTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    });
+  }
+
   const MiniGameBoard: React.FC<{ initialGrid: number[][] }> = ({ initialGrid }) => {
     if (!initialGrid || initialGrid.length === 0) {
       return <div className="text-red-500">Error: Invalid grid data</div>;
@@ -73,6 +85,9 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
             className="cursor-pointer hover:opacity-80 transition-opacity duration-200"
             onClick={() => onLatinHAMClick(latinHAM)}
           >
+            <div className="mb-2 text-sm font-semibold text-gray-800 dark:text-gray-300 text-center">
+              Discovered on {latinHAM.createdAt ? formatDiscoveryDateTime(latinHAM.createdAt) : 'Unknown Date'}
+            </div>
             <MiniGameBoard initialGrid={latinHAM.initialGrid} />
             <div className="mt-4 text-sm text-gray-800 dark:text-gray-300">
               <p>
@@ -82,7 +97,7 @@ const LatinHAMGrid: React.FC<LatinHAMGridProps> = ({
                 <strong>Total Plays: </strong>{latinHAM.solveCount}
               </p>
               <p>
-                <strong>Solved : </strong>{latinHAM.uniqueSolves} / {calculateSolveCount(latinHAM.initialGrid)}
+                <strong>Solved: </strong>{latinHAM.uniqueSolves} / {calculateSolveCount(latinHAM.initialGrid)}
               </p>
               <p>
                 <strong>Best Moves: </strong>{latinHAM.bestMoves}

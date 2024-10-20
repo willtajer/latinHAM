@@ -5,22 +5,24 @@ interface DiscoveredLatinHAM {
   initialGrid: number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   solveCount: number;
-  uniqueSolves: number;  // Added this field
+  uniqueSolves: number;
   bestMoves: number;
   bestTime: number;
   bestMovesPlayer: string | null;
   bestTimePlayer: string | null;
+  createdAt: string;
 }
 
 interface DatabaseEntry {
   initial_grid: string | number[][];
   difficulty: 'easy' | 'medium' | 'hard';
   solve_count: number | string;
-  unique_solve_count: number | string;  // Added this field
+  unique_solve_count: number | string;
   best_moves: number | string;
   best_time: number | string;
   best_moves_player: string | null;
   best_time_player: string | null;
+  created_at: string;
 }
 
 function parseJsonField(field: string | number[][]): number[][] {
@@ -43,18 +45,18 @@ export async function GET() {
   try {
     const result = await sql<DatabaseEntry>`
       WITH distinct_grids AS (
-        SELECT DISTINCT initial_grid, difficulty
+        SELECT DISTINCT initial_grid, difficulty, MIN(timestamp) as created_at
         FROM leaderboard_entries
+        GROUP BY initial_grid, difficulty
       ),
       grid_stats AS (
         SELECT 
           initial_grid,
           difficulty,
           COUNT(*) as solve_count,
-          COUNT(DISTINCT grid) as unique_solve_count,  -- Added this line
+          COUNT(DISTINCT grid) as unique_solve_count,
           MIN(moves) as best_moves,
           MIN(time) as best_time,
-          -- Fetch usernames for best moves and best time
           (SELECT up.username FROM leaderboard_entries le
            LEFT JOIN user_profiles up ON le.user_id = up.clerk_user_id 
            WHERE le.moves = MIN(leaderboard_entries.moves) LIMIT 1) AS best_moves_player,
@@ -68,11 +70,12 @@ export async function GET() {
         dg.initial_grid,
         dg.difficulty,
         gs.solve_count,
-        gs.unique_solve_count,  -- Added this line
+        gs.unique_solve_count,
         gs.best_moves,
         gs.best_time,
         gs.best_moves_player,
-        gs.best_time_player
+        gs.best_time_player,
+        dg.created_at
       FROM distinct_grids dg
       JOIN grid_stats gs ON dg.initial_grid = gs.initial_grid AND dg.difficulty = gs.difficulty
       ORDER BY gs.solve_count DESC, gs.best_moves ASC, gs.best_time ASC
@@ -89,11 +92,12 @@ export async function GET() {
           initialGrid: initialGrid,
           difficulty: entry.difficulty,
           solveCount: Number(entry.solve_count),
-          uniqueSolves: Number(entry.unique_solve_count),  // Added this line
+          uniqueSolves: Number(entry.unique_solve_count),
           bestMoves: Number(entry.best_moves),
           bestTime: Number(entry.best_time),
           bestMovesPlayer: entry.best_moves_player,
-          bestTimePlayer: entry.best_time_player
+          bestTimePlayer: entry.best_time_player,
+          createdAt: entry.created_at
         } as DiscoveredLatinHAM
       } catch (parseError) {
         console.error('Error parsing entry:', entry, parseError)

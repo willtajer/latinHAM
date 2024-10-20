@@ -394,7 +394,7 @@ export default function Challenges() {
                 <p><strong>Best Time:</strong> {pattern.matchedGames[0].time}s</p>
                 <p><strong>Last Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
                 {pattern.matchedGames[0].quote && (
-                  <p className="mt-2 italic text-center">"{pattern.matchedGames[0].quote}"</p>
+                  <p className="mt-2 italic text-center">&quot;{pattern.matchedGames[0].quote}&quot;</p>
                 )}
               </>
             ) : (
@@ -437,7 +437,7 @@ export default function Challenges() {
           <p><strong>Time:</strong> {combinedPattern.matchedGames[0].time}s</p>
           <p><strong>Completed:</strong> {formatTimestamp(combinedPattern.matchedGames[0].created_at)}</p>
           {combinedPattern.matchedGames[0].quote && (
-            <p className="mt-2 italic text-center">"{combinedPattern.matchedGames[0].quote}"</p>
+            <p className="mt-2 italic text-center">&quot;{combinedPattern.matchedGames[0].quote}&quot;</p>
           )}
         </div>
         {user && (
