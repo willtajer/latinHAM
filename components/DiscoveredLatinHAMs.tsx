@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { calculateSolveCount } from '../utils/solveCountLogic'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { RefreshCw } from 'lucide-react'
 
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';
@@ -49,10 +50,9 @@ const DifficultyFilters: React.FC<{
 interface DiscoveredLatinHAMsProps {
   onPlayAgain: (initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => void;
   onCloseOverlays: () => void;
-  latestGameTimestamp: number;
 }
 
-export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTimestamp }: DiscoveredLatinHAMsProps) {
+export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
   const [latinHAMs, setLatinHAMs] = useState<DiscoveredLatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -66,7 +66,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTi
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&timestamp=${Date.now()}&latestGame=${latestGameTimestamp}`, {
+      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&timestamp=${Date.now()}`, {
         cache: 'no-store'
       })
       if (!response.ok) {
@@ -88,11 +88,11 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTi
     } finally {
       setIsLoading(false)
     }
-  }, [difficultyFilter, latestGameTimestamp])
+  }, [difficultyFilter])
 
   useEffect(() => {
     fetchLatinHAMs()
-  }, [fetchLatinHAMs, refreshTrigger, latestGameTimestamp])
+  }, [fetchLatinHAMs, refreshTrigger])
 
   const refreshData = useCallback(() => {
     setRefreshTrigger(prev => prev + 1)
@@ -105,9 +105,16 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTi
       }
     }
 
+    const handleNewGameWon = () => {
+      refreshData()
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('newGameWon', handleNewGameWon)
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('newGameWon', handleNewGameWon)
     }
   }, [refreshData])
 
@@ -149,18 +156,6 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTi
   const completedLatinHAMs = latinHAMs.filter(
     latinHAM => latinHAM.uniqueSolves === latinHAM.possibleSolveCount
   ).length
-
-  useEffect(() => {
-    const handleNewGame = () => {
-      refreshData();
-    };
-
-    window.addEventListener('newGameWon', handleNewGame);
-
-    return () => {
-      window.removeEventListener('newGameWon', handleNewGame);
-    };
-  }, [refreshData]);
 
   if (isLoading) {
     return <div className="text-center text-white py-8">Loading...</div>
@@ -230,6 +225,12 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTi
                 </div>
               </div>
             </RadioGroup>
+          </div>
+          <div className="flex justify-center mb-4">
+            <Button onClick={refreshData} variant="outline">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh Data
+            </Button>
           </div>
         </>
       )}
