@@ -150,6 +150,18 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTi
     latinHAM => latinHAM.uniqueSolves === latinHAM.possibleSolveCount
   ).length
 
+  useEffect(() => {
+    const handleNewGame = () => {
+      refreshData();
+    };
+
+    window.addEventListener('newGameWon', handleNewGame);
+
+    return () => {
+      window.removeEventListener('newGameWon', handleNewGame);
+    };
+  }, [refreshData]);
+
   if (isLoading) {
     return <div className="text-center text-white py-8">Loading...</div>
   }
