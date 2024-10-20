@@ -388,7 +388,7 @@ export default function Challenges() {
                 )}
               </>
             ) : (
-              <p className="text-center">Unfound LatinHAM</p>
+              <p className="text-center">Unfound</p>
             )
           ) : (
             <p className="text-center">Sign in to track your patterns!</p>
