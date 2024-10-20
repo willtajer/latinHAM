@@ -309,7 +309,7 @@ export function UserProfile() {
     }
 
     return (
-      <Pagination className="flex flex-wrap justify-center items-center gap-1 pt-2">
+      <Pagination className="flex flex-wrap justify-center items-center gap-1 pt-4">
         <PaginationContent>
           <PaginationItem>
             <Button
