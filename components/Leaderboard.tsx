@@ -304,8 +304,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             <p>
               <span className="font-semibold">Time:</span>{' '}
               <span className={type === "time" ? "text-yellow-500 font-bold" : ""}>
-                
-                {entry ? formatTime(entry.time) : 'N/A'}
+                {entry ? 
+
+ formatTime(entry.time) : 'N/A'}
               </span>
             </p>
           </div>
@@ -382,36 +383,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
 
       <div className="text-center mb-6">
         <h2 className="font-bold text-3xl p-4 text-white">Game History</h2>
-        <div className="flex justify-center space-x-2 mb-6">
-          <Button
-            onClick={() => handleDifficultyChange('all')}
-            variant={difficulty === 'all' ? 'default' : 'outline'}
-            className={difficulty === 'all' ? 'bg-blue-500 hover:bg-blue-600' : ''}
-          >
-            All
-          </Button>
-          <Button
-            onClick={() => handleDifficultyChange('easy')}
-            variant={difficulty === 'easy' ? 'default' : 'outline'}
-            className={difficulty === 'easy' ? 'bg-green-500 hover:bg-green-600' : ''}
-          >
-            Easy
-          </Button>
-          <Button
-            onClick={() => handleDifficultyChange('medium')}
-            variant={difficulty === 'medium' ? 'default' : 'outline'}
-            className={difficulty === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : ''}
-          >
-            Medium
-          </Button>
-          <Button
-            onClick={() => handleDifficultyChange('hard')}
-            variant={difficulty === 'hard' ? 'default' : 'outline'}
-            className={difficulty === 'hard' ? 'bg-red-500 hover:bg-red-600' : ''}
-          >
-            Hard
-          </Button>
-        </div>
       </div>
 
       <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6 bg-white dark:bg-gray-800">
@@ -511,6 +482,37 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             </RadioGroup>
           </div>
 
+          <div className="flex justify-center space-x-2 mb-6">
+            <Button
+              onClick={() => handleDifficultyChange('all')}
+              variant={difficulty === 'all' ? 'default' : 'outline'}
+              className={difficulty === 'all' ? 'bg-blue-500 hover:bg-blue-600' : ''}
+            >
+              All
+            </Button>
+            <Button
+              onClick={() => handleDifficultyChange('easy')}
+              variant={difficulty === 'easy' ? 'default' : 'outline'}
+              className={difficulty === 'easy' ? 'bg-green-500 hover:bg-green-600' : ''}
+            >
+              Easy
+            </Button>
+            <Button
+              onClick={() => handleDifficultyChange('medium')}
+              variant={difficulty === 'medium' ? 'default' : 'outline'}
+              className={difficulty === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : ''}
+            >
+              Medium
+            </Button>
+            <Button
+              onClick={() => handleDifficultyChange('hard')}
+              variant={difficulty === 'hard' ? 'default' : 'outline'}
+              className={difficulty === 'hard' ? 'bg-red-500 hover:bg-red-600' : ''}
+            >
+              Hard
+            </Button>
+          </div>
+
           <Table className="w-full">
             <TableHeader>
               <TableRow>
@@ -584,19 +586,20 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
                   <TableCell className="p-2">
                     <Badge 
                       className={
-                        entry.difficulty === 'easy' 
-                          ? 'bg-green-500 hover:bg-green-600' 
-                          : entry.difficulty === 'medium' 
-                            ? 'bg-orange-500 hover:bg-orange-600' 
-                            : 'bg-red-500 hover:bg-red-600'
-                      }>
+                        entry.difficulty === 'easy'
+                          ? 'bg-green-500 hover:bg-green-600'
+                          : entry.difficulty === 'medium'
+                          ? 'bg-orange-500 hover:bg-orange-600'
+                          : 'bg-red-500 hover:bg-red-600'
+                      }
+                    >
                       {entry.difficulty}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.username || 'Anonymous'}</TableCell>
+                  <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{entry.username || 'Anonymous'}</TableCell>
                   <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.moves}</TableCell>
                   <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{entry.hints || 0}</TableCell>
-                  <TableCell className="p-1 text-sm text-center text-gray-900 dark:text-white">{formatTime(entry.time)}</TableCell>
+                  <TableCell className="p-1 text-sm text-gray-900 dark:text-white">{formatTime(entry.time)}</TableCell>
                   <TableCell className="p-1 text-sm truncate text-gray-900 dark:text-white">{entry.quote}</TableCell>
                 </TableRow>
               ))}
@@ -629,11 +632,7 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
           )}
         </CardContent>
       </Card>
-      <Dialog open={!!selectedGame} onOpenChange={(open) => {
-        if (!open) {
-          setSelectedGame(null);
-        }
-      }}>
+      <Dialog open={!!selectedGame} onOpenChange={(open) => !open && setSelectedGame(null)}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Completed LatinHAM</DialogTitle>
@@ -641,12 +640,9 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
           </DialogHeader>
           {selectedGame && (
             <CompletedPuzzleCard
-              entry={{
-                ...selectedGame,
-                initialGrid: selectedGame.initialGrid || selectedGame.grid,
-              }}
+              entry={selectedGame}
               difficulty={selectedGame.difficulty}
-              gameNumber={entries.findIndex((game) => game.id === selectedGame.id) + 1}
+              gameNumber={rankedEntries.findIndex((entry) => entry.id === selectedGame.id) + 1}
               onImageReady={(file: File) => {
                 console.log('Image ready:', file.name);
               }}

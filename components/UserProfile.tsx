@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -324,42 +324,26 @@ export function UserProfile() {
           </div>
         </div>
         <p className="text-xl mb-6">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-        <p className="text-xl mb-6">
-          {difficultyFilter === 'all'
-            ? `Total games played: ${profileData.games.length}`
-            : `${difficultyFilter.charAt(0).toUpperCase() + difficultyFilter.slice(1)} games played: ${profileData.games.filter(game => game.difficulty === difficultyFilter).length}`}
-        </p>
-        <div className="flex justify-center space-x-2 mb-6">
-          <Button
-            onClick={() => setDifficultyFilter('all')}
-            variant={difficultyFilter === 'all' ? 'default' : 'outline'}
-            className={`${difficultyFilter === 'all' ? 'bg-blue-500 hover:bg-blue-600' : 'text-foreground'}`}
-          >
-            All
-          </Button>
-          <Button
-            onClick={() => setDifficultyFilter('easy')}
-            variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
-            className={`${difficultyFilter === 'easy' ? 'bg-green-500 hover:bg-green-600' : 'text-foreground'}`}
-          >
-            Easy
-          </Button>
-          <Button
-            onClick={() => setDifficultyFilter('medium')}
-            variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
-            className={`${difficultyFilter === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : 'text-foreground'}`}
-          >
-            Medium
-          </Button>
-          <Button
-            onClick={() => setDifficultyFilter('hard')}
-            variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
-            className={`${difficultyFilter === 'hard' ? 'bg-red-500 hover:bg-red-600' : 'text-foreground'}`}
-          >
-            Hard
-          </Button>
-        </div>
       </div>
+
+      <Card className="w-full max-w-6xl mx-auto mb-6 bg-transparent border-transparent shadow-transparent">
+        <CardContent className="py-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4 text-white">Total Games Played: {profileData.games.length}</h2>
+            <div className="flex justify-center space-x-4">
+              <Badge variant="secondary" className="text-lg py-1 px-3">
+                Easy: {profileData.games.filter(game => game.difficulty === 'easy').length}
+              </Badge>
+              <Badge variant="secondary" className="text-lg py-1 px-3">
+                Medium: {profileData.games.filter(game => game.difficulty === 'medium').length}
+              </Badge>
+              <Badge  variant="secondary" className="text-lg py-1 px-3">
+                Hard: {profileData.games.filter(game => game.difficulty === 'hard').length}
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6">
         <CardContent>
@@ -498,6 +482,37 @@ export function UserProfile() {
             </RadioGroup>
           </div>
 
+          <div className="flex justify-center space-x-2 mb-6">
+            <Button
+              onClick={() => setDifficultyFilter('all')}
+              variant={difficultyFilter === 'all' ? 'default' : 'outline'}
+              className={`${difficultyFilter === 'all' ? 'bg-blue-500 hover:bg-blue-600' : 'text-foreground'}`}
+            >
+              All
+            </Button>
+            <Button
+              onClick={() => setDifficultyFilter('easy')}
+              variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
+              className={`${difficultyFilter === 'easy' ? 'bg-green-500 hover:bg-green-600' : 'text-foreground'}`}
+            >
+              Easy
+            </Button>
+            <Button
+              onClick={() => setDifficultyFilter('medium')}
+              variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
+              className={`${difficultyFilter === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : 'text-foreground'}`}
+            >
+              Medium
+            </Button>
+            <Button
+              onClick={() => setDifficultyFilter('hard')}
+              variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
+              className={`${difficultyFilter === 'hard' ? 'bg-red-500 hover:bg-red-600' : 'text-foreground'}`}
+            >
+              Hard
+            </Button>
+          </div>
+
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
@@ -572,13 +587,61 @@ export function UserProfile() {
                     className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
-                {[...Array(totalPages)].map((_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink onClick={() => setCurrentPage(i + 1)} isActive={currentPage === i + 1}>
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
+                {totalPages <= 7 ? (
+                  [...Array(totalPages)].map((_, i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink onClick={() => setCurrentPage(i + 1)} isActive={currentPage === i + 1}>
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))
+                ) : (
+                  <>
+                    <PaginationItem>
+                      <PaginationLink onClick={() => setCurrentPage(1)} isActive={currentPage === 1}>
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                    {currentPage > 3 && <PaginationEllipsis />}
+                    {currentPage === totalPages && (
+                      <PaginationItem>
+                        <PaginationLink onClick={() => setCurrentPage(totalPages - 2)}>
+                          {totalPages - 2}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+                    {currentPage > 2 && currentPage < totalPages && (
+                      <PaginationItem>
+                        <PaginationLink onClick={() => setCurrentPage(currentPage - 1)}>
+                          {currentPage - 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+                    {currentPage !== 1 && currentPage !== totalPages && (
+                      <PaginationItem>
+                        <PaginationLink isActive>{currentPage}</PaginationLink>
+                      </PaginationItem>
+                    )}
+                    {currentPage < totalPages - 1 && currentPage > 1 && (
+                      <PaginationItem>
+                        <PaginationLink onClick={() => setCurrentPage(currentPage + 1)}>
+                          {currentPage + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+                    {currentPage === 1 && (
+                      <PaginationItem>
+                        <PaginationLink onClick={() => setCurrentPage(3)}>3</PaginationLink>
+                      </PaginationItem>
+                    )}
+                    {currentPage < totalPages - 2 && <PaginationEllipsis />}
+                    <PaginationItem>
+                      <PaginationLink onClick={() => setCurrentPage(totalPages)} isActive={currentPage === totalPages}>
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
                 <PaginationItem>
                   <PaginationNext
                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
