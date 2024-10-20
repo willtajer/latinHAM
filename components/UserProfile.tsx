@@ -233,10 +233,6 @@ export function UserProfile() {
   }, [profileData, difficultyFilter, sortColumn, sortDirection]);
 
   const totalPages = Math.ceil(filteredAndSortedGames.length / entriesPerPage)
-  const paginatedGames = filteredAndSortedGames.slice(
-    (currentPage - 1) * entriesPerPage,
-    currentPage * entriesPerPage
-  )
 
   const chartData = useMemo(() => {
     if (!profileData) return [];
@@ -315,344 +311,347 @@ export function UserProfile() {
   }
 
   return (
-    <>
-      <div className="text-center mb-6 text-white">
-        <h1 className="text-6xl font-bold mb-4">{profileData.username}</h1>
-        <div className="flex flex-col items-center justify-center">
-          <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
-            <GamePreview />
+    <div className="relative min-h-screen">
+      <div className="absolute inset-0 bg-transparent" />
+      <div className="relative z-10">
+        <div className="text-center mb-6 text-white">
+          <h1 className="text-6xl font-bold mb-4">{profileData.username}</h1>
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-[calc(6*3rem+6*0.75rem)] mt-2">
+              <GamePreview />
+            </div>
           </div>
+          <p className="text-xl mb-6">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
         </div>
-        <p className="text-xl mb-6">Member since: {new Date(profileData.user_created_at).toLocaleDateString()}</p>
-      </div>
 
-      <Card className="w-full max-w-6xl mx-auto mb-6 bg-transparent border-transparent shadow-transparent">
-        <CardContent className="py-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4 text-white">Total Games Played: {profileData.games.length}</h2>
-            <div className="flex justify-center space-x-4">
-              <Badge variant="secondary" className="text-lg py-1 px-3">
-                Easy: {profileData.games.filter(game => game.difficulty === 'easy').length}
-              </Badge>
-              <Badge variant="secondary" className="text-lg py-1 px-3">
-                Medium: {profileData.games.filter(game => game.difficulty === 'medium').length}
-              </Badge>
-              <Badge  variant="secondary" className="text-lg py-1 px-3">
-                Hard: {profileData.games.filter(game => game.difficulty === 'hard').length}
-              </Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="w-full max-w-6xl mx-auto overflow-auto max-h-[80vh] pt-6">
-        <CardContent>
-          {averages && (
-            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
-              <h3 className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
-                {difficultyFilter === 'all' ? 'Overall' : `${difficultyFilter.charAt(0).toUpperCase() + 
-                  difficultyFilter.slice(1)}`} Averages
-              </h3>
-              <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
-                  <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
-                  <p className="text-lg font-bold text-gray-950 dark:text-white">
-                    {formatDuration(Math.round(averages.duration))}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
-                  <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
-                </div>
+        <Card className="w-full max-w-6xl mx-auto mb-6 bg-transparent border-transparent shadow-transparent">
+          <CardContent className="py-6">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4 text-white">Total Games Played: {profileData.games.length}</h2>
+              <div className="flex justify-center space-x-4">
+                <Badge variant="secondary" className="text-lg py-1 px-3">
+                  Easy: {profileData.games.filter(game => game.difficulty === 'easy').length}
+                </Badge>
+                <Badge variant="secondary" className="text-lg py-1 px-3">
+                  Medium: {profileData.games.filter(game => game.difficulty === 'medium').length}
+                </Badge>
+                <Badge  variant="secondary" className="text-lg py-1 px-3">
+                  Hard: {profileData.games.filter(game => game.difficulty === 'hard').length}
+                </Badge>
               </div>
             </div>
-          )}
+          </CardContent>
+        </Card>
 
-          <div className="flex flex-col items-center">
-            <div className="w-full relative">
-              <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
-                <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
-                  Time (seconds)
+        <Card className="w-full max-w-6xl mx-auto mb-6">
+          <CardContent>
+            {averages && (
+              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+                <h3  className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
+                  {difficultyFilter === 'all' ? 'Overall' : `${difficultyFilter.charAt(0).toUpperCase() + 
+                    difficultyFilter.slice(1)}`} Averages
+                </h3>
+                <div className="grid grid-cols-3 gap-4 justify-items-center text-center">
+                  <div>
+                    <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Moves</p>
+                    <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.moves.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Duration</p>
+                    <p className="text-lg font-bold text-gray-950 dark:text-white">
+                      {formatDuration(Math.round(averages.duration))}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-900 dark:text-gray-400">Avg. Hints</p>
+                    <p className="text-lg font-bold text-gray-950 dark:text-white">{averages.hints.toFixed(2)}</p>
+                  </div>
                 </div>
               </div>
-              <div className="absolute top-0 bottom-0 right-0 flex flex-col justify-center">
-                <div className="transform rotate-90 origin-center translate-x-[50%] whitespace-nowrap text-sm text-gray-500">
-                  Moves
+            )}
+
+            <div className="flex flex-col items-center">
+              <div className="w-full relative">
+                <div className="absolute top-0 bottom-0 left-0 flex flex-col justify-center">
+                  <div className="transform -rotate-90 origin-center translate-x-[-50%] whitespace-nowrap text-sm text-gray-500">
+                    Time (seconds)
+                  </div>
+                </div>
+                <div className="absolute top-0 bottom-0 right-0 flex flex-col justify-center">
+                  <div className="transform rotate-90 origin-center translate-x-[50%] whitespace-nowrap text-sm text-gray-500">
+                    Moves
+                  </div>
+                </div>
+                <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
+                  <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey={xAxisView === 'game' ? 'game' : 'date'}
+                          label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }}
+                        />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <Tooltip content={<CustomTooltip xAxisView={xAxisView} />} />
+                        <Line
+                          yAxisId="left"
+                          type="monotone"
+                          dataKey="time"
+                          stroke="#8884d8"
+                          name="Time"
+                          strokeWidth={3}
+                          dot={false}
+                        />
+                        <Line
+                          yAxisId="right"
+                          type="monotone"
+                          dataKey="moves"
+                          stroke="#82ca9d"
+                          name="Moves"
+                          strokeWidth={3}
+                          dot={false}
+                        />
+                        {xAxisView === 'game' && (
+                          <>
+                            <Line
+                              yAxisId="left"
+                              type="monotone"
+                              dataKey="avgTime"
+                              stroke="rgba(136, 132, 216, 0.5)"
+                              name="Avg Time"
+                              strokeWidth={3}
+                              dot={false}
+                            />
+                            <Line
+                              yAxisId="right"
+                              type="monotone"
+                              dataKey="avgMoves"
+                              stroke="rgba(130, 202, 157, 0.5)"
+                              name="Avg Moves"
+                              strokeWidth={3}
+                              dot={false}
+                            />
+                          </>
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
-              <div ref={chartRef} className="overflow-x-auto ml-8 mr-8" style={{ width: 'calc(100% - 4rem)' }}>
-                <div className="w-full" style={{ minWidth: `${Math.max(chartData.length * 50, 1000)}px` }}>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis
-                        dataKey={xAxisView === 'game' ? 'game' : 'date'}
-                        label={{ value: xAxisView === 'game' ? 'Game Number' : 'Date', position: 'insideBottom', offset: -5 }}
-                      />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip content={<CustomTooltip xAxisView={xAxisView} />} />
-                      <Line
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="time"
-                        stroke="#8884d8"
-                        name="Time"
-                        strokeWidth={3}
-                        dot={false}
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="moves"
-                        stroke="#82ca9d"
-                        name="Moves"
-                        strokeWidth={3}
-                        dot={false}
-                      />
-                      {xAxisView === 'game' && (
-                        <>
-                          <Line
-                            yAxisId="left"
-                            type="monotone"
-                            dataKey="avgTime"
-                            stroke="rgba(136, 132, 216, 0.5)"
-                            name="Avg Time"
-                            strokeWidth={3}
-                            dot={false}
-                          />
-                          <Line
-                            yAxisId="right"
-                            type="monotone"
-                            dataKey="avgMoves"
-                            stroke="rgba(130, 202, 157, 0.5)"
-                            name="Avg Moves"
-                            strokeWidth={3}
-                            dot={false}
-                          />
-                        </>
-                      )}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap justify-center mt-4">
-              <div className="flex items-center mr-4 mb-2">
-                <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
-                <span>Time</span>
-              </div>
-              {xAxisView === 'game' && (
+              <div className="flex flex-wrap justify-center mt-4">
                 <div className="flex items-center mr-4 mb-2">
-                  <div className="w-4 h-4 bg-[rgba(136,132,216,0.5)] mr-2"></div>
-                  <span>Avg Time</span>
+                  <div className="w-4 h-4 bg-[#8884d8] mr-2"></div>
+                  <span>Time</span>
                 </div>
-              )}
-              <div className="flex items-center mr-4 mb-2">
-                <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
-                <span>Moves</span>
-              </div>
-              {xAxisView === 'game' && (
-                <div className="flex items-center mb-2">
-                  <div className="w-4 h-4 bg-[rgba(130,202,157,0.5)] mr-2"></div>
-                  <span>Avg Moves</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-center mb-6">
-            <RadioGroup
-              defaultValue="game"
-              onValueChange={(value) => setXAxisView(value as 'game' | 'daily')}
-              className="flex justify-center space-x-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="game" id="game" />
-                <Label htmlFor="game">Game View</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="daily" id="daily" />
-                <Label htmlFor="daily">Daily View</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div className="flex justify-center space-x-2 mb-6">
-            <Button
-              onClick={() => setDifficultyFilter('all')}
-              variant={difficultyFilter === 'all' ? 'default' : 'outline'}
-              className={`${difficultyFilter === 'all' ? 'bg-blue-500 hover:bg-blue-600' : 'text-foreground'}`}
-            >
-              All
-            </Button>
-            <Button
-              onClick={() => setDifficultyFilter('easy')}
-              variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
-              className={`${difficultyFilter === 'easy' ? 'bg-green-500 hover:bg-green-600' : 'text-foreground'}`}
-            >
-              Easy
-            </Button>
-            <Button
-              onClick={() => setDifficultyFilter('medium')}
-              variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
-              className={`${difficultyFilter === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : 'text-foreground'}`}
-            >
-              Medium
-            </Button>
-            <Button
-              onClick={() => setDifficultyFilter('hard')}
-              variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
-              className={`${difficultyFilter === 'hard' ? 'bg-red-500 hover:bg-red-600' : 'text-foreground'}`}
-            >
-              Hard
-            </Button>
-          </div>
-
-          <Table className="w-full table-fixed">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-16">LatinHAM</TableHead>
-                <TableHead className="w-20">Difficulty</TableHead>
-                <TableHead className="w-24 cursor-pointer" onClick={() => handleSort('date')}>
-                  Date
-                  {sortColumn === 'date' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead className="w-16 cursor-pointer" onClick={() => handleSort('moves')}>
-                  Moves
-                  {sortColumn === 'moves' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead className="w-16 cursor-pointer" onClick={() => handleSort('hints')}>
-                  Hints
-                  {sortColumn === 'hints' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead className="w-24 cursor-pointer" onClick={() => handleSort('duration')}>
-                  Duration
-                  {sortColumn === 'duration' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-                <TableHead className="w-40 cursor-pointer" onClick={() => handleSort('quote')}>
-                  Quote
-                  {sortColumn === 'quote' && (
-                    sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                  )}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedGames.map((game) => (
-                <TableRow key={game.id}>
-                  <TableCell className="p-2">
-                    <MiniProgressBar grid={game.grid} onClick={() => handleViewCompletedBoard(game)} />
-                  </TableCell>
-                  <TableCell className="p-2">
-                    <Badge
-                      className={
-                        game.difficulty === 'easy'
-                          ? 'bg-green-500 hover:bg-green-600'
-                          : game.difficulty === 'medium'
-                          ? 'bg-orange-500 hover:bg-orange-600'
-                          : 'bg-red-500 hover:bg-red-600'
-                      }
-                    >
-                      {game.difficulty}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
-                  <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
-                  <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>
-                  <TableCell className="p-1 text-sm truncate">{game.quote}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {totalPages > 1 && (
-            <Pagination className="mt-4">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-                {totalPages <= 7 ? (
-                  [...Array(totalPages)].map((_, i) => (
-                    <PaginationItem key={i}>
-                      <PaginationLink onClick={() => setCurrentPage(i + 1)} isActive={currentPage === i + 1}>
-                        {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))
-                ) : (
-                  <>
-                    <PaginationItem>
-                      <PaginationLink onClick={() => setCurrentPage(1)} isActive={currentPage === 1}>
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                    {currentPage > 3 && <PaginationEllipsis />}
-                    {currentPage === totalPages && (
-                      <PaginationItem>
-                        <PaginationLink onClick={() => setCurrentPage(totalPages - 2)}>
-                          {totalPages - 2}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )}
-                    {currentPage > 2 && currentPage < totalPages && (
-                      <PaginationItem>
-                        <PaginationLink onClick={() => setCurrentPage(currentPage - 1)}>
-                          {currentPage - 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )}
-                    {currentPage !== 1 && currentPage !== totalPages && (
-                      <PaginationItem>
-                        <PaginationLink isActive>{currentPage}</PaginationLink>
-                      </PaginationItem>
-                    )}
-                    {currentPage < totalPages - 1 && currentPage > 1 && (
-                      <PaginationItem>
-                        <PaginationLink onClick={() => setCurrentPage(currentPage + 1)}>
-                          {currentPage + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )}
-                    {currentPage === 1 && (
-                      <PaginationItem>
-                        <PaginationLink onClick={() => setCurrentPage(3)}>3</PaginationLink>
-                      </PaginationItem>
-                    )}
-                    {currentPage < totalPages - 2 && <PaginationEllipsis />}
-                    <PaginationItem>
-                      <PaginationLink onClick={() => setCurrentPage(totalPages)} isActive={currentPage === totalPages}>
-                        {totalPages}
-                      </PaginationLink>
-                    </PaginationItem>
-                  </>
+                {xAxisView === 'game' && (
+                  <div className="flex items-center mr-4 mb-2">
+                    <div className="w-4 h-4 bg-[rgba(136,132,216,0.5)] mr-2"></div>
+                    <span>Avg Time</span>
+                  </div>
                 )}
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </CardContent>
-      </Card>
+                <div className="flex items-center mr-4 mb-2">
+                  <div className="w-4 h-4 bg-[#82ca9d] mr-2"></div>
+                  <span>Moves</span>
+                </div>
+                {xAxisView === 'game' && (
+                  <div className="flex items-center mb-2">
+                    <div className="w-4 h-4 bg-[rgba(130,202,157,0.5)] mr-2"></div>
+                    <span>Avg Moves</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-center mb-6">
+              <RadioGroup
+                defaultValue="game"
+                onValueChange={(value) => setXAxisView(value as 'game' | 'daily')}
+                className="flex justify-center space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="game" id="game" />
+                  <Label htmlFor="game">Game View</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="daily" id="daily" />
+                  <Label htmlFor="daily">Daily View</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="flex justify-center space-x-2 mb-6">
+              <Button
+                onClick={() => setDifficultyFilter('all')}
+                variant={difficultyFilter === 'all' ? 'default' : 'outline'}
+                className={`${difficultyFilter === 'all' ? 'bg-blue-500 hover:bg-blue-600' : 'text-foreground'}`}
+              >
+                All
+              </Button>
+              <Button
+                onClick={() => setDifficultyFilter('easy')}
+                variant={difficultyFilter === 'easy' ? 'default' : 'outline'}
+                className={`${difficultyFilter === 'easy' ? 'bg-green-500 hover:bg-green-600' : 'text-foreground'}`}
+              >
+                Easy
+              </Button>
+              <Button
+                onClick={() => setDifficultyFilter('medium')}
+                variant={difficultyFilter === 'medium' ? 'default' : 'outline'}
+                className={`${difficultyFilter === 'medium' ? 'bg-orange-500 hover:bg-orange-600' : 'text-foreground'}`}
+              >
+                Medium
+              </Button>
+              <Button
+                onClick={() => setDifficultyFilter('hard')}
+                variant={difficultyFilter === 'hard' ? 'default' : 'outline'}
+                className={`${difficultyFilter === 'hard' ? 'bg-red-500 hover:bg-red-600' : 'text-foreground'}`}
+              >
+                Hard
+              </Button>
+            </div>
+
+            <Table className="w-full table-fixed">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-16">LatinHAM</TableHead>
+                  <TableHead className="w-20">Difficulty</TableHead>
+                  <TableHead className="w-24 cursor-pointer" onClick={() => handleSort('date')}>
+                    Date
+                    {sortColumn === 'date' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead className="w-16 cursor-pointer" onClick={() => handleSort('moves')}>
+                    Moves
+                    {sortColumn === 'moves' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead className="w-16 cursor-pointer" onClick={() => handleSort('hints')}>
+                    Hints
+                    {sortColumn === 'hints' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead className="w-24 cursor-pointer" onClick={() => handleSort('duration')}>
+                    Duration
+                    {sortColumn === 'duration' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                  <TableHead className="w-40 cursor-pointer" onClick={() => handleSort('quote')}>
+                    Quote
+                    {sortColumn === 'quote' && (
+                      sortDirection === 'asc' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
+                    )}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSortedGames.map((game) => (
+                  <TableRow key={game.id}>
+                    <TableCell className="p-2">
+                      <MiniProgressBar grid={game.grid} onClick={() => handleViewCompletedBoard(game)} />
+                    </TableCell>
+                    <TableCell className="p-2">
+                      <Badge
+                        className={
+                          game.difficulty === 'easy'
+                            ? 'bg-green-500 hover:bg-green-600'
+                            : game.difficulty === 'medium'
+                            ? 'bg-orange-500 hover:bg-orange-600'
+                            : 'bg-red-500 hover:bg-red-600'
+                        }
+                      >
+                        {game.difficulty}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="p-1 text-sm">{formatDate(game.created_at)}</TableCell>
+                    <TableCell className="p-1 text-sm text-center">{game.moves}</TableCell>
+                    <TableCell className="p-1 text-sm text-center">{game.hints}</TableCell>
+                    <TableCell className="p-1 text-sm">{formatDuration(game.time)}</TableCell>
+                    <TableCell className="p-1 text-sm truncate">{game.quote}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {totalPages > 1 && (
+              <Pagination className="mt-4">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                  {totalPages <= 7 ? (
+                    [...Array(totalPages)].map((_, i) => (
+                      <PaginationItem key={i}>
+                        <PaginationLink onClick={() => setCurrentPage(i + 1)} isActive={currentPage === i + 1}>
+                          {i + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))
+                  ) : (
+                    <>
+                      <PaginationItem>
+                        <PaginationLink onClick={() => setCurrentPage(1)} isActive={currentPage === 1}>
+                          1
+                        </PaginationLink>
+                      </PaginationItem>
+                      {currentPage > 3 && <PaginationEllipsis />}
+                      {currentPage === totalPages && (
+                        <PaginationItem>
+                          <PaginationLink onClick={() => setCurrentPage(totalPages - 2)}>
+                            {totalPages - 2}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )}
+                      {currentPage > 2 && currentPage < totalPages && (
+                        <PaginationItem>
+                          <PaginationLink onClick={() => setCurrentPage(currentPage - 1)}>
+                            {currentPage - 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )}
+                      {currentPage !== 1 && currentPage !== totalPages && (
+                        <PaginationItem>
+                          <PaginationLink isActive>{currentPage}</PaginationLink>
+                        </PaginationItem>
+                      )}
+                      {currentPage < totalPages - 1 && currentPage > 1 && (
+                        <PaginationItem>
+                          <PaginationLink onClick={() => setCurrentPage(currentPage + 1)}>
+                            {currentPage + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )}
+                      {currentPage === 1 && (
+                        <PaginationItem>
+                          <PaginationLink onClick={() => setCurrentPage(3)}>3</PaginationLink>
+                        </PaginationItem>
+                      )}
+                      {currentPage < totalPages - 2 && <PaginationEllipsis />}
+                      <PaginationItem>
+                        <PaginationLink onClick={() => setCurrentPage(totalPages)} isActive={currentPage === totalPages}>
+                          {totalPages}
+                        </PaginationLink>
+                      </PaginationItem>
+                    </>
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </CardContent>
+        </Card>
+      </div>
       <Dialog
         open={!!selectedGame}
         onOpenChange={(open) => {
@@ -681,7 +680,7 @@ export function UserProfile() {
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   )
 }
 
