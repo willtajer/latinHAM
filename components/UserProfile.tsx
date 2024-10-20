@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChevronUp, ChevronDown, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
@@ -315,16 +315,6 @@ export function UserProfile() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => onPageChange(1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronFirst className="h-4 w-4" />
-            </Button>
-          </PaginationItem>
-          <PaginationItem>
-            <Button
-              variant="outline"
-              size="icon"
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -360,17 +350,6 @@ export function UserProfile() {
               disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />
-            </Button>
-          </PaginationItem>
-          <PaginationItem>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onPageChange(totalPages)}
-              
-              disabled={currentPage === totalPages}
-            >
-              <ChevronLast className="h-4 w-4" />
             </Button>
           </PaginationItem>
         </PaginationContent>

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ChevronUp, ChevronDown, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationEllipsis } from "@/components/ui/pagination"
 import { Button } from "@/components/ui/button"
 import { CompletedPuzzleCard } from './CompletedPuzzleCard'
@@ -351,16 +351,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
             <Button
               variant="outline"
               size="icon"
-              onClick={() => onPageChange(1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronFirst className="h-4 w-4" />
-            </Button>
-          </PaginationItem>
-          <PaginationItem>
-            <Button
-              variant="outline"
-              size="icon"
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -396,16 +386,6 @@ export default function Leaderboard({ initialDifficulty = "all", onDifficultyCha
               disabled={currentPage === totalPages}
             >
               <ChevronRight className="h-4 w-4" />
-            </Button>
-          </PaginationItem>
-          <PaginationItem>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onPageChange(totalPages)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronLast className="h-4 w-4" />
             </Button>
           </PaginationItem>
         </PaginationContent>
