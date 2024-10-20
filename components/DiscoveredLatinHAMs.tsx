@@ -1,15 +1,15 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import LatinHAMGrid from './LatinHAMGrid'
 import LatinHAMLeaderboard from './LatinHAMLeaderboard'
 import { DiscoveredLatinHAM } from '@/types'
 import { GamePreview } from './GamePreview'
 import { Button } from "@/components/ui/button"
-import { calculateSolveCount } from '../utils/solveCountLogic'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { RefreshCw } from 'lucide-react'
+import { useDiscoveredLatinHAMs } from '../hooks/useDiscoveredLatinHAMs'
 
 const DifficultyFilters: React.FC<{
   difficultyFilter: 'all' | 'easy' | 'medium' | 'hard';
@@ -53,70 +53,13 @@ interface DiscoveredLatinHAMsProps {
 }
 
 export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
-  const [latinHAMs, setLatinHAMs] = useState<DiscoveredLatinHAM[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<DiscoveredLatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
   const [sortCriteria, setSortCriteria] = useState<'totalPlays' | 'date' | 'solvedCount' | 'possibleSolveCount'>('totalPlays')
   const [showCompleted, setShowCompleted] = useState(false)
   const [showIncomplete, setShowIncomplete] = useState(true)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  const fetchLatinHAMs = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&timestamp=${Date.now()}`, {
-        cache: 'no-store'
-      })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data: DiscoveredLatinHAM[] = await response.json()
-      if (Array.isArray(data)) {
-        const latinHAMsWithSolveCount = data.map(latinHAM => ({
-          ...latinHAM,
-          possibleSolveCount: calculateSolveCount(latinHAM.initialGrid)
-        }))
-        setLatinHAMs(latinHAMsWithSolveCount)
-      } else {
-        throw new Error('Invalid data format')
-      }
-    } catch (error) {
-      console.error('Error fetching latinHAMs:', error)
-      setError('Failed to load Discovered LatinHAMs. Please try again later.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [difficultyFilter])
-
-  useEffect(() => {
-    fetchLatinHAMs()
-  }, [fetchLatinHAMs, refreshTrigger])
-
-  const refreshData = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1)
-  }, [])
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        refreshData()
-      }
-    }
-
-    const handleNewGameWon = () => {
-      refreshData()
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    window.addEventListener('newGameWon', handleNewGameWon)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('newGameWon', handleNewGameWon)
-    }
-  }, [refreshData])
+  const { latinHAMs, isLoading, error, refreshData } = useDiscoveredLatinHAMs(difficultyFilter)
 
   const handleLatinHAMClick = (latinHAM: DiscoveredLatinHAM) => {
     setSelectedLatinHAM(latinHAM)
@@ -124,7 +67,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
 
   const handleCloseLeaderboard = () => {
     setSelectedLatinHAM(null)
-    fetchLatinHAMs()
+    refreshData()
   }
 
   const handlePlayAgain = useCallback((initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => {
