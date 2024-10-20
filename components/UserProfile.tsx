@@ -309,7 +309,7 @@ export function UserProfile() {
     }
 
     return (
-      <Pagination className="flex flex-wrap justify-center items-center gap-1">
+      <Pagination className="flex flex-wrap justify-center items-center gap-1 pt-2">
         <PaginationContent>
           <PaginationItem>
             <Button
@@ -418,10 +418,10 @@ export function UserProfile() {
           </CardContent>
         </Card>
 
-        <Card className="w-full max-w-6xl mx-auto mb-6">
+        <Card className="w-full max-w-6xl mx-auto bg-white dark:bg-gray-800 flex-grow">
           <CardContent>
             {averages && (
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6">
+              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mt-6 mb-6">
                 <h3  className="text-xl text-center font-semibold mb-2 text-gray-900 dark:text-white">
                   {difficultyFilter === 'all' ? 'Overall' : `${difficultyFilter.charAt(0).toUpperCase() + 
                     difficultyFilter.slice(1)}`} Averages
