@@ -408,7 +408,7 @@ export default function Challenges() {
   const renderCombinedPatternCard = (combinedPattern: CombinedPattern, index: number) => (
     <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
       <CardContent className="p-4 pt-6">
-        <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-t-lg">
+        <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-pink-500 rounded-t-lg">
           Combined Pattern
         </div>
         <div className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2 mt-1 text-center">
@@ -490,7 +490,7 @@ export default function Challenges() {
             onClick={() => setChallengeType('combined')}
             className={`${
               challengeType === 'combined'
-                ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white'
+                ? 'bg-pink-500 hover:bg-pink-600 text-white'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             } transition-colors duration-200`}
           >

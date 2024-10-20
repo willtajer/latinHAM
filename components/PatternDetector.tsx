@@ -23,16 +23,14 @@ const PatternDetector: PatternDetectorComponent = ({ board, type, highlightedCel
             relative transition-all duration-150 ease-in-out rounded-sm shadow-sm
             ${cell !== 0 ? `bg-${['red', 'blue', 'yellow', 'green', 'purple', 'orange'][cell - 1]}-500` : 'bg-white dark:bg-gray-600'}
             ${cell !== 0 ? 'border-2 border-gray-600 dark:border-gray-300' : 'border border-gray-300 dark:border-gray-500'}
-            ${highlightedCells.includes(index) ? 
-              (type === 'combined' ? 'ring-2 ring-pink-500' : 'ring-2 ring-yellow-500') 
-              : ''}
+            ${highlightedCells.includes(index) ? 'ring-2 ring-pink-500' : ''}
           `}
           role="cell"
           aria-label={`Cell ${cell !== 0 ? 'filled' : 'empty'}`}
         >
-          {type === 'combined' && highlightedCells.includes(index) && (
+          {highlightedCells.includes(index) && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
           )}
         </div>
