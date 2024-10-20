@@ -58,8 +58,8 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const [selectedLatinHAM, setSelectedLatinHAM] = useState<DiscoveredLatinHAM | null>(null)
   const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all')
   const [sortCriteria, setSortCriteria] = useState<'totalPlays' | 'date' | 'solvedCount' | 'possibleSolveCount'>('totalPlays')
-  const [showCompleted, setShowCompleted] = useState(true)
-  const [showIncomplete, setShowIncomplete] = useState(false) // Updated
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [showIncomplete, setShowIncomplete] = useState(true)
 
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
@@ -110,7 +110,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     return latinHAMs
       .filter(latinHAM => {
         const isCompleted = latinHAM.uniqueSolves === latinHAM.possibleSolveCount
-        return (showCompleted && isCompleted) || (showIncomplete && !isCompleted) // Updated filter logic
+        return (showCompleted && isCompleted) || (showIncomplete && !isCompleted)
       })
       .sort((a, b) => {
         switch (sortCriteria) {
@@ -132,7 +132,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   ).length
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading...</div>
+    return <div className="text-center text-white py-8">Loading...</div>
   }
 
   if (error) {
@@ -162,20 +162,20 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
             setDifficultyFilter={setDifficultyFilter}
           />
           <RadioGroup 
-            value={showCompleted ? 'completed' : 'incomplete'} 
+            defaultValue="incomplete"
             onValueChange={(value) => {
-              setShowCompleted(value === 'completed');
               setShowIncomplete(value === 'incomplete');
+              setShowCompleted(value === 'complete');
             }}
             className="flex justify-center space-x-4 mb-4"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="completed" id="filter-completed" className="border-white text-white" />
-              <Label htmlFor="filter-completed" className="text-white">Completed</Label>
-            </div>
-            <div className="flex items-center space-x-2">
               <RadioGroupItem value="incomplete" id="filter-incomplete" className="border-white text-white" />
               <Label htmlFor="filter-incomplete" className="text-white">Incomplete</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="complete" id="filter-complete" className="border-white text-white" />
+              <Label htmlFor="filter-complete" className="text-white">Complete</Label>
             </div>
           </RadioGroup>
           <div className="flex justify-center mb-4">
@@ -191,11 +191,11 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="solvedCount" id="sort-solvedCount" className="border-white text-white" />
-                  <Label htmlFor="sort-solvedCount" className="text-white">Solved</Label> {/* Updated */}
+                  <Label htmlFor="sort-solvedCount" className="text-white">Solved</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="possibleSolveCount" id="sort-possibleSolveCount" className="border-white text-white" />
-                  <Label htmlFor="sort-possibleSolveCount" className="text-white">Possible</Label> {/* Updated */}
+                  <Label htmlFor="sort-possibleSolveCount" className="text-white">Possible</Label>
                 </div>
               </div>
             </RadioGroup>
