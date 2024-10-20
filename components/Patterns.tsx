@@ -17,6 +17,7 @@ interface Game {
   created_at: string
   moves: number
   time: number
+  quote?: string
 }
 
 interface Pattern {
@@ -392,7 +393,9 @@ export default function Challenges() {
                 <p><strong>Best Moves:</strong> {pattern.matchedGames[0].moves}</p>
                 <p><strong>Best Time:</strong> {pattern.matchedGames[0].time}s</p>
                 <p><strong>Last Completed:</strong> {formatTimestamp(pattern.matchedGames[0].created_at)}</p>
-                <p><strong>Total Matches:</strong> {pattern.matchedGames.length}</p>
+                {pattern.matchedGames[0].quote && (
+                  <p className="mt-2 italic text-center">"{pattern.matchedGames[0].quote}"</p>
+                )}
               </>
             ) : (
               <p className="text-center">Unfound LatinHAM</p>
@@ -433,6 +436,9 @@ export default function Challenges() {
           <p><strong>Moves:</strong> {combinedPattern.matchedGames[0].moves}</p>
           <p><strong>Time:</strong> {combinedPattern.matchedGames[0].time}s</p>
           <p><strong>Completed:</strong> {formatTimestamp(combinedPattern.matchedGames[0].created_at)}</p>
+          {combinedPattern.matchedGames[0].quote && (
+            <p className="mt-2 italic text-center">"{combinedPattern.matchedGames[0].quote}"</p>
+          )}
         </div>
         {user && (
           <div className="absolute -bottom-2 -right-2 overflow-visible">
