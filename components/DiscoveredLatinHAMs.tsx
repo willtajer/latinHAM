@@ -49,9 +49,10 @@ const DifficultyFilters: React.FC<{
 interface DiscoveredLatinHAMsProps {
   onPlayAgain: (initialGrid: number[][], difficulty: 'easy' | 'medium' | 'hard') => void;
   onCloseOverlays: () => void;
+  latestGameTimestamp: number;
 }
 
-export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: DiscoveredLatinHAMsProps) {
+export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays, latestGameTimestamp }: DiscoveredLatinHAMsProps) {
   const [latinHAMs, setLatinHAMs] = useState<DiscoveredLatinHAM[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -65,7 +66,7 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
   const fetchLatinHAMs = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&timestamp=${Date.now()}`, {
+      const response = await fetch(`/api/discovered?difficulty=${difficultyFilter}&timestamp=${Date.now()}&latestGame=${latestGameTimestamp}`, {
         cache: 'no-store'
       })
       if (!response.ok) {
@@ -87,11 +88,11 @@ export function DiscoveredLatinHAMs({ onPlayAgain, onCloseOverlays }: Discovered
     } finally {
       setIsLoading(false)
     }
-  }, [difficultyFilter])
+  }, [difficultyFilter, latestGameTimestamp])
 
   useEffect(() => {
     fetchLatinHAMs()
-  }, [fetchLatinHAMs, refreshTrigger])
+  }, [fetchLatinHAMs, refreshTrigger, latestGameTimestamp])
 
   const refreshData = useCallback(() => {
     setRefreshTrigger(prev => prev + 1)
