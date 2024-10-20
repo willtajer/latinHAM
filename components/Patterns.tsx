@@ -434,6 +434,15 @@ export default function Challenges() {
           <p><strong>Time:</strong> {combinedPattern.matchedGames[0].time}s</p>
           <p><strong>Completed:</strong> {formatTimestamp(combinedPattern.matchedGames[0].created_at)}</p>
         </div>
+        {user && (
+          <div className="absolute -bottom-2 -right-2 overflow-visible">
+            <div className="w-8 h-8 bg-pink-500 rounded-xl rotate-45 flex items-center justify-center">
+              <span className="text-white font-bold text-sm -rotate-45">
+                {combinedPattern.patterns.length}
+              </span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
