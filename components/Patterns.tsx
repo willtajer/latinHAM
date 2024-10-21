@@ -295,10 +295,14 @@ export default function Challenges() {
     if (allPatterns) {
       if (challengeType === 'combined') {
         setCombinedPatterns(allPatterns.combined)
-      } else if (challengeType === 'ordered') {
-        setPatterns(allPatterns.ordered.filter(p => p.description.toLowerCase().includes(orderedSubsection)))
-      } else if (challengeType === 'rainbow') {
-        setPatterns(allPatterns.rainbow.filter(p => p.description.toLowerCase().includes(rainbowSubsection)))
+      } else if (challengeType === 'ordered' || challengeType === 'rainbow') {
+        const subsection = challengeType === 'ordered' ? orderedSubsection : rainbowSubsection
+        setPatterns(allPatterns[challengeType].filter(p => {
+          if (subsection === 'diagonal') {
+            return p.description.toLowerCase().includes('top to bottom') || p.description.toLowerCase().includes('bottom to top')
+          }
+          return p.description.toLowerCase().includes(subsection)
+        }))
       } else if (challengeType === 'my-patterns') {
         setPatterns(allPatterns.myPatterns)
       } else {
