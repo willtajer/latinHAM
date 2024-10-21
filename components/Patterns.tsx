@@ -172,9 +172,17 @@ export default function Challenges() {
       return patterns.filter(pattern => {
         const firstCell = pattern.highlightedCells[0];
         const lastCell = pattern.highlightedCells[pattern.highlightedCells.length - 1];
-        if (subsection === 'row') return Math.floor(firstCell / 6) === Math.floor(lastCell / 6);
-        if (subsection === 'column') return firstCell % 6 === lastCell % 6;
-        if (subsection === 'diagonal') return Math.abs((lastCell % 6) - (firstCell % 6)) === Math.abs(Math.floor(lastCell / 6) - Math.floor(firstCell / 6));
+        if (subsection === 'row') {
+          return Math.floor(firstCell / 6) === Math.floor(lastCell / 6);
+        }
+        if (subsection === 'column') {
+          return firstCell % 6 === lastCell % 6;
+        }
+        if (subsection === 'diagonal') {
+          const rowDiff = Math.floor(lastCell / 6) - Math.floor(firstCell / 6);
+          const colDiff = (lastCell % 6) - (firstCell % 6);
+          return Math.abs(rowDiff) === Math.abs(colDiff) && Math.abs(rowDiff) === 5;
+        }
         return true;
       });
     };
