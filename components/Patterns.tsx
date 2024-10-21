@@ -77,7 +77,7 @@ export default function Challenges() {
     }
   }, [user, isLoaded])
 
-  const generatePatterns = useCallback((type: ChallengeType, subsection?: ChallengeSubsection) => {
+  const generatePatterns = useCallback((type: ChallengeType) => {
     const size = 6
     const newPatterns: Pattern[] = []
 
@@ -144,22 +144,25 @@ export default function Challenges() {
         }
       }
 
-      if (subsection === 'row' || subsection === 'column') {
-        for (let i = 0; i < size; i++) {
-          const isRow = subsection === 'row'
-          const direction = isRow
-            ? (j: number) => i * size + j
-            : (j: number) => j * size + i
-          const desc = isRow ? `Row ${i + 1}` : `Column ${i + 1}`
-          newPatterns.push(generatePattern(direction, `${desc} Forward`, false, true))
-          newPatterns.push(generatePattern(direction, `${desc} Backward`, true, false))
+      const subsections: ChallengeSubsection[] = ['row', 'column', 'diagonal']
+      subsections.forEach(sub => {
+        if (sub === 'row' || sub === 'column') {
+          for (let i = 0; i < size; i++) {
+            const isRow = sub === 'row'
+            const direction = isRow
+              ? (j: number) => i * size + j
+              : (j: number) => j * size + i
+            const desc = isRow ? `Row ${i + 1}` : `Column ${i + 1}`
+            newPatterns.push(generatePattern(direction, `${desc} Forward`, false, true))
+            newPatterns.push(generatePattern(direction, `${desc} Backward`, true, false))
+          }
+        } else if (sub === 'diagonal') {
+          newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Forward", false, true))
+          newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Backward", true, false))
+          newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Forward", false, true))
+          newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Backward", true, false))
         }
-      } else if (subsection === 'diagonal') {
-        newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Forward", false, true))
-        newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Backward", true, false))
-        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Forward", false, true))
-        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Backward", true, false))
-      }
+      })
     }
 
     if (type === 'solid' || type === 'my-patterns' || type === 'combined') {
@@ -183,8 +186,7 @@ export default function Challenges() {
         patternTypes.forEach(patternType => {
           const gamePatterns = PatternDetector.detectPatterns(
             game.grid,
-            patternType,
-            subsection
+            patternType
           )
           gamePatterns.forEach(patternCells => {
             const matchingPatterns = newPatterns.filter(p => 
@@ -266,16 +268,8 @@ export default function Challenges() {
 
   const generateAllPatterns = useCallback(() => {
     const solidPatterns = generatePatterns('solid')
-    const orderedPatterns = {
-      row: generatePatterns('ordered', 'row'),
-      column: generatePatterns('ordered', 'column'),
-      diagonal: generatePatterns('ordered', 'diagonal')
-    }
-    const rainbowPatterns = {
-      row: generatePatterns('rainbow', 'row'),
-      column: generatePatterns('rainbow', 'column'),
-      diagonal: generatePatterns('rainbow', 'diagonal')
-    }
+    const orderedPatterns = generatePatterns('ordered')
+    const rainbowPatterns = generatePatterns('rainbow')
     const combinedPatternsData = generateCombinedPatterns()
     const myPatterns = generatePatterns('my-patterns')
 
@@ -302,9 +296,9 @@ export default function Challenges() {
       if (challengeType === 'combined') {
         setCombinedPatterns(allPatterns.combined)
       } else if (challengeType === 'ordered') {
-        setPatterns(allPatterns.ordered[orderedSubsection])
+        setPatterns(allPatterns.ordered.filter(p => p.description.toLowerCase().includes(orderedSubsection)))
       } else if (challengeType === 'rainbow') {
-        setPatterns(allPatterns.rainbow[rainbowSubsection])
+        setPatterns(allPatterns.rainbow.filter(p => p.description.toLowerCase().includes(rainbowSubsection)))
       } else if (challengeType === 'my-patterns') {
         setPatterns(allPatterns.myPatterns)
       } else {
@@ -318,8 +312,8 @@ export default function Challenges() {
 
     return {
       solid: allPatterns.solid.filter(p => p.matchedGames.length > 0).length,
-      ordered: Object.values(allPatterns.ordered).flat().filter(p => p.matchedGames.length > 0).length,
-      rainbow: Object.values(allPatterns.rainbow).flat().filter(p => p.matchedGames.length > 0).length,
+      ordered: allPatterns.ordered.filter(p => p.matchedGames.length > 0).length,
+      rainbow: allPatterns.rainbow.filter(p => p.matchedGames.length > 0).length,
       myPatterns: allPatterns.myPatterns.length,
       combined: allPatterns.combined.length,
     }
@@ -344,7 +338,6 @@ export default function Challenges() {
   }
 
   const getColorClass = (color: number) => {
-    
     switch (color) {
       case 1: return 'bg-red-500'
       case 2: return 'bg-blue-500'
@@ -357,7 +350,7 @@ export default function Challenges() {
   }
 
   const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
+    const date = new  Date(timestamp);
     return date.toLocaleDateString('en-US', {
       month: '2-digit',
       day: '2-digit',
@@ -401,7 +394,7 @@ export default function Challenges() {
             />
           )}
         </div>
-        {user && (
+        {user && pattern.matchedGames.length > 0 && (
           <div className="absolute -bottom-2 -right-2 overflow-visible">
             <div className="w-8 h-8 bg-blue-500 rounded-xl rotate-45 flex items-center justify-center">
               <span className="text-white font-bold text-sm -rotate-45">
