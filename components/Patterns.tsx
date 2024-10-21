@@ -176,7 +176,7 @@ export default function Challenges() {
           return Math.floor(firstCell / 6) === Math.floor(lastCell / 6);
         }
         if (subsection === 'column') {
-          return firstCell % 6 === lastCell % 6;
+          return firstCell % 6 === lastCell % 6 && (lastCell - firstCell) === 30;
         }
         if (subsection === 'diagonal') {
           const rowDiff = Math.floor(lastCell / 6) - Math.floor(firstCell / 6);
@@ -186,7 +186,6 @@ export default function Challenges() {
         return true;
       });
     };
-
 
     if (type === 'solid' || type === 'my-patterns' || type === 'combined') {
       generateSolidPatterns()
@@ -343,7 +342,7 @@ export default function Challenges() {
   }, [patternCounts])
 
   if (!isLoaded || isLoading) {
-    return <div className="text-center py-8 text-white">Loading...</div>
+    return <div  className="text-center py-8 text-white">Loading...</div>
   }
 
   const getColorClass = (color: number) => {
