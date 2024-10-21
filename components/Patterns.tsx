@@ -167,6 +167,19 @@ export default function Challenges() {
       })
     }
 
+    const filterPatternsBySubsection = (patterns: Pattern[], subsection: ChallengeSubsection) => {
+      if (subsection === 'all') return patterns;
+      return patterns.filter(pattern => {
+        const firstCell = pattern.highlightedCells[0];
+        const lastCell = pattern.highlightedCells[pattern.highlightedCells.length - 1];
+        if (subsection === 'row') return Math.floor(firstCell / 6) === Math.floor(lastCell / 6);
+        if (subsection === 'column') return firstCell % 6 === lastCell % 6;
+        if (subsection === 'diagonal') return Math.abs((lastCell % 6) - (firstCell % 6)) === Math.abs(Math.floor(lastCell / 6) - Math.floor(firstCell / 6));
+        return true;
+      });
+    };
+
+
     if (type === 'solid' || type === 'my-patterns' || type === 'combined') {
       generateSolidPatterns()
     }
@@ -219,7 +232,9 @@ export default function Challenges() {
       })
     }
 
-    return type === 'my-patterns' ? newPatterns.filter(pattern => pattern.matchedGames.length > 0) : newPatterns
+    return type === 'my-patterns' 
+      ? newPatterns.filter(pattern => pattern.matchedGames.length > 0) 
+      : filterPatternsBySubsection(newPatterns, subsection || 'all');
   }, [games, user])
 
   const generateCombinedPatterns = useCallback(() => {
@@ -279,11 +294,9 @@ export default function Challenges() {
     } else {
       const newPatterns = generatePatterns(
         challengeType,
-        challengeType === 'ordered' || challengeType === 'rainbow'
-          ? challengeType === 'ordered'
-            ? orderedSubsection
-            : rainbowSubsection
-          : undefined
+        challengeType === 'ordered' ? orderedSubsection :
+        challengeType === 'rainbow' ? rainbowSubsection :
+        'all'
       )
       setPatterns(newPatterns)
     }
@@ -421,7 +434,10 @@ export default function Challenges() {
     <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
       <CardContent className="p-4 pt-6">
         <div className="absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center bg-pink-500 rounded-t-lg">
-          Combo Pattern #{index + 1}
+          Combined Pattern
+        </div>
+        <div className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2 mt-1 text-center">
+          Combined Pattern #{index + 1}
         </div>
         <div className="flex flex-wrap gap-2 mb-4 justify-center">
           {combinedPattern.patterns.map((pattern, patternIndex) => (
