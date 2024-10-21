@@ -36,7 +36,7 @@ interface CombinedPattern {
   matchedGames: Game[]
 }
 
-type ChallengeSubsection = 'all' | 'row' | 'column' | 'diagonal'
+type ChallengeSubsection = 'row' | 'column' | 'diagonal'
 type ChallengeType = 'solid' | 'ordered' | 'rainbow' | 'my-patterns' | 'combined'
 
 const colorNames = ['', 'Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']
@@ -45,8 +45,8 @@ export default function Challenges() {
   const { user, isLoaded } = useUser()
   const [games, setGames] = useState<Game[]>([])
   const [challengeType, setChallengeType] = useState<ChallengeType>('solid')
-  const [orderedSubsection, setOrderedSubsection] = useState<ChallengeSubsection>('all')
-  const [rainbowSubsection, setRainbowSubsection] = useState<ChallengeSubsection>('all')
+  const [orderedSubsection, setOrderedSubsection] = useState<ChallengeSubsection>('row')
+  const [rainbowSubsection, setRainbowSubsection] = useState<ChallengeSubsection>('row')
   const [patterns, setPatterns] = useState<Pattern[]>([])
   const [combinedPatterns, setCombinedPatterns] = useState<CombinedPattern[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -83,7 +83,6 @@ export default function Challenges() {
 
     const generateSolidPatterns = () => {
       for (let color = 1; color <= 6; color++) {
-        // Top to Bottom (Top Left to Bottom Right)
         const tlbrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
         const tlbrHighlight = []
         for (let i = 0; i < size; i++) {
@@ -99,7 +98,6 @@ export default function Challenges() {
           patternType: 'solid'
         })
 
-        // Bottom to Top (Bottom Left to Top Right)
         const bltrGrid = Array(size).fill(null).map(() => Array(size).fill(0))
         const bltrHighlight = []
         for (let i = 0; i < size; i++) {
@@ -146,46 +144,23 @@ export default function Challenges() {
         }
       }
 
-      // Always generate patterns for all subsections
-      ['row', 'column', 'diagonal'].forEach(sub => {
-        if (sub === 'row' || sub === 'column') {
-          for (let i = 0; i < size; i++) {
-            const isRow = sub === 'row'
-            const direction = isRow
-              ? (j: number) => i * size + j
-              : (j: number) => j * size + i
-            const desc = isRow ? `Row ${i + 1}` : `Column ${i + 1}`
-            newPatterns.push(generatePattern(direction, `${desc} Forward`, false, true))
-            newPatterns.push(generatePattern(direction, `${desc} Backward`, true, false))
-          }
-        } else if (sub === 'diagonal') {
-          newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Forward", false, true))
-          newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Backward", true, false))
-          newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Forward", false, true))
-          newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Backward", true, false))
+      if (subsection === 'row' || subsection === 'column') {
+        for (let i = 0; i < size; i++) {
+          const isRow = subsection === 'row'
+          const direction = isRow
+            ? (j: number) => i * size + j
+            : (j: number) => j * size + i
+          const desc = isRow ? `Row ${i + 1}` : `Column ${i + 1}`
+          newPatterns.push(generatePattern(direction, `${desc} Forward`, false, true))
+          newPatterns.push(generatePattern(direction, `${desc} Backward`, true, false))
         }
-      })
+      } else if (subsection === 'diagonal') {
+        newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Forward", false, true))
+        newPatterns.push(generatePattern((i: number) => i * size + i, "Top to Bottom Backward", true, false))
+        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Forward", false, true))
+        newPatterns.push(generatePattern((i: number) => (size - 1 - i) * size + i, "Bottom to Top Backward", true, false))
+      }
     }
-
-    const filterPatternsBySubsection = (patterns: Pattern[], subsection: ChallengeSubsection) => {
-      if (subsection === 'all') return patterns;
-      return patterns.filter(pattern => {
-        const firstCell = pattern.highlightedCells[0];
-        const lastCell = pattern.highlightedCells[pattern.highlightedCells.length - 1];
-        if (subsection === 'row') {
-          return Math.floor(firstCell / 6) === Math.floor(lastCell / 6);
-        }
-        if (subsection === 'column') {
-          return firstCell % 6 === lastCell % 6;
-        }
-        if (subsection === 'diagonal') {
-          const rowDiff = Math.floor(lastCell / 6) - Math.floor(firstCell / 6);
-          const colDiff = (lastCell % 6) - (firstCell % 6);
-          return Math.abs(rowDiff) === Math.abs(colDiff) && Math.abs(rowDiff) === 5;
-        }
-        return true;
-      });
-    };
 
     if (type === 'solid' || type === 'my-patterns' || type === 'combined') {
       generateSolidPatterns()
@@ -209,14 +184,14 @@ export default function Challenges() {
           const gamePatterns = PatternDetector.detectPatterns(
             game.grid,
             patternType,
-            subsection === 'all' ? undefined : subsection
+            subsection
           )
           gamePatterns.forEach(patternCells => {
             const matchingPatterns = newPatterns.filter(p => 
               p.patternType === patternType &&
               p.highlightedCells.every(cell => patternCells.includes(cell)) &&
               p.grid.flat().every((value, index) => 
-                value === 0 || value === game.grid[Math.floor(index / 6)][index % 6]
+                value === 0 || value === game.grid[Math.floor(index / size)][index % size]
               )
             )
             matchingPatterns.forEach(matchingPattern => {
@@ -239,9 +214,7 @@ export default function Challenges() {
       })
     }
 
-    return type === 'my-patterns' 
-      ? newPatterns.filter(pattern => pattern.matchedGames.length > 0) 
-      : filterPatternsBySubsection(newPatterns, subsection || 'all');
+    return type === 'my-patterns' ? newPatterns.filter(pattern => pattern.matchedGames.length > 0) : newPatterns
   }, [games, user])
 
   const generateCombinedPatterns = useCallback(() => {
@@ -250,7 +223,6 @@ export default function Challenges() {
     games.forEach(game => {
       const gamePatterns: Pattern[] = []
 
-      // Detect solid patterns
       const solidPatterns = PatternDetector.detectPatterns(game.grid, 'solid')
       gamePatterns.push(...solidPatterns.map(cells => ({
         grid: game.grid,
@@ -261,7 +233,6 @@ export default function Challenges() {
         patternType: 'solid' as const
       })))
 
-      // Detect ordered patterns
       const orderedPatterns = PatternDetector.detectPatterns(game.grid, 'ordered')
       gamePatterns.push(...orderedPatterns.map(cells => ({
         grid: game.grid,
@@ -272,7 +243,6 @@ export default function Challenges() {
         patternType: 'ordered' as const
       })))
 
-      // Detect rainbow patterns
       const rainbowPatterns = PatternDetector.detectPatterns(game.grid, 'rainbow')
       gamePatterns.push(...rainbowPatterns.map(cells => ({
         grid: game.grid,
@@ -294,38 +264,70 @@ export default function Challenges() {
     return newCombinedPatterns
   }, [games])
 
-  useEffect(() => {
-    if (challengeType === 'combined') {
-      const newCombinedPatterns = generateCombinedPatterns()
-      setCombinedPatterns(newCombinedPatterns)
-    } else {
-      const newPatterns = generatePatterns(
-        challengeType,
-        challengeType === 'ordered' ? orderedSubsection :
-        challengeType === 'rainbow' ? rainbowSubsection :
-        'all'
-      )
-      setPatterns(newPatterns)
-    }
-  }, [games, challengeType, orderedSubsection, rainbowSubsection, generatePatterns, generateCombinedPatterns])
-
-  const patternCounts = useMemo(() => {
-    if (!user) return { solid: 0, ordered: 0, rainbow: 0, myPatterns: 0, combined: 0 }
-
+  const generateAllPatterns = useCallback(() => {
     const solidPatterns = generatePatterns('solid')
-    const orderedPatterns = generatePatterns('ordered', 'all')
-    const rainbowPatterns = generatePatterns('rainbow', 'all')
+    const orderedRowPatterns = generatePatterns('ordered', 'row')
+    const orderedColumnPatterns = generatePatterns('ordered', 'column')
+    const orderedDiagonalPatterns = generatePatterns('ordered', 'diagonal')
+    const rainbowRowPatterns = generatePatterns('rainbow', 'row')
+    const rainbowColumnPatterns = generatePatterns('rainbow', 'column')
+    const rainbowDiagonalPatterns = generatePatterns('rainbow', 'diagonal')
+    const combinedPatternsData = generateCombinedPatterns()
     const myPatterns = generatePatterns('my-patterns')
-    const combinedPatternsCount = generateCombinedPatterns().length
 
     return {
-      solid: solidPatterns.filter(p => p.matchedGames.length > 0).length,
-      ordered: orderedPatterns.filter(p => p.matchedGames.length > 0).length,
-      rainbow: rainbowPatterns.filter(p => p.matchedGames.length > 0).length,
-      myPatterns: myPatterns.length,
-      combined: combinedPatternsCount,
+      solid: solidPatterns,
+      ordered: {
+        row: orderedRowPatterns,
+        column: orderedColumnPatterns,
+        diagonal: orderedDiagonalPatterns
+      },
+      rainbow: {
+        row: rainbowRowPatterns,
+        column: rainbowColumnPatterns,
+        diagonal: rainbowDiagonalPatterns
+      },
+      combined: combinedPatternsData,
+      myPatterns: myPatterns
     }
-  }, [generatePatterns, user, generateCombinedPatterns])
+  }, [generatePatterns, generateCombinedPatterns])
+
+  const [allPatterns, setAllPatterns] = useState<ReturnType<typeof generateAllPatterns>>()
+
+  useEffect(() => {
+    if (games.length > 0 && user) {
+      const newAllPatterns = generateAllPatterns()
+      setAllPatterns(newAllPatterns)
+    }
+  }, [games, user, generateAllPatterns])
+
+  useEffect(() => {
+    if (allPatterns) {
+      if (challengeType === 'combined') {
+        setCombinedPatterns(allPatterns.combined)
+      } else if (challengeType === 'ordered') {
+        setPatterns(allPatterns.ordered[orderedSubsection])
+      } else if (challengeType === 'rainbow') {
+        setPatterns(allPatterns.rainbow[rainbowSubsection])
+      } else if (challengeType === 'my-patterns') {
+        setPatterns(allPatterns.myPatterns)
+      } else {
+        setPatterns(allPatterns.solid)
+      }
+    }
+  }, [allPatterns, challengeType, orderedSubsection, rainbowSubsection])
+
+  const patternCounts = useMemo(() => {
+    if (!allPatterns) return { solid: 0, ordered: 0, rainbow: 0, myPatterns: 0, combined: 0 }
+
+    return {
+      solid: allPatterns.solid.filter(p => p.matchedGames.length > 0).length,
+      ordered: Object.values(allPatterns.ordered).flat().filter(p => p.matchedGames.length > 0).length,
+      rainbow: Object.values(allPatterns.rainbow).flat().filter(p => p.matchedGames.length > 0).length,
+      myPatterns: allPatterns.myPatterns.length,
+      combined: allPatterns.combined.length,
+    }
+  }, [allPatterns])
 
   const foundCounterText = useMemo(() => {
     const totalCount = patternCounts.solid + patternCounts.ordered + patternCounts.rainbow
@@ -342,10 +344,11 @@ export default function Challenges() {
   }, [patternCounts])
 
   if (!isLoaded || isLoading) {
-    return <div  className="text-center py-8 text-white">Loading...</div>
+    return <div className="text-center py-8 text-white">Loading...</div>
   }
 
   const getColorClass = (color: number) => {
+    
     switch (color) {
       case 1: return 'bg-red-500'
       case 2: return 'bg-blue-500'
@@ -367,11 +370,10 @@ export default function Challenges() {
   }
 
   const renderPatternCard = (pattern: Pattern, index: number) => (
-    <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0 rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
+    <Card key={index} className="bg-gray-100 dark:bg-gray-800 p-0  rounded-lg shadow-md w-full max-w-[400px] overflow-visible relative">
       <CardContent className="p-4 pt-6">
-        
         {pattern.patternType === 'solid' && (
-          <div className={`absolute top-0 left-0 right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)} rounded-t-lg`}>
+          <div className={`absolute top-0 left-0  right-0 text-xs font-semibold text-white py-1 px-2 text-center ${getColorClass(pattern.color)} rounded-t-lg`}>
             Solid {colorNames[pattern.color]}
           </div>
         )}
@@ -542,27 +544,43 @@ export default function Challenges() {
           </Button>
         </div>
       </div>
-      {(challengeType === 'ordered' || challengeType === 'rainbow') && (
+      {challengeType === 'ordered' && (
         <RadioGroup
-          defaultValue="all"
-          onValueChange={(value) => challengeType === 'ordered' ? setOrderedSubsection(value as ChallengeSubsection) : setRainbowSubsection(value as ChallengeSubsection)}
+          defaultValue="row"
+          onValueChange={(value) => setOrderedSubsection(value as ChallengeSubsection)}
           className="flex justify-center space-x-4"
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="all" id={`${challengeType}-all`} className="border-white text-white" />
-            <Label htmlFor={`${challengeType}-all`} className="text-white">All</Label>
+            <RadioGroupItem value="row" id="ordered-row" className="border-white text-white" />
+            <Label htmlFor="ordered-row" className="text-white">Rows</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="row" id={`${challengeType}-row`} className="border-white text-white" />
-            <Label htmlFor={`${challengeType}-row`} className="text-white">Rows</Label>
+            <RadioGroupItem value="column" id="ordered-column" className="border-white text-white" />
+            <Label htmlFor="ordered-column" className="text-white">Columns</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="column" id={`${challengeType}-column`} className="border-white text-white" />
-            <Label htmlFor={`${challengeType}-column`} className="text-white">Columns</Label>
+            <RadioGroupItem value="diagonal" id="ordered-diagonal" className="border-white text-white" />
+            <Label htmlFor="ordered-diagonal" className="text-white">Diagonals</Label>
+          </div>
+        </RadioGroup>
+      )}
+      {challengeType === 'rainbow' && (
+        <RadioGroup
+          defaultValue="row"
+          onValueChange={(value) => setRainbowSubsection(value as ChallengeSubsection)}
+          className="flex justify-center space-x-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="row" id="rainbow-row" className="border-white text-white" />
+            <Label htmlFor="rainbow-row" className="text-white">Rows</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="diagonal" id={`${challengeType}-diagonal`} className="border-white text-white" />
-            <Label htmlFor={`${challengeType}-diagonal`} className="text-white">Diagonals</Label>
+            <RadioGroupItem value="column" id="rainbow-column" className="border-white text-white" />
+            <Label htmlFor="rainbow-column" className="text-white">Columns</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="diagonal" id="rainbow-diagonal" className="border-white text-white" />
+            <Label htmlFor="rainbow-diagonal" className="text-white">Diagonals</Label>
           </div>
         </RadioGroup>
       )}
