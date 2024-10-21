@@ -266,27 +266,23 @@ export default function Challenges() {
 
   const generateAllPatterns = useCallback(() => {
     const solidPatterns = generatePatterns('solid')
-    const orderedRowPatterns = generatePatterns('ordered', 'row')
-    const orderedColumnPatterns = generatePatterns('ordered', 'column')
-    const orderedDiagonalPatterns = generatePatterns('ordered', 'diagonal')
-    const rainbowRowPatterns = generatePatterns('rainbow', 'row')
-    const rainbowColumnPatterns = generatePatterns('rainbow', 'column')
-    const rainbowDiagonalPatterns = generatePatterns('rainbow', 'diagonal')
+    const orderedPatterns = {
+      row: generatePatterns('ordered', 'row'),
+      column: generatePatterns('ordered', 'column'),
+      diagonal: generatePatterns('ordered', 'diagonal')
+    }
+    const rainbowPatterns = {
+      row: generatePatterns('rainbow', 'row'),
+      column: generatePatterns('rainbow', 'column'),
+      diagonal: generatePatterns('rainbow', 'diagonal')
+    }
     const combinedPatternsData = generateCombinedPatterns()
     const myPatterns = generatePatterns('my-patterns')
 
     return {
       solid: solidPatterns,
-      ordered: {
-        row: orderedRowPatterns,
-        column: orderedColumnPatterns,
-        diagonal: orderedDiagonalPatterns
-      },
-      rainbow: {
-        row: rainbowRowPatterns,
-        column: rainbowColumnPatterns,
-        diagonal: rainbowDiagonalPatterns
-      },
+      ordered: orderedPatterns,
+      rainbow: rainbowPatterns,
       combined: combinedPatternsData,
       myPatterns: myPatterns
     }
