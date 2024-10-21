@@ -176,7 +176,7 @@ export default function Challenges() {
           return Math.floor(firstCell / 6) === Math.floor(lastCell / 6);
         }
         if (subsection === 'column') {
-          return firstCell % 6 === lastCell % 6 && (lastCell - firstCell) === 30;
+          return firstCell % 6 === lastCell % 6;
         }
         if (subsection === 'diagonal') {
           const rowDiff = Math.floor(lastCell / 6) - Math.floor(firstCell / 6);
