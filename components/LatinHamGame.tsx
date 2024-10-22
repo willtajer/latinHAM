@@ -210,7 +210,7 @@ export default function LatinHamGame({ onTriggerNewGame }: LatinHamGameProps) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-transparent text-foreground">
         <div className="w-[calc(6*3rem+6*0.75rem)] mb-32">
-          <h1 className="text-6xl font-bold mb-6 text-center">latinHAM</h1>
+          <h1 className="text-6xl font-bold mb-6 text-center">LatinHAM</h1>
           <GamePreview />
           <p className="text-center mt-4 mb-8">
             Fill the grid with colors so that each color appears exactly once in each row and column.

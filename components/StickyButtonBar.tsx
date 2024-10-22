@@ -7,7 +7,7 @@ import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
-import { DiscoveredLatinHAMs } from './DiscoveredLatinHAMs'
+import DiscoveredLatinHAMs from './DiscoveredLatinHAMs'
 import { GamePreview } from './GamePreview'
 import Leaderboard from './Leaderboard'
 import { LearningModeGame } from './LearningModeGame'
@@ -171,7 +171,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
 
               {activeOverlay === 'leaderboard' && (
                 <div className="max-w-6xl mx-auto pt-16 pb-20">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 text-center text-white">
                     LatinHAM Leaderboard
                   </h1>
                   <div className="flex flex-col items-center justify-center">
@@ -192,7 +192,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
                     <div className="w-[calc(6*3rem+6*0.75rem)]">
                       <Link href="/" passHref>
                         <h1 className="text-6xl font-bold mb-6 text-center text-white cursor-pointer hover:text-primary transition-colors duration-200">
-                          LatinHAM
+                          Learn LatinHAM
                         </h1>
                       </Link>
                       <GamePreview />
@@ -249,7 +249,7 @@ export default function StickyButtonBar({ onStartNewGame }: StickyButtonBarProps
               {activeOverlay === 'patterns' && (
                 <div className="max-w-6xl mx-auto pt-16 pb-20">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-center text-white">
-                    Patterns
+                    LatinHAM Patterns
                   </h1>
                   <div className="flex flex-col items-center justify-center">
                     <div className="w-[calc(6*3rem+6*0.75rem)]">
