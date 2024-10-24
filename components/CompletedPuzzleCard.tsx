@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import PatternDetector from './PatternDetector'
 
 // Define the size of the puzzle board
 const BOARD_SIZE = 6
@@ -40,10 +41,19 @@ interface CompletedPuzzleCardProps {
   difficulty: 'easy' | 'medium' | 'hard'
   gameNumber: number
   onImageReady: (file: File) => void
+  solveNumber?: number
+  possibleSolves?: number
 }
 
 // CompletedPuzzleCard component definition
-export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry, difficulty, gameNumber, onImageReady }) => {
+export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ 
+  entry, 
+  difficulty, 
+  gameNumber, 
+  onImageReady,
+  solveNumber,
+  possibleSolves
+}) => {
   // Reference to the canvas element
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -123,6 +133,12 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
       ctx.closePath()
     }
 
+    // Detect patterns
+    const solidPatterns = PatternDetector.detectPatterns(entry.grid, 'solid')
+    const orderedPatterns = PatternDetector.detectPatterns(entry.grid, 'ordered')
+    const rainbowPatterns = PatternDetector.detectPatterns(entry.grid, 'rainbow')
+    const allPatterns = [...solidPatterns, ...orderedPatterns, ...rainbowPatterns].flat()
+
     // Draw each cell of the puzzle grid
     entry.grid.forEach((row, rowIndex) => {
       row.forEach((cell, colIndex) => {
@@ -167,6 +183,15 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         ctx.lineWidth = 1 * scale
         drawRoundedRect(x, y, cellSize, cellSize, cellCornerRadius)
         ctx.stroke()
+
+        // Add white dot for cells with detected patterns
+        const cellIndex = rowIndex * BOARD_SIZE + colIndex
+        if (allPatterns.includes(cellIndex)) {
+          ctx.fillStyle = 'white'
+          ctx.beginPath()
+          ctx.arc(x + cellSize / 2, y + cellSize / 2, 4 * scale, 0, 2 * Math.PI)
+          ctx.fill()
+        }
       })
     })
 
@@ -201,7 +226,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     
     // Set text alignment and styles for the footer
     ctx.fillStyle = '#000000'
-    ctx.textAlign = 'center'
+    ctx.textAlign = 'left'
     
     // Draw "latinHAM" text
     ctx.font = `bold ${11 * scale}px Arial`
@@ -213,20 +238,33 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const timestampText = `#${formattedDateTime}${difficultyIndicator}`
     const timestampWidth = ctx.measureText(timestampText).width
 
+    // Draw solve number and possible solves
+    let solveText = ''
+    if (typeof solveNumber === 'number' && typeof possibleSolves === 'number') {
+      solveText = `${solveNumber}/${possibleSolves}`
+    }
+    const solveWidth = ctx.measureText(solveText).width
+
     // Create a filename based on difficulty and game number
     const fileName = `LatinHAM.com-${ctx.measureText(timestampText).width}.png`
     
-    // Calculate positions to center the footer text
-    const totalWidth = latinHAMWidth + timestampWidth + 10 * scale
+    // Calculate positions for the footer text
+    const totalWidth = latinHAMWidth + timestampWidth + solveWidth + (solveText ? 20 * scale : 10 * scale)
     const startX = (canvas.width / scale - totalWidth) / 2
     
     // Draw "latinHAM" text
     ctx.font = `bold ${11 * scale}px Arial`
-    ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 18 * scale)
+    ctx.fillText(latinHAMText, startX, currentY + 18 * scale)
     
     // Draw the timestamp text next to "latinHAM"
     ctx.font = `${11 * scale}px Arial`
-    ctx.fillText(timestampText, startX + latinHAMWidth + 10 * scale + timestampWidth / 2, currentY + 18 * scale)
+    ctx.fillText(timestampText, startX + latinHAMWidth + 10 * scale, currentY + 18 * scale)
+    
+    // Draw the solve number and possible solves if available
+    if (solveText) {
+      ctx.font = `bold ${11 * scale}px Arial`
+      ctx.fillText(solveText, startX + latinHAMWidth + timestampWidth + 20 * scale, currentY + 18 * scale)
+    }
     
     // Update Y position for the next element
     currentY += dateTimeHeight + spaceBetweenElements
@@ -261,6 +299,8 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
           quote: entry.quote,
           timestamp: entry.timestamp,
           url: 'https://www.latinham.com',
+          solveNumber: solveNumber,
+          possibleSolves: possibleSolves
         }
 
         // Convert metadata to a Uint8Array
@@ -268,7 +308,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         const encoder = new TextEncoder()
         const metadataArray = encoder.encode(metadataString)
 
-        // Combine the original image data with metadata
+        // Combine the original  image data with metadata
         const originalArray = new Uint8Array(await blob.arrayBuffer())
         const newArrayBuffer = new ArrayBuffer(originalArray.byteLength + metadataArray.length + 4)
         const newUint8Array = new Uint8Array(newArrayBuffer)
@@ -294,7 +334,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         onImageReady(fileWithMetadata)
       }
     }, 'image/png')
-  }, [entry, difficulty, gameNumber, onImageReady]) // Dependencies for the useEffect
+  }, [entry, difficulty, gameNumber, onImageReady, solveNumber, possibleSolves]) // Dependencies for the useEffect
 
   // Render the canvas inside a centered div
   return (
