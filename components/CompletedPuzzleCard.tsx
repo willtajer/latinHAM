@@ -41,19 +41,10 @@ interface CompletedPuzzleCardProps {
   difficulty: 'easy' | 'medium' | 'hard'
   gameNumber: number
   onImageReady: (file: File) => void
-  solveNumber?: number
-  possibleSolves?: number
 }
 
 // CompletedPuzzleCard component definition
-export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ 
-  entry, 
-  difficulty, 
-  gameNumber, 
-  onImageReady,
-  solveNumber,
-  possibleSolves
-}) => {
+export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry, difficulty, gameNumber, onImageReady }) => {
   // Reference to the canvas element
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -226,7 +217,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({
     
     // Set text alignment and styles for the footer
     ctx.fillStyle = '#000000'
-    ctx.textAlign = 'left'
+    ctx.textAlign = 'center'
     
     // Draw "latinHAM" text
     ctx.font = `bold ${11 * scale}px Arial`
@@ -238,33 +229,20 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({
     const timestampText = `#${formattedDateTime}${difficultyIndicator}`
     const timestampWidth = ctx.measureText(timestampText).width
 
-    // Draw solve number and possible solves
-    let solveText = ''
-    if (typeof solveNumber === 'number' && typeof possibleSolves === 'number') {
-      solveText = `${solveNumber}/${possibleSolves}`
-    }
-    const solveWidth = ctx.measureText(solveText).width
-
     // Create a filename based on difficulty and game number
     const fileName = `LatinHAM.com-${ctx.measureText(timestampText).width}.png`
     
-    // Calculate positions for the footer text
-    const totalWidth = latinHAMWidth + timestampWidth + solveWidth + (solveText ? 20 * scale : 10 * scale)
+    // Calculate positions to center the footer text
+    const totalWidth = latinHAMWidth + timestampWidth + 10 * scale
     const startX = (canvas.width / scale - totalWidth) / 2
     
     // Draw "latinHAM" text
     ctx.font = `bold ${11 * scale}px Arial`
-    ctx.fillText(latinHAMText, startX, currentY + 18 * scale)
+    ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 18 * scale)
     
     // Draw the timestamp text next to "latinHAM"
     ctx.font = `${11 * scale}px Arial`
-    ctx.fillText(timestampText, startX + latinHAMWidth + 10 * scale, currentY + 18 * scale)
-    
-    // Draw the solve number and possible solves if available
-    if (solveText) {
-      ctx.font = `bold ${11 * scale}px Arial`
-      ctx.fillText(solveText, startX + latinHAMWidth + timestampWidth + 20 * scale, currentY + 18 * scale)
-    }
+    ctx.fillText(timestampText, startX + latinHAMWidth + 10 * scale + timestampWidth / 2, currentY + 18 * scale)
     
     // Update Y position for the next element
     currentY += dateTimeHeight + spaceBetweenElements
@@ -299,8 +277,6 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({
           quote: entry.quote,
           timestamp: entry.timestamp,
           url: 'https://www.latinham.com',
-          solveNumber: solveNumber,
-          possibleSolves: possibleSolves
         }
 
         // Convert metadata to a Uint8Array
@@ -308,7 +284,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({
         const encoder = new TextEncoder()
         const metadataArray = encoder.encode(metadataString)
 
-        // Combine the original  image data with metadata
+        // Combine the original image data with metadata
         const originalArray = new Uint8Array(await blob.arrayBuffer())
         const newArrayBuffer = new ArrayBuffer(originalArray.byteLength + metadataArray.length + 4)
         const newUint8Array = new Uint8Array(newArrayBuffer)
@@ -334,7 +310,9 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({
         onImageReady(fileWithMetadata)
       }
     }, 'image/png')
-  }, [entry, difficulty, gameNumber, onImageReady, solveNumber, possibleSolves]) // Dependencies for the useEffect
+  }, [entry, 
+
+ difficulty, gameNumber, onImageReady]) // Dependencies for the useEffect
 
   // Render the canvas inside a centered div
   return (
