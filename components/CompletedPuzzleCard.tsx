@@ -75,24 +75,43 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     const progressBarHeight = 15 * scale
     const bottomPadding = 5 * scale
     const cornerRadius = 15 * scale
-    const cardPadding = 10 * scale
     const cellCornerRadius = 8 * scale
     const spaceBetweenBoardAndInfo = 10 * scale
     const spaceBetweenInfoAndQuote = entry.quote ? 15 * scale : 0
     const spaceBetweenElements = 8 * scale
 
+    // Increase card padding to accommodate the new border
+    const cardPadding = 20 * scale
+    const borderWidth = 10 * scale
+    const borderRadius = 25 * scale
+
     // Calculate the overall content dimensions
     const contentWidth = boardSize + 2 * padding
     const contentHeight = boardSize + 2 * padding + spaceBetweenBoardAndInfo + infoRowHeight + spaceBetweenInfoAndQuote + quoteHeight + dateTimeHeight + progressBarHeight + bottomPadding + 2 * spaceBetweenElements
 
-    // Set canvas dimensions and apply scaling
+    // Adjust canvas dimensions for the new border
     canvas.width = (contentWidth + 2 * cardPadding) * scale
     canvas.height = (contentHeight + 2 * cardPadding) * scale
     canvas.style.width = `${(contentWidth + 2 * cardPadding) / scale}px`
     canvas.style.height = `${(contentHeight + 2 * cardPadding) / scale}px`
 
     ctx.scale(scale, scale)
-    ctx.clearRect(0, 0, canvas.width, canvas.height)  
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Draw the new thick near-black border
+    ctx.fillStyle = 'rgba(13, 13, 13, 0.9)' // Near-black color
+    ctx.beginPath()
+    ctx.moveTo(borderRadius, 0)
+    ctx.lineTo(canvas.width / scale - borderRadius, 0)
+    ctx.arcTo(canvas.width / scale, 0, canvas.width / scale, borderRadius, borderRadius)
+    ctx.lineTo(canvas.width / scale, canvas.height / scale - borderRadius)
+    ctx.arcTo(canvas.width / scale, canvas.height / scale, canvas.width / scale - borderRadius, canvas.height / scale, borderRadius)
+    ctx.lineTo(borderRadius, canvas.height / scale)
+    ctx.arcTo(0, canvas.height / scale, 0, canvas.height / scale - borderRadius, borderRadius)
+    ctx.lineTo(0, borderRadius)
+    ctx.arcTo(0, 0, borderRadius, 0, borderRadius)
+    ctx.closePath()
+    ctx.fill()
 
     // Draw the card background with rounded corners
     ctx.fillStyle = '#f3f4f6'
@@ -287,7 +306,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         // Combine the original image data with metadata
         const originalArray = new Uint8Array(await blob.arrayBuffer())
         const newArrayBuffer = new ArrayBuffer(originalArray.byteLength + metadataArray.length + 4)
-        const newUint8Array = new Uint8Array(newArrayBuffer)
+        const newUint8Array = new  Uint8Array(newArrayBuffer)
 
         // Set the original image data
         newUint8Array.set(originalArray)
@@ -310,9 +329,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         onImageReady(fileWithMetadata)
       }
     }, 'image/png')
-  }, [entry, 
-
- difficulty, gameNumber, onImageReady]) // Dependencies for the useEffect
+  }, [entry, difficulty, gameNumber, onImageReady])
 
   // Render the canvas inside a centered div
   return (
