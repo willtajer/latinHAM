@@ -99,7 +99,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     // Draw the new thick near-black border
-    ctx.fillStyle = 'rgba(13, 13, 13, 0.9)' // Near-black color
+    ctx.fillStyle = 'rgba(20, 20, 20, 0.9)' // Near-black color
     ctx.beginPath()
     ctx.moveTo(borderRadius, 0)
     ctx.lineTo(canvas.width / scale - borderRadius, 0)
@@ -112,6 +112,22 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     ctx.arcTo(0, 0, borderRadius, 0, borderRadius)
     ctx.closePath()
     ctx.fill()
+
+    // Draw the inner part of the border to create the border effect
+    ctx.fillStyle = '#f3f4f6' // Background color
+    ctx.beginPath()
+    ctx.moveTo(borderRadius + borderWidth, borderWidth)
+    ctx.lineTo(canvas.width / scale - borderRadius - borderWidth, borderWidth)
+    ctx.arcTo(canvas.width / scale - borderWidth, borderWidth, canvas.width / scale - borderWidth, borderRadius + borderWidth, borderRadius)
+    ctx.lineTo(canvas.width / scale - borderWidth, canvas.height / scale - borderRadius - borderWidth)
+    ctx.arcTo(canvas.width / scale - borderWidth, canvas.height / scale - borderWidth, canvas.width / scale - borderRadius - borderWidth, canvas.height / scale - borderWidth, borderRadius)
+    ctx.lineTo(borderRadius + borderWidth, canvas.height / scale - borderWidth)
+    ctx.arcTo(borderWidth, canvas.height / scale - borderWidth, borderWidth, canvas.height / scale - borderRadius - borderWidth, borderRadius)
+    ctx.lineTo(borderWidth, borderRadius + borderWidth)
+    ctx.arcTo(borderWidth, borderWidth, borderRadius + borderWidth, borderWidth, borderRadius)
+    ctx.closePath()
+    ctx.fill()
+
 
     // Draw the card background with rounded corners
     ctx.fillStyle = '#f3f4f6'
@@ -230,19 +246,19 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
     // Format the completion timestamp
     const completionDate = new Date(entry.timestamp)
     const formattedDateTime = `${completionDate.getFullYear().toString().slice(-2)}${(completionDate.getMonth() + 1).toString().padStart(2, '0')}${completionDate.getDate().toString().padStart(2, '0')}${completionDate.getHours().toString().padStart(2, '0')}${completionDate.getMinutes().toString().padStart(2, '0')}${completionDate.getSeconds().toString().padStart(2, '0')}`
-    
+
     // Create a difficulty indicator
     const difficultyIndicator = difficulty.charAt(0).toUpperCase()
-    
+
     // Set text alignment and styles for the footer
     ctx.fillStyle = '#000000'
     ctx.textAlign = 'center'
-    
+
     // Draw "latinHAM" text
     ctx.font = `bold ${11 * scale}px Arial`
     const latinHAMText = 'LatinHAM'
     const latinHAMWidth = ctx.measureText(latinHAMText).width
-    
+
     // Draw the timestamp with difficulty indicator
     ctx.font = `${11 * scale}px Arial`
     const timestampText = `#${formattedDateTime}${difficultyIndicator}`
@@ -250,19 +266,19 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
 
     // Create a filename based on difficulty and game number
     const fileName = `LatinHAM.com-${ctx.measureText(timestampText).width}.png`
-    
+
     // Calculate positions to center the footer text
     const totalWidth = latinHAMWidth + timestampWidth + 10 * scale
     const startX = (canvas.width / scale - totalWidth) / 2
-    
+
     // Draw "latinHAM" text
     ctx.font = `bold ${11 * scale}px Arial`
     ctx.fillText(latinHAMText, startX + latinHAMWidth / 2, currentY + 18 * scale)
-    
+
     // Draw the timestamp text next to "latinHAM"
     ctx.font = `${11 * scale}px Arial`
     ctx.fillText(timestampText, startX + latinHAMWidth + 10 * scale + timestampWidth / 2, currentY + 18 * scale)
-    
+
     // Update Y position for the next element
     currentY += dateTimeHeight + spaceBetweenElements
 
@@ -277,7 +293,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
       const colorClass = colorClasses[cell - 1] || 'bg-white'
       ctx.fillStyle = colorMap[colorClass] || 'white'
       ctx.fillRect(x, y, progressCellWidth, progressCellHeight)
-      
+
       // Add a subtle border to each progress cell
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
       ctx.lineWidth = 1 * scale
@@ -306,7 +322,7 @@ export const CompletedPuzzleCard: React.FC<CompletedPuzzleCardProps> = ({ entry,
         // Combine the original image data with metadata
         const originalArray = new Uint8Array(await blob.arrayBuffer())
         const newArrayBuffer = new ArrayBuffer(originalArray.byteLength + metadataArray.length + 4)
-        const newUint8Array = new  Uint8Array(newArrayBuffer)
+        const newUint8Array = new Uint8Array(newArrayBuffer)
 
         // Set the original image data
         newUint8Array.set(originalArray)
