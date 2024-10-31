@@ -1,5 +1,6 @@
 // app/layout.tsx
 
+import Script from 'next/script'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
@@ -57,6 +58,24 @@ export default function RootLayout({
     <ClerkProvider>
       {/* Define the HTML structure and language */}
       <html lang="en" suppressHydrationWarning>
+        <head>
+          <Script
+            strategy="afterInteractive"
+            src="https://www.googletagmanager.com/gtag/js?id=G-096WLXE239"
+          />
+          <Script
+            id="google-analytics"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-096WLXE239');
+              `,
+            }}
+          />
+        </head>
         <body className={`bg-background text-foreground ${inter.className}`}>
           {/* ThemeProvider manages theming (light/dark) across the application */}
           <ThemeProvider
